@@ -1,0 +1,176 @@
+Package dssl;
+
+Helpers
+	all = [0 .. 127];
+	digit = ['0' .. '9'];
+	letter = [['a' .. 'z'] + ['A' .. 'Z']];
+	name = letter (digit | letter | '_')*;
+	sign = '+' | '-';
+	
+	tab = 9;
+	lf = 10;
+	cr = 13;
+	eol = cr | lf | cr lf;
+	separator = ' ' | tab | eol;
+	
+	apostrophe = 39;
+	quote = 34;
+	not_eol = [all - [cr + lf]];
+	escape_char = '\' not_eol;
+	
+	c_char = [all - [apostrophe + ['\' + [lf + cr]]]] | escape_char;
+	c_char_sequence = c_char+;
+	s_char = [all - [quote + ['\' + [lf + cr]]]] | escape_char;
+	s_char_sequence = s_char*;
+	
+	not_star = [all - '*'];
+	not_star_slash = [not_star - '/'];
+	
+	double_slash = '//';
+	slash_star = '/*';
+	
+	line_comment = double_slash not_eol* eol;
+	block_comment = slash_star not_star* '*'+ (not_star_slash not_star* '*'+)* '/';
+
+Tokens
+	blank = separator+;
+	comment = line_comment | block_comment;
+	
+	l_brace = '{';
+	r_brace = '}';
+	
+	l_bracket = '[';
+	r_bracket = ']';
+	
+	def = 'def';
+	
+	exch = 'exch';
+	pop = 'pop';
+	dup = 'dup';
+	clone = 'clone';
+	
+	roll = 'roll';
+	rid = 'rid';
+	copy = 'copy';
+	
+	index = 'index';
+	count = 'count';
+	countto = 'countto';
+	
+	read = 'read';
+	print = 'print';
+	println = 'println';
+	interpret = 'interpret';
+	
+	int = 'int';
+	bool = 'bool';
+	float = 'float';
+	char = 'char';
+	string = 'string';
+	
+	range = 'range';
+	list = 'list';
+	tuple = 'tuple';
+	set = 'set';
+	dict = 'dict';
+	
+	null = 'null';
+	hash = 'hash';
+	
+	foreach = 'foreach';
+	unpack = 'unpack';
+	
+	size = 'size';
+	empty = 'empty';
+	
+	has = 'has';
+	add = 'add';
+	rem = 'rem';
+	hasall = 'hasall';
+	addall = 'addall';
+	remall = 'remall';
+	clear = 'clear';
+	
+	get = 'get';
+	put = 'put';
+	putall = 'putall';
+	
+	haskey = 'haskey';
+	hasvalue = 'hasvalue';
+	hasentry = 'hasentry';
+	keys = 'keys';
+	values = 'values';
+	entries = 'entries';
+	
+	type = 'type';
+	cast = 'cast';
+	
+	exec = 'exec';
+	if = 'if';
+	ifelse = 'ifelse';
+	repeat = 'repeat';
+	loop = 'loop';
+	
+	quit = 'quit';
+	continue = 'continue';
+	break = 'break';
+	
+	equals = '=';
+	
+	increment = '++';
+	decrement = '--';
+	
+	plus_equals = '+=';
+	and_equals = '&=';
+	or_equals = '|=';
+	xor_equals = '^=';
+	minus_equals = '-=';
+	concat_equals = '~=';
+	
+	left_shift_equals = '<<=';
+	right_shift_equals = '>>=';
+	
+	multiply_equals = '*=';
+	divide_equals = '/=';
+	remainder_equals = '%=';
+	power_equals = '**=';
+	idivide_equals = '//=';
+	modulo_equals = '%%=';
+	
+	equal_to = '==';
+	not_equal_to = '!=';
+	
+	less_than = '<';
+	less_or_equal = '<=';
+	more_than = '>';
+	more_or_equal = '>=';
+	
+	plus = '+';
+	and = '&';
+	or = '|';
+	xor = '^';
+	minus = '-';
+	concat = '~';
+	
+	left_shift = '<<';
+	right_shift = '>>';
+	
+	multiply = '*';
+	divide = '/';
+	remainder = '%';
+	power = '**';
+	idivide = '//';
+	modulo = '%%';
+	
+	not = 'not';
+	neg = 'neg';
+	/*inv = 'inv';*/
+	
+	int_value = sign? digit+;
+	bool_value = 'true' | 'false';
+	float_value = sign? (digit+ '.' digit* | '.' digit+);
+	char_value = apostrophe c_char apostrophe;
+	string_value = quote s_char_sequence quote;
+	
+	label = '/' name;
+	identifier = name;
