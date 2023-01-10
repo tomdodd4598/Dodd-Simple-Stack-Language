@@ -14,6 +14,7 @@ import dssl.interpret.element.*;
 import dssl.interpret.element.bracket.*;
 import dssl.interpret.element.collection.*;
 import dssl.interpret.element.dict.DictElement;
+import dssl.interpret.element.magic.MagicLabelElement;
 import dssl.interpret.element.range.RangeElement;
 import dssl.interpret.element.value.IterableElement;
 import dssl.interpret.element.value.primitive.*;
@@ -54,6 +55,25 @@ public class Executor extends Interpreter {
 	
 	public void setup() {
 		
+	}
+	
+	@Override
+	public InterpretResult interpret() {
+		loop: while (iterator.hasNext()) {
+			InterpretResult readResult = read(iterator.next());
+			switch (readResult) {
+				case PASS:
+					continue loop;
+				case CONTINUE:
+				case BREAK:
+					if (this == root) {
+						throw new IllegalArgumentException(String.format("Keyword \"%s\" can not be used in the root scope!", readResult));
+					}
+				default:
+					return readResult;
+			}
+		}
+		return InterpretResult.PASS;
 	}
 	
 	@Override
@@ -128,7 +148,7 @@ public class Executor extends Interpreter {
 	@SuppressWarnings("null")
 	public @NonNull Element[] pop(int count) {
 		@NonNull Element[] elems = new @NonNull Element[count];
-		for (int i = 0; i < count; i++) {
+		for (int i = 0; i < count; ++i) {
 			elems[count - i - 1] = elemStack.pop();
 		}
 		return elems;
@@ -186,7 +206,13 @@ public class Executor extends Interpreter {
 		TOKEN_FUNCTION_MAP.put(TLBracket.class, Executor::onLBracket);
 		TOKEN_FUNCTION_MAP.put(TRBracket.class, Executor::onRBracket);
 		
+		TOKEN_FUNCTION_MAP.put(TImport.class, Executor::onImport);
+		TOKEN_FUNCTION_MAP.put(TNative.class, Executor::onNative);
+		
 		TOKEN_FUNCTION_MAP.put(TDef.class, Executor::onDef);
+		
+		TOKEN_FUNCTION_MAP.put(TClass.class, Executor::onClass);
+		TOKEN_FUNCTION_MAP.put(TThis.class, Executor::onThis);
 		
 		TOKEN_FUNCTION_MAP.put(TExch.class, Executor::onExch);
 		TOKEN_FUNCTION_MAP.put(TPop.class, Executor::onPop);
@@ -318,6 +344,9 @@ public class Executor extends Interpreter {
 		
 		TOKEN_FUNCTION_MAP.put(TLabel.class, Executor::onLabel);
 		TOKEN_FUNCTION_MAP.put(TIdentifier.class, Executor::onIdentifier);
+		TOKEN_FUNCTION_MAP.put(TMember.class, Executor::onMember);
+		
+		TOKEN_FUNCTION_MAP.put(TMagicLabel.class, Executor::onMagicLabel);
 	}
 	
 	protected static InterpretResult onBlank(Executor exec, Token token) {
@@ -336,7 +365,7 @@ public class Executor extends Interpreter {
 	}
 	
 	protected static InterpretResult onRBrace(Executor exec, Token token) {
-		throw new IllegalArgumentException(String.format("Invalid token \"}\"!"));
+		throw new IllegalArgumentException(String.format("Encountered \"}\" token without corresponding \"{\" token!"));
 	}
 	
 	protected static InterpretResult onLBracket(Executor exec, Token token) {
@@ -1133,6 +1162,11 @@ public class Executor extends Interpreter {
 		else {
 			exec.push(def.getElement());
 		}
+		return InterpretResult.PASS;
+	}
+	
+	protected static InterpretResult onMagicLabel(Executor exec, Token token) {
+		exec.push(new MagicLabelElement(token.getText().substring(1)));
 		return InterpretResult.PASS;
 	}
 	

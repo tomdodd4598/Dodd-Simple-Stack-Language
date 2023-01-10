@@ -6,9 +6,9 @@ import dssl.interpret.element.Element;
 
 public abstract class Def<T extends @NonNull Element> {
 	
-	public final String identifier;
+	public final @NonNull String identifier;
 	
-	protected Def(String identifier) {
+	protected Def(@NonNull String identifier) {
 		this.identifier = identifier;
 	}
 	

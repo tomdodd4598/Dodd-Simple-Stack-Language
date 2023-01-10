@@ -22,10 +22,17 @@ public class HierarchyMap<K, V> {
 		}
 	}
 	
-	public @Nullable V get(Object key) {
+	public @Nullable V get(K key) {
 		if (internal.containsKey(key)) {
 			return internal.get(key);
 		}
 		return prev == null ? null : prev.get(key);
+	}
+	
+	public boolean containsKey(K key) {
+		if (internal.containsKey(key)) {
+			return true;
+		}
+		return prev == null ? false : prev.containsKey(key);
 	}
 }

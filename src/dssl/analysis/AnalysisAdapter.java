@@ -105,7 +105,31 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseTImport(TImport node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTNative(TNative node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseTDef(TDef node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTClass(TClass node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTThis(TThis node)
     {
         defaultCase(node);
     }
@@ -718,6 +742,18 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTIdentifier(TIdentifier node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTMember(TMember node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTMagicLabel(TMagicLabel node)
     {
         defaultCase(node);
     }

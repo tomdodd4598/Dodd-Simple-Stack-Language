@@ -11,7 +11,7 @@ public class FunctionDef extends Def<@NonNull FunctionElement> {
 	
 	protected final List<Token> tokens;
 	
-	public FunctionDef(String identifier, List<Token> tokens) {
+	public FunctionDef(@NonNull String identifier, List<Token> tokens) {
 		super(identifier);
 		this.tokens = tokens;
 	}

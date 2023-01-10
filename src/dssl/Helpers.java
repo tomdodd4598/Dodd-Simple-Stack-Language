@@ -57,7 +57,7 @@ public class Helpers {
 		return str.toLowerCase(Locale.ROOT);
 	}
 	
-	public static final CharSequenceTranslator UNESCAPE_TRANSLATOR;
+	private static final CharSequenceTranslator UNESCAPE_TRANSLATOR;
 	
 	static {
 		Map<CharSequence, CharSequence> unescapeMap = new HashMap<>();
@@ -66,22 +66,18 @@ public class Helpers {
 		unescapeMap.put("\\n", "\n");
 		unescapeMap.put("\\r", "\r");
 		unescapeMap.put("\\f", "\f");
-		Map<CharSequence, CharSequence> unescapeCtrlCharsMap = Collections.unmodifiableMap(unescapeMap);
-		
-		unescapeMap = new HashMap<>();
 		unescapeMap.put("\\\\", "\\");
 		unescapeMap.put("\\'", "'");
 		unescapeMap.put("\\\"", "\"");
 		unescapeMap.put("\\", "");
-		Map<CharSequence, CharSequence> unescapeExtrasMap = Collections.unmodifiableMap(unescapeMap);
 		
-		UNESCAPE_TRANSLATOR = new AggregateTranslator(new LookupTranslator(unescapeCtrlCharsMap), new LookupTranslator(unescapeExtrasMap));
+		UNESCAPE_TRANSLATOR = new LookupTranslator(Collections.unmodifiableMap(unescapeMap));
 	}
 	
 	public static @NonNull Character parseChar(String str) {
 		String unescape = parseString(str);
 		if (unescape.length() != 1) {
-			throw new IllegalArgumentException(String.format("Character value %s in invalid!", str));
+			throw new IllegalArgumentException(String.format("Character value %s is invalid!", str));
 		}
 		return unescape.charAt(0);
 	}

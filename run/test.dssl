@@ -30,6 +30,32 @@
 } foreach
 */
 
+/Item {
+	/__init__ {
+		/val exch def
+		/this .value val def
+		/this .next null def
+	} def
+	
+	/printGetNext {
+		this .value print
+		this .next null == { '\n' } { ", " } ifelse print
+	} def
+	
+	/printAll {
+		/item this def
+		{
+			/item item .printGetNext exec =
+			item null == { break } if
+		} loop
+	} def
+} class
+
+/item "FIRST" Item def
+/item .next "SECOND" Item =
+/item .next .next "THIRD" Item =
+
+/*
 /neutronReach 4 def
 /modExtraPower 1 def
 /modExtraHeat 2 def
@@ -73,6 +99,7 @@
 		[ 'D' 'W' 'D' 'W' 'D' ] tuple
 	] tuple
 ] tuple def
+*/
 
 /*
 reactor [
@@ -114,6 +141,7 @@ reactor [
 ] tuple def
 */
 
+/*
 /width -1 def
 /height -1 def
 /depth -1 def
@@ -452,3 +480,4 @@ setDepth exec
 "Efficiency: " efficiency 100 * ~ "%\n" ~ print
 "Heat Multiplier: " heatMult 100 * ~ "%\n" ~ print
 "Fuel Cells: " cells ~ '\n' ~ print
+*/

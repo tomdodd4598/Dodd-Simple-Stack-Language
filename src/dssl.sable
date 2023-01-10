@@ -13,6 +13,8 @@ Helpers
 	eol = cr | lf | cr lf;
 	separator = ' ' | tab | eol;
 	
+	magic = '__';
+	
 	apostrophe = 39;
 	quote = 34;
 	not_eol = [all - [cr + lf]];
@@ -42,7 +44,13 @@ Tokens
 	l_bracket = '[';
 	r_bracket = ']';
 	
+	import = 'import';
+	native = 'native';
+	
 	def = 'def';
+	
+	class = 'class';
+	this = 'this';
 	
 	exch = 'exch';
 	pop = 'pop';
@@ -174,3 +182,6 @@ Tokens
 	
 	label = '/' name;
 	identifier = name;
+	member = '.' name;
+	
+	magic_label = '/' magic name magic;

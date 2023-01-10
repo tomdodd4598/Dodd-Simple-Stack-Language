@@ -8,7 +8,7 @@ public class VariableDef extends Def<@NonNull Element> {
 	
 	protected final @NonNull Element elem;
 	
-	public VariableDef(String identifier, @NonNull Element elem) {
+	public VariableDef(@NonNull String identifier, @NonNull Element elem) {
 		super(identifier);
 		this.elem = elem;
 	}
