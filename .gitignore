@@ -21,6 +21,3 @@ build/
 eclipse/
 *.suo
 /.vs
-
-libs/
-org.eclipse.jdt.annotation*
