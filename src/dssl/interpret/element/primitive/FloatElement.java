@@ -1,4 +1,4 @@
-package dssl.interpret.element.value.primitive;
+package dssl.interpret.element.primitive;
 
 import java.util.Objects;
 
@@ -31,11 +31,6 @@ public class FloatElement extends PrimitiveElement<@NonNull Double> {
 	@Override
 	public @NonNull Element onNeg() {
 		return new FloatElement(-value.raw);
-	}
-	
-	@Override
-	public @NonNull Element onInv() {
-		throw unaryOpError("inv");
 	}
 	
 	@Override

@@ -5,7 +5,7 @@ import java.util.Objects;
 import org.eclipse.jdt.annotation.NonNull;
 
 import dssl.interpret.element.Element;
-import dssl.interpret.element.value.primitive.StringElement;
+import dssl.interpret.element.primitive.StringElement;
 
 public class LBracketElement extends BracketElement {
 	
@@ -44,7 +44,7 @@ public class LBracketElement extends BracketElement {
 	}
 	
 	@Override
-	public @NonNull String toBriefDebugString() {
+	public @NonNull String toDebugString() {
 		return "[";
 	}
 }

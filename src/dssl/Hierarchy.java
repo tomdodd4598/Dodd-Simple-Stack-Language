@@ -4,12 +4,12 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.Nullable;
 
-public class HierarchyMap<K, V> {
+public class Hierarchy<K, V> {
 	
-	protected final Map<K, V> internal = new HashMap<>();
-	protected final HierarchyMap<K, V> prev;
+	public final Map<K, V> internal = new HashMap<>();
+	protected final Hierarchy<K, V> prev;
 	
-	public HierarchyMap(HierarchyMap<K, V> prev) {
+	public Hierarchy(Hierarchy<K, V> prev) {
 		this.prev = prev;
 	}
 	

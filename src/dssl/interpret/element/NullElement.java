@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import dssl.interpret.element.value.primitive.StringElement;
+import dssl.interpret.element.primitive.StringElement;
 
 public class NullElement extends Element {
 	
@@ -45,7 +45,7 @@ public class NullElement extends Element {
 	}
 	
 	@Override
-	public @NonNull String toBriefDebugString() {
+	public @NonNull String toDebugString() {
 		return "null";
 	}
 }

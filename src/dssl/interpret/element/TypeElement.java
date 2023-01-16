@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import dssl.interpret.element.value.primitive.StringElement;
+import dssl.interpret.element.primitive.StringElement;
 
 public class TypeElement extends Element {
 	
@@ -32,7 +32,7 @@ public class TypeElement extends Element {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash("type", internal);
+		return Objects.hash("type", internal.typeName());
 	}
 	
 	@Override
@@ -50,7 +50,7 @@ public class TypeElement extends Element {
 	}
 	
 	@Override
-	public @NonNull String toBriefDebugString() {
+	public @NonNull String toDebugString() {
 		return "type:" + internal.typeName();
 	}
 }

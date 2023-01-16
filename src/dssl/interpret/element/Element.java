@@ -4,9 +4,7 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import dssl.interpret.*;
 import dssl.interpret.element.collection.*;
-import dssl.interpret.element.dict.DictElement;
-import dssl.interpret.element.range.RangeElement;
-import dssl.interpret.element.value.primitive.*;
+import dssl.interpret.element.primitive.*;
 
 public abstract class Element {
 	
@@ -185,63 +183,59 @@ public abstract class Element {
 		throw unaryOpError("neg");
 	}
 	
-	public @NonNull Element onInv() {
-		throw unaryOpError("inv");
-	}
-	
 	protected RuntimeException keywordError(String keyword) {
 		return new IllegalArgumentException(String.format("Action of keyword \"%s\" is undefined for argument type \"%s\"!", keyword, typeName()));
 	}
 	
-	public InterpretResult onUnpack(Executor exec) {
+	public TokenResult onUnpack(TokenExecutor exec) {
 		throw keywordError("unpack");
 	}
 	
-	public InterpretResult onSize(Executor exec) {
+	public TokenResult onSize(TokenExecutor exec) {
 		throw keywordError("size");
 	}
 	
-	public InterpretResult onEmpty(Executor exec) {
+	public TokenResult onEmpty(TokenExecutor exec) {
 		throw keywordError("empty");
 	}
 	
-	public InterpretResult onHas(Executor exec, @NonNull Element elem) {
+	public TokenResult onHas(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("has");
 	}
 	
-	public InterpretResult onAdd(Executor exec, @NonNull Element elem) {
+	public TokenResult onAdd(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("add");
 	}
 	
-	public InterpretResult onRem(Executor exec, @NonNull Element elem) {
+	public TokenResult onRem(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("rem");
 	}
 	
-	public InterpretResult onHasall(Executor exec, @NonNull Element elem) {
+	public TokenResult onHasall(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("hasall");
 	}
 	
-	public InterpretResult onAddall(Executor exec, @NonNull Element elem) {
+	public TokenResult onAddall(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("addall");
 	}
 	
-	public InterpretResult onRemall(Executor exec, @NonNull Element elem) {
+	public TokenResult onRemall(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("remall");
 	}
 	
-	public InterpretResult onClear(Executor exec) {
+	public TokenResult onClear(TokenExecutor exec) {
 		throw keywordError("clear");
 	}
 	
-	public InterpretResult onGet(Executor exec, @NonNull Element elem) {
+	public TokenResult onGet(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("get");
 	}
 	
-	public InterpretResult onPut(Executor exec, @NonNull Element elem0, @NonNull Element elem1) {
+	public TokenResult onPut(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
 		throw keywordError("put");
 	}
 	
-	public InterpretResult onPutall(Executor exec, @NonNull Element elem) {
+	public TokenResult onPutall(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("putall");
 	}
 	
@@ -251,11 +245,15 @@ public abstract class Element {
 	@Override
 	public abstract int hashCode();
 	
+	protected int objectHashCode() {
+		return super.hashCode();
+	}
+	
 	@Override
 	public abstract boolean equals(Object obj);
 	
 	@Override
 	public abstract @NonNull String toString();
 	
-	public abstract @NonNull String toBriefDebugString();
+	public abstract @NonNull String toDebugString();
 }

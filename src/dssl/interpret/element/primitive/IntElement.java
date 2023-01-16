@@ -1,4 +1,4 @@
-package dssl.interpret.element.value.primitive;
+package dssl.interpret.element.primitive;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -42,12 +42,6 @@ public class IntElement extends PrimitiveElement<@NonNull BigInteger> {
 	@Override
 	public @NonNull Element onNeg() {
 		return new IntElement(value.raw.negate());
-	}
-	
-	@Override
-	public @NonNull Element onInv() {
-		// return new IntElement(value.raw.negate().subtract(BigInteger.ONE));
-		throw unaryOpError("inv");
 	}
 	
 	@Override

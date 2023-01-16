@@ -13,8 +13,6 @@ Helpers
 	eol = cr | lf | cr lf;
 	separator = ' ' | tab | eol;
 	
-	magic = '__';
-	
 	apostrophe = 39;
 	quote = 34;
 	not_eol = [all - [cr + lf]];
@@ -48,9 +46,9 @@ Tokens
 	native = 'native';
 	
 	def = 'def';
-	
 	class = 'class';
-	this = 'this';
+	magic = 'magic';
+	new = 'new';
 	
 	exch = 'exch';
 	pop = 'pop';
@@ -172,7 +170,8 @@ Tokens
 	
 	not = 'not';
 	neg = 'neg';
-	/*inv = 'inv';*/
+	
+	deref = 'deref';
 	
 	int_value = sign? digit+;
 	bool_value = 'true' | 'false';
@@ -180,8 +179,6 @@ Tokens
 	char_value = apostrophe c_char apostrophe;
 	string_value = quote s_char_sequence quote;
 	
-	label = '/' name;
 	identifier = name;
+	label = '/' name;
 	member = '.' name;
-	
-	magic_label = '/' magic name magic;

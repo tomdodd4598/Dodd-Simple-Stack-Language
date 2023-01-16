@@ -6,11 +6,8 @@ import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
 
 import dssl.interpret.*;
-import dssl.interpret.element.Element;
-import dssl.interpret.element.dict.DictElement;
-import dssl.interpret.element.range.RangeElement;
-import dssl.interpret.element.value.IterableElement;
-import dssl.interpret.element.value.primitive.*;
+import dssl.interpret.element.*;
+import dssl.interpret.element.primitive.*;
 
 public class TupleElement extends CollectionElement {
 	
@@ -72,61 +69,61 @@ public class TupleElement extends CollectionElement {
 	}
 	
 	@Override
-	public InterpretResult onUnpack(Executor exec) {
+	public TokenResult onUnpack(TokenExecutor exec) {
 		for (@NonNull Element elem : value) {
 			exec.push(elem);
 		}
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
 	@Override
-	public InterpretResult onEmpty(Executor exec) {
+	public TokenResult onEmpty(TokenExecutor exec) {
 		exec.push(new BoolElement(value.isEmpty()));
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
 	@Override
-	public InterpretResult onHas(Executor exec, @NonNull Element elem) {
+	public TokenResult onHas(TokenExecutor exec, @NonNull Element elem) {
 		exec.push(new BoolElement(value.contains(elem)));
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
 	@Override
-	public InterpretResult onAdd(Executor exec, @NonNull Element elem) {
+	public TokenResult onAdd(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("add");
 	}
 	
 	@Override
-	public InterpretResult onRem(Executor exec, @NonNull Element elem) {
+	public TokenResult onRem(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("rem");
 	}
 	
 	@Override
-	public InterpretResult onHasall(Executor exec, @NonNull Element elem) {
+	public TokenResult onHasall(TokenExecutor exec, @NonNull Element elem) {
 		if (!(elem instanceof IterableElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"hasall\" requires iterable element as second argument!"));
 		}
 		exec.push(new BoolElement(value.containsAll(((IterableElement) elem).collection())));
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
 	@Override
-	public InterpretResult onAddall(Executor exec, @NonNull Element elem) {
+	public TokenResult onAddall(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("addall");
 	}
 	
 	@Override
-	public InterpretResult onRemall(Executor exec, @NonNull Element elem) {
+	public TokenResult onRemall(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("remall");
 	}
 	
 	@Override
-	public InterpretResult onClear(Executor exec) {
+	public TokenResult onClear(TokenExecutor exec) {
 		throw keywordError("clear");
 	}
 	
 	@Override
-	public InterpretResult onGet(Executor exec, @NonNull Element elem) {
+	public TokenResult onGet(TokenExecutor exec, @NonNull Element elem) {
 		IntElement intElem = elem.intCastImplicit();
 		if (intElem == null) {
 			throw new IllegalArgumentException(String.format("Keyword \"get\" requires non-negative int value element as argument!"));
@@ -138,16 +135,16 @@ public class TupleElement extends CollectionElement {
 		}
 		
 		exec.push(value.get(primitiveInt));
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
 	@Override
-	public InterpretResult onPut(Executor exec, @NonNull Element elem0, @NonNull Element elem1) {
+	public TokenResult onPut(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
 		throw keywordError("put");
 	}
 	
 	@Override
-	public InterpretResult onPutall(Executor exec, @NonNull Element elem) {
+	public TokenResult onPutall(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("putall");
 	}
 	
@@ -181,11 +178,11 @@ public class TupleElement extends CollectionElement {
 	
 	@Override
 	public @NonNull String toString() {
-		return "tuple:" + value.stream().map(elem -> elem.toString()).collect(Collectors.joining(", ", "(", ")"));
+		return "tuple:" + value.stream().map(Element::toString).collect(Collectors.joining(", ", "(", ")"));
 	}
 	
 	@Override
-	public @NonNull String toBriefDebugString() {
+	public @NonNull String toDebugString() {
 		return "tuple:(|" + size() + "|)";
 	}
 }

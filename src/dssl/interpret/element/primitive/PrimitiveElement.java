@@ -1,4 +1,4 @@
-package dssl.interpret.element.value.primitive;
+package dssl.interpret.element.primitive;
 
 import java.math.BigInteger;
 
@@ -93,9 +93,9 @@ public abstract class PrimitiveElement<@NonNull T> extends Element {
 	}
 	
 	@Override
-	public InterpretResult onSize(Executor exec) {
+	public TokenResult onSize(TokenExecutor exec) {
 		exec.push(new IntElement(1));
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
 	@Override
@@ -325,15 +325,12 @@ public abstract class PrimitiveElement<@NonNull T> extends Element {
 	public abstract @NonNull Element onNeg();
 	
 	@Override
-	public abstract @NonNull Element onInv();
-	
-	@Override
 	public @NonNull String toString() {
 		return value.toString();
 	}
 	
 	@Override
-	public @NonNull String toBriefDebugString() {
+	public @NonNull String toDebugString() {
 		return value.toString();
 	}
 }

@@ -4,7 +4,7 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import dssl.Helpers;
 import dssl.interpret.element.Element;
-import dssl.interpret.element.value.primitive.*;
+import dssl.interpret.element.primitive.*;
 
 public class PrimitiveBinaryOpLogic {
 	

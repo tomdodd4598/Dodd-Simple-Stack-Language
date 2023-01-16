@@ -1,14 +1,17 @@
-package dssl.interpret.element.value.primitive;
+package dssl.interpret.element.primitive;
 
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.eclipse.jdt.annotation.NonNull;
 
-import dssl.interpret.element.Element;
+import dssl.interpret.element.*;
 import dssl.interpret.value.StringValue;
 
-public class StringElement extends PrimitiveElement<@NonNull String> {
+public class StringElement extends PrimitiveElement<@NonNull String> implements IterableElement {
+	
+	protected List<@NonNull Element> list = null;
 	
 	public StringElement(@NonNull String rawValue) {
 		super(new StringValue(rawValue));
@@ -35,8 +38,25 @@ public class StringElement extends PrimitiveElement<@NonNull String> {
 	}
 	
 	@Override
-	public @NonNull Element onInv() {
-		throw unaryOpError("inv");
+	public int size() {
+		return value.raw.length();
+	}
+	
+	@Override
+	public Iterator<@NonNull Element> iterator() {
+		return list().iterator();
+	}
+	
+	@Override
+	public Collection<@NonNull Element> collection() {
+		return list();
+	}
+	
+	protected List<@NonNull Element> list() {
+		if (list == null) {
+			list = value.raw.chars().mapToObj(x -> new CharElement((char) x)).collect(Collectors.toList());
+		}
+		return list;
 	}
 	
 	@Override
@@ -59,7 +79,7 @@ public class StringElement extends PrimitiveElement<@NonNull String> {
 	}
 	
 	@Override
-	public @NonNull String toBriefDebugString() {
+	public @NonNull String toDebugString() {
 		return "\"" + StringEscapeUtils.escapeJava(value.raw) + "\"";
 	}
 }

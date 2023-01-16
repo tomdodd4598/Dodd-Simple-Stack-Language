@@ -1,4 +1,4 @@
-package dssl.interpret.element.value.primitive;
+package dssl.interpret.element.primitive;
 
 import java.util.Objects;
 
@@ -35,11 +35,6 @@ public class BoolElement extends PrimitiveElement<@NonNull Boolean> {
 	@Override
 	public @NonNull Element onNeg() {
 		throw unaryOpError("neg");
-	}
-	
-	@Override
-	public @NonNull Element onInv() {
-		throw unaryOpError("inv");
 	}
 	
 	@Override

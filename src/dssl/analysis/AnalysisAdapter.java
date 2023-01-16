@@ -129,7 +129,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTThis(TThis node)
+    public void caseTMagic(TMagic node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTNew(TNew node)
     {
         defaultCase(node);
     }
@@ -705,6 +711,12 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseTDeref(TDeref node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseTIntValue(TIntValue node)
     {
         defaultCase(node);
@@ -735,25 +747,19 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTLabel(TLabel node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
     public void caseTIdentifier(TIdentifier node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTMember(TMember node)
+    public void caseTLabel(TLabel node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTMagicLabel(TMagicLabel node)
+    public void caseTMember(TMember node)
     {
         defaultCase(node);
     }

@@ -2,10 +2,12 @@ package dssl.interpret.element.collection;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import dssl.interpret.element.value.IterableElement;
-import dssl.interpret.element.value.primitive.*;
+import dssl.interpret.TokenExecutor;
+import dssl.interpret.TokenResult;
+import dssl.interpret.element.*;
+import dssl.interpret.element.primitive.*;
 
-public abstract class CollectionElement extends IterableElement {
+public abstract class CollectionElement extends Element implements IterableElement {
 	
 	protected CollectionElement() {
 		super();
@@ -59,5 +61,11 @@ public abstract class CollectionElement extends IterableElement {
 	@Override
 	public @NonNull StringElement stringCastExplicit() {
 		return new StringElement(toString());
+	}
+	
+	@Override
+	public TokenResult onSize(TokenExecutor exec) {
+		exec.push(new IntElement(size()));
+		return TokenResult.PASS;
 	}
 }

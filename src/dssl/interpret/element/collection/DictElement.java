@@ -1,4 +1,4 @@
-package dssl.interpret.element.dict;
+package dssl.interpret.element.collection;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -7,12 +7,9 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import dssl.interpret.*;
 import dssl.interpret.element.*;
-import dssl.interpret.element.collection.*;
-import dssl.interpret.element.range.RangeElement;
-import dssl.interpret.element.value.IterableElement;
-import dssl.interpret.element.value.primitive.*;
+import dssl.interpret.element.primitive.*;
 
-public class DictElement extends IterableElement {
+public class DictElement extends Element implements IterableElement {
 	
 	public final Map<@NonNull Element, @NonNull Element> value;
 	protected List<@NonNull Element> list = null;
@@ -132,51 +129,57 @@ public class DictElement extends IterableElement {
 	}
 	
 	@Override
-	public InterpretResult onUnpack(Executor exec) {
+	public TokenResult onUnpack(TokenExecutor exec) {
 		for (@NonNull Element elem : list()) {
 			exec.push(elem);
 		}
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
 	@Override
-	public InterpretResult onEmpty(Executor exec) {
+	public TokenResult onSize(TokenExecutor exec) {
+		exec.push(new IntElement(size()));
+		return TokenResult.PASS;
+	}
+	
+	@Override
+	public TokenResult onEmpty(TokenExecutor exec) {
 		exec.push(new BoolElement(value.isEmpty()));
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
 	@Override
-	public InterpretResult onHas(Executor exec, @NonNull Element elem) {
+	public TokenResult onHas(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("has");
 	}
 	
 	@Override
-	public InterpretResult onAdd(Executor exec, @NonNull Element elem) {
+	public TokenResult onAdd(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("add");
 	}
 	
 	@Override
-	public InterpretResult onRem(Executor exec, @NonNull Element elem) {
+	public TokenResult onRem(TokenExecutor exec, @NonNull Element elem) {
 		@SuppressWarnings("null") Element rem = value.remove(elem);
 		if (rem != null) {
 			list = null;
 		}
 		exec.push(rem == null ? NullElement.INSTANCE : rem);
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
 	@Override
-	public InterpretResult onHasall(Executor exec, @NonNull Element elem) {
+	public TokenResult onHasall(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("hasall");
 	}
 	
 	@Override
-	public InterpretResult onAddall(Executor exec, @NonNull Element elem) {
+	public TokenResult onAddall(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("addall");
 	}
 	
 	@Override
-	public InterpretResult onRemall(Executor exec, @NonNull Element elem) {
+	public TokenResult onRemall(TokenExecutor exec, @NonNull Element elem) {
 		if (!(elem instanceof IterableElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"remall\" requires iterable element as second argument!"));
 		}
@@ -191,30 +194,30 @@ public class DictElement extends IterableElement {
 			list = null;
 		}
 		exec.push(new SetElement(set));
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
 	@Override
-	public InterpretResult onClear(Executor exec) {
+	public TokenResult onClear(TokenExecutor exec) {
 		value.clear();
 		list = null;
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
 	@Override
-	public InterpretResult onGet(Executor exec, @NonNull Element elem) {
+	public TokenResult onGet(TokenExecutor exec, @NonNull Element elem) {
 		exec.push(value.get(elem));
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
 	@Override
-	public InterpretResult onPut(Executor exec, @NonNull Element elem0, @NonNull Element elem1) {
+	public TokenResult onPut(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
 		exec.push(value.put(elem0, elem1));
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
 	@Override
-	public InterpretResult onPutall(Executor exec, @NonNull Element elem) {
+	public TokenResult onPutall(TokenExecutor exec, @NonNull Element elem) {
 		if (!(elem instanceof IterableElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"putall\" requires iterable element as second argument!"));
 		}
@@ -239,37 +242,37 @@ public class DictElement extends IterableElement {
 		if (!set.isEmpty()) {
 			list = null;
 		}
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
-	public InterpretResult onHaskey(Executor exec, @NonNull Element elem) {
+	public TokenResult onHaskey(TokenExecutor exec, @NonNull Element elem) {
 		exec.push(new BoolElement(value.containsKey(elem)));
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
-	public InterpretResult onHasvalue(Executor exec, @NonNull Element elem) {
+	public TokenResult onHasvalue(TokenExecutor exec, @NonNull Element elem) {
 		exec.push(new BoolElement(value.containsValue(elem)));
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
-	public InterpretResult onHasentry(Executor exec, @NonNull Element elem0, @NonNull Element elem1) {
+	public TokenResult onHasentry(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
 		exec.push(new BoolElement(hasEntry(elem0, elem1)));
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
-	public InterpretResult onKeys(Executor exec) {
+	public TokenResult onKeys(TokenExecutor exec) {
 		exec.push(new SetElement(value.keySet()));
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
-	public InterpretResult onValues(Executor exec) {
+	public TokenResult onValues(TokenExecutor exec) {
 		exec.push(new SetElement(value.values()));
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
-	public InterpretResult onEntries(Executor exec) {
+	public TokenResult onEntries(TokenExecutor exec) {
 		exec.push(new ListElement(list()));
-		return InterpretResult.PASS;
+		return TokenResult.PASS;
 	}
 	
 	@Override
@@ -324,7 +327,7 @@ public class DictElement extends IterableElement {
 	}
 	
 	@Override
-	public @NonNull String toBriefDebugString() {
+	public @NonNull String toDebugString() {
 		return "dict:{|" + size() + "|}";
 	}
 }

@@ -10,7 +10,7 @@
 } def
 
 {
-	f '\n' ~ print
+	f println
 	/n ++
 	n 10 > { break } if
 	/f n fib exec =
@@ -26,34 +26,79 @@
 } def
 
 [ 1 11 ] range {
-	fib exec '\n' ~ print
+	fib exec println
 } foreach
 */
 
-/Item {
-	/__init__ {
-		/val exch def
-		/this .value val def
-		/this .next null def
-	} def
+/*
+/Container {
+	/init {
+		/this exch def
+		/this.counter 0 def
+		this
+		"Made a Container!" println
+	} magic
 	
-	/printGetNext {
-		this .value print
-		this .next null == { '\n' } { ", " } ifelse print
-	} def
-	
-	/printAll {
-		/item this def
-		{
-			/item item .printGetNext exec =
-			item null == { break } if
-		} loop
+	/increment {
+		/this exch def
+		/this.counter ++
+		"Counter: " this.counter ~ println
 	} def
 } class
 
-/item "FIRST" Item def
-/item .next "SECOND" Item =
-/item .next .next "THIRD" Item =
+/inst Container new def
+
+5 {
+	inst.increment exec
+} repeat
+*/
+
+/Item {
+	/init {
+		/this exch def
+		/this.value exch def
+		/this.next null def
+		this
+	} magic
+	
+	/append {
+		/curr exch def
+		/prev null def
+		{
+			/prev curr =
+			/curr curr.next =
+			curr null == { break } if
+		} loop
+		/prev.next exch Item new =
+	} def
+	
+	/printGetNext {
+		/item exch def
+		item.value print
+		item.next dup null == { '\n' } { ", " } ifelse print
+	} def
+	
+	/printList {
+		/item exch def
+		{
+			/item item.printGetNext exec =
+			item null == { break } if
+		} loop
+	} def
+	
+	/printRecursive {
+		.printGetNext exec /next exch def
+		next null != {
+			next.printRecursive exec
+		} if
+	} def
+} class
+
+/item "First" Item new def
+"Second" item.append exec
+"Third" item.append exec
+item.printList exec
+item.printRecursive exec
 
 /*
 /neutronReach 4 def
@@ -479,5 +524,5 @@ setDepth exec
 "Net Heat: " netHeat ~ " H/t\n" ~ print
 "Efficiency: " efficiency 100 * ~ "%\n" ~ print
 "Heat Multiplier: " heatMult 100 * ~ "%\n" ~ print
-"Fuel Cells: " cells ~ '\n' ~ print
+"Fuel Cells: " cells ~ println
 */

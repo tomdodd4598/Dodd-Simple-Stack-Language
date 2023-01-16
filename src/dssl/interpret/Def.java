@@ -1,16 +1,16 @@
-package dssl.interpret.def;
+package dssl.interpret;
 
 import org.eclipse.jdt.annotation.NonNull;
 
 import dssl.interpret.element.Element;
 
-public abstract class Def<T extends @NonNull Element> {
+public class Def {
 	
 	public final @NonNull String identifier;
+	public final @NonNull Element elem;
 	
-	protected Def(@NonNull String identifier) {
+	public Def(@NonNull String identifier, @NonNull Element elem) {
 		this.identifier = identifier;
+		this.elem = elem;
 	}
-	
-	public abstract T getElement();
 }

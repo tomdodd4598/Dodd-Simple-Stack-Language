@@ -1,4 +1,4 @@
-package dssl.interpret.element.value.primitive;
+package dssl.interpret.element.primitive;
 
 import java.util.Objects;
 
@@ -35,11 +35,6 @@ public class CharElement extends PrimitiveElement<@NonNull Character> {
 	}
 	
 	@Override
-	public @NonNull Element onInv() {
-		throw unaryOpError("inv");
-	}
-	
-	@Override
 	public @NonNull Element clone() {
 		return new CharElement(value.raw.charValue());
 	}
@@ -59,7 +54,7 @@ public class CharElement extends PrimitiveElement<@NonNull Character> {
 	}
 	
 	@Override
-	public @NonNull String toBriefDebugString() {
+	public @NonNull String toDebugString() {
 		return "'" + StringEscapeUtils.escapeJava(value.raw.toString()) + "'";
 	}
 }
