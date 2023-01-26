@@ -153,6 +153,11 @@ public class RangeElement extends Element implements IterableElement {
 	}
 	
 	@Override
+	public int size() {
+		return list().size();
+	}
+	
+	@Override
 	public Iterator<@NonNull Element> iterator() {
 		return list().iterator();
 	}
@@ -183,7 +188,7 @@ public class RangeElement extends Element implements IterableElement {
 	}
 	
 	@Override
-	public TokenResult onHas(TokenExecutor exec, @NonNull Element elem) {
+	public TokenResult onContains(TokenExecutor exec, @NonNull Element elem) {
 		exec.push(new BoolElement(list().contains(elem)));
 		return TokenResult.PASS;
 	}
@@ -194,14 +199,14 @@ public class RangeElement extends Element implements IterableElement {
 	}
 	
 	@Override
-	public TokenResult onRem(TokenExecutor exec, @NonNull Element elem) {
-		throw keywordError("rem");
+	public TokenResult onRemove(TokenExecutor exec, @NonNull Element elem) {
+		throw keywordError("remove");
 	}
 	
 	@Override
-	public TokenResult onHasall(TokenExecutor exec, @NonNull Element elem) {
+	public TokenResult onContainsall(TokenExecutor exec, @NonNull Element elem) {
 		if (!(elem instanceof IterableElement)) {
-			throw new IllegalArgumentException(String.format("Keyword \"hasall\" requires iterable element as second argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"containsall\" requires iterable element as second argument!"));
 		}
 		exec.push(new BoolElement(list().containsAll(((IterableElement) elem).collection())));
 		return TokenResult.PASS;
@@ -213,8 +218,8 @@ public class RangeElement extends Element implements IterableElement {
 	}
 	
 	@Override
-	public TokenResult onRemall(TokenExecutor exec, @NonNull Element elem) {
-		throw keywordError("remall");
+	public TokenResult onRemoveall(TokenExecutor exec, @NonNull Element elem) {
+		throw keywordError("removeall");
 	}
 	
 	@Override
@@ -246,11 +251,6 @@ public class RangeElement extends Element implements IterableElement {
 	@Override
 	public TokenResult onPutall(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("putall");
-	}
-	
-	@Override
-	public int size() {
-		return list().size();
 	}
 	
 	protected List<@NonNull Element> list() {

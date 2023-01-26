@@ -5,16 +5,16 @@ package dssl.node;
 import dssl.analysis.*;
 
 @SuppressWarnings("nls")
-public final class THasentry extends Token
+public final class TContainsvalue extends Token
 {
-    public THasentry()
+    public TContainsvalue()
     {
-        super.setText("hasentry");
+        super.setText("containsvalue");
     }
 
-    public THasentry(int line, int pos)
+    public TContainsvalue(int line, int pos)
     {
-        super.setText("hasentry");
+        super.setText("containsvalue");
         setLine(line);
         setPos(pos);
     }
@@ -22,18 +22,18 @@ public final class THasentry extends Token
     @Override
     public Object clone()
     {
-      return new THasentry(getLine(), getPos());
+      return new TContainsvalue(getLine(), getPos());
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseTHasentry(this);
+        ((Analysis) sw).caseTContainsvalue(this);
     }
 
     @Override
     public void setText(@SuppressWarnings("unused") String text)
     {
-        throw new RuntimeException("Cannot change THasentry text.");
+        throw new RuntimeException("Cannot change TContainsvalue text.");
     }
 }

@@ -1,48 +1,40 @@
 package dssl.interpret;
 
-import java.io.StringReader;
-import java.util.Iterator;
-
-import org.eclipse.jdt.annotation.NonNull;
+import java.io.PushbackReader;
 
 import dssl.Helpers;
 import dssl.lexer.Lexer;
 import dssl.node.*;
 
-public class LexerIterator implements Iterator<@NonNull Token> {
+public class LexerIterator extends TokenIterator {
 	
 	protected final Lexer lexer;
-	protected Token token;
 	
 	public LexerIterator(String str) {
-		this(new Lexer(Helpers.getPushbackReader(new StringReader(str))));
+		this(Helpers.stringLexer(str));
+	}
+	
+	public LexerIterator(PushbackReader reader) {
+		this(new Lexer(reader));
 	}
 	
 	public LexerIterator(Lexer lexer) {
+		super();
 		this.lexer = lexer;
-		getNext();
 	}
 	
 	@Override
-	public boolean hasNext() {
-		return token != null && !(token instanceof EOF);
+	public void onStart() {
+		curr = getNextChecked();
 	}
 	
-	@SuppressWarnings("null")
 	@Override
-	public @NonNull Token next() {
-		Token next = token;
-		getNext();
-		return next;
+	public boolean validNext() {
+		return !(curr instanceof EOF);
 	}
 	
-	protected void getNext() {
-		try {
-			token = lexer.next();
-		}
-		catch (Exception e) {
-			token = new EOF();
-			e.printStackTrace();
-		}
+	@Override
+	protected Token getNext() {
+		return Helpers.getLexerNext(lexer);
 	}
 }

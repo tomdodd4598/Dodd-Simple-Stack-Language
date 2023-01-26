@@ -321,7 +321,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTHas(THas node)
+    public void caseTContains(TContains node)
     {
         defaultCase(node);
     }
@@ -333,13 +333,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTRem(TRem node)
+    public void caseTRemove(TRemove node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTHasall(THasall node)
+    public void caseTContainsall(TContainsall node)
     {
         defaultCase(node);
     }
@@ -351,7 +351,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTRemall(TRemall node)
+    public void caseTRemoveall(TRemoveall node)
     {
         defaultCase(node);
     }
@@ -381,19 +381,19 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTHaskey(THaskey node)
+    public void caseTContainskey(TContainskey node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTHasvalue(THasvalue node)
+    public void caseTContainsvalue(TContainsvalue node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTHasentry(THasentry node)
+    public void caseTContainsentry(TContainsentry node)
     {
         defaultCase(node);
     }
@@ -741,7 +741,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTStringValue(TStringValue node)
+    public void caseTLineStringValue(TLineStringValue node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTBlockStringValue(TBlockStringValue node)
     {
         defaultCase(node);
     }

@@ -5,16 +5,16 @@ package dssl.node;
 import dssl.analysis.*;
 
 @SuppressWarnings("nls")
-public final class THaskey extends Token
+public final class TContainsall extends Token
 {
-    public THaskey()
+    public TContainsall()
     {
-        super.setText("haskey");
+        super.setText("containsall");
     }
 
-    public THaskey(int line, int pos)
+    public TContainsall(int line, int pos)
     {
-        super.setText("haskey");
+        super.setText("containsall");
         setLine(line);
         setPos(pos);
     }
@@ -22,18 +22,18 @@ public final class THaskey extends Token
     @Override
     public Object clone()
     {
-      return new THaskey(getLine(), getPos());
+      return new TContainsall(getLine(), getPos());
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseTHaskey(this);
+        ((Analysis) sw).caseTContainsall(this);
     }
 
     @Override
     public void setText(@SuppressWarnings("unused") String text)
     {
-        throw new RuntimeException("Cannot change THaskey text.");
+        throw new RuntimeException("Cannot change TContainsall text.");
     }
 }

@@ -57,6 +57,11 @@ public class ListElement extends CollectionElement {
 	}
 	
 	@Override
+	public int size() {
+		return value.size();
+	}
+	
+	@Override
 	public Iterator<@NonNull Element> iterator() {
 		return value.iterator();
 	}
@@ -81,27 +86,27 @@ public class ListElement extends CollectionElement {
 	}
 	
 	@Override
-	public TokenResult onHas(TokenExecutor exec, @NonNull Element elem) {
+	public TokenResult onContains(TokenExecutor exec, @NonNull Element elem) {
 		exec.push(new BoolElement(value.contains(elem)));
 		return TokenResult.PASS;
 	}
 	
 	@Override
 	public TokenResult onAdd(TokenExecutor exec, @NonNull Element elem) {
-		exec.push(new BoolElement(value.add(elem)));
+		value.add(elem);
 		return TokenResult.PASS;
 	}
 	
 	@Override
-	public TokenResult onRem(TokenExecutor exec, @NonNull Element elem) {
-		exec.push(new BoolElement(value.remove(elem)));
+	public TokenResult onRemove(TokenExecutor exec, @NonNull Element elem) {
+		value.remove(elem);
 		return TokenResult.PASS;
 	}
 	
 	@Override
-	public TokenResult onHasall(TokenExecutor exec, @NonNull Element elem) {
+	public TokenResult onContainsall(TokenExecutor exec, @NonNull Element elem) {
 		if (!(elem instanceof IterableElement)) {
-			throw new IllegalArgumentException(String.format("Keyword \"hasall\" requires iterable element as second argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"containsall\" requires iterable element as second argument!"));
 		}
 		exec.push(new BoolElement(value.containsAll(((IterableElement) elem).collection())));
 		return TokenResult.PASS;
@@ -112,16 +117,16 @@ public class ListElement extends CollectionElement {
 		if (!(elem instanceof IterableElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"addall\" requires iterable element as second argument!"));
 		}
-		exec.push(new BoolElement(value.addAll(((IterableElement) elem).collection())));
+		value.addAll(((IterableElement) elem).collection());
 		return TokenResult.PASS;
 	}
 	
 	@Override
-	public TokenResult onRemall(TokenExecutor exec, @NonNull Element elem) {
+	public TokenResult onRemoveall(TokenExecutor exec, @NonNull Element elem) {
 		if (!(elem instanceof IterableElement)) {
-			throw new IllegalArgumentException(String.format("Keyword \"remall\" requires iterable element as second argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"removeall\" requires iterable element as second argument!"));
 		}
-		exec.push(new BoolElement(value.removeAll(((IterableElement) elem).collection())));
+		value.removeAll(((IterableElement) elem).collection());
 		return TokenResult.PASS;
 	}
 	
@@ -159,7 +164,7 @@ public class ListElement extends CollectionElement {
 			throw new IllegalArgumentException(String.format("Keyword \"get\" requires non-negative int value element as argument!"));
 		}
 		
-		exec.push(value.set(primitiveInt, elem1));
+		value.set(primitiveInt, elem1);
 		return TokenResult.PASS;
 	}
 	
@@ -175,7 +180,6 @@ public class ListElement extends CollectionElement {
 			throw new IllegalArgumentException(String.format("The second argument of keyword \"putall\" requires value with an iterator over an even number of elements, but instead it iterates over %s elements!", elemCount));
 		}
 		
-		final Set<@NonNull Element> set = new HashSet<>();
 		Iterator<@NonNull Element> iter = iterableElem.iterator();
 		while (iter.hasNext()) {
 			@SuppressWarnings("null") @NonNull Element index = iter.next();
@@ -189,20 +193,10 @@ public class ListElement extends CollectionElement {
 				throw new IllegalArgumentException(String.format("The second argument of keyword \"putall\", when the first argument is a list element requires value with an iterator over an even number of elements, where each even-indexed element iterated over must be a non-negative int value!"));
 			}
 			
-			@SuppressWarnings("null") @NonNull Element setElem = iter.next();
-			@SuppressWarnings("null") Element put = value.set(primitiveInt, setElem);
-			if (put != null) {
-				set.add(put);
-			}
-			set.add(put);
+			value.set(primitiveInt, iter.next());
 		}
 		
 		return TokenResult.PASS;
-	}
-	
-	@Override
-	public int size() {
-		return value.size();
 	}
 	
 	@Override

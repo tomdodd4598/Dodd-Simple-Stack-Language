@@ -10,7 +10,7 @@ import dssl.interpret.value.*;
 
 public abstract class PrimitiveElement<@NonNull T> extends Element {
 	
-	protected final @NonNull PrimitiveValue<@NonNull T> value;
+	public final @NonNull PrimitiveValue<@NonNull T> value;
 	
 	protected PrimitiveElement(@NonNull PrimitiveValue<@NonNull T> value) {
 		super();

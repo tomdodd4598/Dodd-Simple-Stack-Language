@@ -1,13 +1,13 @@
 package dssl.interpret.element;
 
-import java.util.*;
+import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import dssl.Helpers;
 import dssl.interpret.*;
 import dssl.interpret.element.clazz.InstanceElement;
 import dssl.interpret.element.primitive.StringElement;
-import dssl.interpret.magic.Magic;
 
 public class LabelElement extends Element {
 	
@@ -41,7 +41,7 @@ public class LabelElement extends Element {
 			identifier = prev.identifier + "." + extension;
 		}
 		else {
-			throw new IllegalArgumentException(String.format("Member \"%s.%s\" not defined!", prev.identifier, extension));
+			throw new IllegalArgumentException(String.format("Member \"%s\" not defined!", Helpers.memberString(prev.identifier, extension)));
 		}
 		shallow = extension;
 	}
@@ -68,8 +68,8 @@ public class LabelElement extends Element {
 		return scope.getClazz(shallow);
 	}
 	
-	public void setClazz(Map<String, Def> defMap, Map<String, Clazz> clazzMap, Map<String, Magic> magicMap) {
-		scope.setClazz(shallow, defMap, clazzMap, magicMap);
+	public void setClazz(ScopeMaps maps) {
+		scope.setClazz(shallow, maps);
 	}
 	
 	public @NonNull LabelElement extended(@NonNull String extension) {

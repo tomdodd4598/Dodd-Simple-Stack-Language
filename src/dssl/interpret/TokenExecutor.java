@@ -19,17 +19,17 @@ import dssl.node.*;
 
 public class TokenExecutor extends TokenReader implements Scope {
 	
-	protected final Hierarchy<String, Def> defHierarchy;
-	protected final Hierarchy<String, Clazz> clazzHierarchy;
-	protected final Map<String, Magic> magicMap = new HashMap<>();
+	protected final Hierarchy<@NonNull String, Def> defHierarchy;
+	protected final Hierarchy<@NonNull String, Clazz> clazzHierarchy;
+	protected final Map<@NonNull String, Magic> magicMap = new HashMap<>();
 	
-	protected TokenExecutor(Interpreter interpreter, Iterator<@NonNull Token> iterator) {
+	protected TokenExecutor(Interpreter interpreter, TokenIterator iterator) {
 		super(interpreter, iterator);
 		defHierarchy = new Hierarchy<>(null);
 		clazzHierarchy = new Hierarchy<>(null);
 	}
 	
-	public TokenExecutor(Iterator<@NonNull Token> iterator, TokenExecutor prev) {
+	public TokenExecutor(TokenIterator iterator, TokenExecutor prev) {
 		super(iterator, prev);
 		defHierarchy = new Hierarchy<>(prev == null ? null : prev.defHierarchy);
 		clazzHierarchy = new Hierarchy<>(prev == null ? null : prev.clazzHierarchy);
@@ -60,7 +60,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 			return TokenResult.QUIT;
 		}
 		TokenResult result = TOKEN_FUNCTION_MAP.apply(this, token);
-		if (interpreter.debug && !(token instanceof TBlank || token instanceof TComment)) {
+		if (interpreter.debug && !Helpers.isSeparator(token)) {
 			interpreter.io.debug(token.getText().trim().replaceAll("\\s+", " ") + " -> " + elemStackDebugString() + "\n");
 		}
 		
@@ -73,7 +73,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 	}
 	
 	@Override
-	public Def getDef(String identifier) {
+	public Def getDef(@NonNull String identifier) {
 		return defHierarchy.get(identifier);
 	}
 	
@@ -83,33 +83,40 @@ public class TokenExecutor extends TokenReader implements Scope {
 	}
 	
 	@Override
-	public Clazz getClazz(String shallow) {
+	public Clazz getClazz(@NonNull String shallow) {
 		return clazzHierarchy.get(shallow);
 	}
 	
 	@Override
-	public void setClazz(@NonNull String shallow, Map<String, Def> defMap, Map<String, Clazz> clazzMap, Map<String, Magic> magicMap) {
-		clazzHierarchy.put(shallow, new Clazz(null, shallow, defMap, clazzMap, magicMap), true);
+	public void setClazz(@NonNull String shallow, ScopeMaps maps) {
+		clazzHierarchy.put(shallow, new Clazz(null, shallow, maps), true);
+	}
+	
+	@Override
+	public ScopeMaps getMaps() {
+		return new ScopeMaps(defHierarchy.internal, clazzHierarchy.internal, magicMap);
 	}
 	
 	public void push(@NonNull Element elem) {
 		interpreter.elemStack.push(elem);
 	}
 	
+	@SuppressWarnings("unused")
 	public @NonNull Element peek() {
-		Element peek = Helpers.nullable(interpreter.elemStack.peek());
+		@SuppressWarnings("null") Element peek = interpreter.elemStack.peek();
 		if (peek == null) {
 			throw new NoSuchElementException();
 		}
 		return peek;
 	}
 	
+	@SuppressWarnings("unused")
 	public @NonNull Element[] peek(int count) {
 		@NonNull Element[] elems = new @NonNull Element[count];
-		Iterator<@NonNull Element> iterator = interpreter.elemStack.iterator();
+		Iterator<@NonNull Element> iter = interpreter.elemStack.iterator();
 		int i = 0;
 		while (i < count) {
-			Element next = Helpers.nullable(iterator.next());
+			@SuppressWarnings("null") Element next = iter.next();
 			if (next == null) {
 				throw new NoSuchElementException();
 			}
@@ -120,12 +127,13 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return elems;
 	}
 	
+	@SuppressWarnings("unused")
 	public @NonNull Element peekAt(int index) {
 		@NonNull Element elem;
-		Iterator<@NonNull Element> iterator = interpreter.elemStack.iterator();
+		Iterator<@NonNull Element> iter = interpreter.elemStack.iterator();
 		int i = 0;
 		do {
-			Element next = Helpers.nullable(iterator.next());
+			@SuppressWarnings("null") Element next = iter.next();
 			if (next == null) {
 				throw new NoSuchElementException();
 			}
@@ -151,14 +159,18 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return elems;
 	}
 	
+	public int elemStackSize() {
+		return interpreter.elemStack.size();
+	}
+	
 	protected String elemStackDebugString() {
-		return StreamSupport.stream(Spliterators.spliterator(interpreter.elemStack.descendingIterator(), interpreter.elemStack.size(), Spliterator.ORDERED), false).map(Element::toDebugString).collect(Helpers.SPACE_JOIN_COLLECTOR);
+		return StreamSupport.stream(Spliterators.spliterator(interpreter.elemStack.descendingIterator(), elemStackSize(), Spliterator.ORDERED), false).map(Element::toDebugString).collect(Helpers.SPACE_JOIN_COLLECTOR);
 	}
 	
 	@FunctionalInterface
 	protected static interface ExecutorTokenFunction {
 		
-		TokenResult apply(TokenExecutor exec, Token token);
+		TokenResult apply(TokenExecutor exec, @NonNull Token token);
 	}
 	
 	protected static class TokenFunctionMap {
@@ -197,9 +209,8 @@ public class TokenExecutor extends TokenReader implements Scope {
 		TOKEN_FUNCTION_MAP.put(TLBracket.class, TokenExecutor::onLBracket);
 		TOKEN_FUNCTION_MAP.put(TRBracket.class, TokenExecutor::onRBracket);
 		
-		// TODO
-		// TOKEN_FUNCTION_MAP.put(TImport.class, TokenExecutor::onImport);
-		// TOKEN_FUNCTION_MAP.put(TNative.class, TokenExecutor::onNative);
+		TOKEN_FUNCTION_MAP.put(TImport.class, TokenExecutor::onImport);
+		TOKEN_FUNCTION_MAP.put(TNative.class, TokenExecutor::onNative);
 		
 		TOKEN_FUNCTION_MAP.put(TDef.class, TokenExecutor::onDef);
 		TOKEN_FUNCTION_MAP.put(TClass.class, TokenExecutor::onClass);
@@ -245,21 +256,21 @@ public class TokenExecutor extends TokenReader implements Scope {
 		TOKEN_FUNCTION_MAP.put(TSize.class, TokenExecutor::onSize);
 		TOKEN_FUNCTION_MAP.put(TEmpty.class, TokenExecutor::onEmpty);
 		
-		TOKEN_FUNCTION_MAP.put(THas.class, TokenExecutor::onHas);
+		TOKEN_FUNCTION_MAP.put(TContains.class, TokenExecutor::onContains);
 		TOKEN_FUNCTION_MAP.put(TAdd.class, TokenExecutor::onAdd);
-		TOKEN_FUNCTION_MAP.put(TRem.class, TokenExecutor::onRem);
-		TOKEN_FUNCTION_MAP.put(THasall.class, TokenExecutor::onHasall);
+		TOKEN_FUNCTION_MAP.put(TRemove.class, TokenExecutor::onRemove);
+		TOKEN_FUNCTION_MAP.put(TContainsall.class, TokenExecutor::onContainsall);
 		TOKEN_FUNCTION_MAP.put(TAddall.class, TokenExecutor::onAddall);
-		TOKEN_FUNCTION_MAP.put(TRemall.class, TokenExecutor::onRemall);
+		TOKEN_FUNCTION_MAP.put(TRemoveall.class, TokenExecutor::onRemoveall);
 		TOKEN_FUNCTION_MAP.put(TClear.class, TokenExecutor::onClear);
 		
 		TOKEN_FUNCTION_MAP.put(TGet.class, TokenExecutor::onGet);
 		TOKEN_FUNCTION_MAP.put(TPut.class, TokenExecutor::onPut);
 		TOKEN_FUNCTION_MAP.put(TPutall.class, TokenExecutor::onPutall);
 		
-		TOKEN_FUNCTION_MAP.put(THaskey.class, TokenExecutor::onHaskey);
-		TOKEN_FUNCTION_MAP.put(THasvalue.class, TokenExecutor::onHasvalue);
-		TOKEN_FUNCTION_MAP.put(THasentry.class, TokenExecutor::onHasentry);
+		TOKEN_FUNCTION_MAP.put(TContainskey.class, TokenExecutor::onContainskey);
+		TOKEN_FUNCTION_MAP.put(TContainsvalue.class, TokenExecutor::onContainsvalue);
+		TOKEN_FUNCTION_MAP.put(TContainsentry.class, TokenExecutor::onContainsentry);
 		TOKEN_FUNCTION_MAP.put(TKeys.class, TokenExecutor::onKeys);
 		TOKEN_FUNCTION_MAP.put(TValues.class, TokenExecutor::onValues);
 		TOKEN_FUNCTION_MAP.put(TEntries.class, TokenExecutor::onEntries);
@@ -333,7 +344,9 @@ public class TokenExecutor extends TokenReader implements Scope {
 		TOKEN_FUNCTION_MAP.put(TBoolValue.class, TokenExecutor::onBoolValue);
 		TOKEN_FUNCTION_MAP.put(TFloatValue.class, TokenExecutor::onFloatValue);
 		TOKEN_FUNCTION_MAP.put(TCharValue.class, TokenExecutor::onCharValue);
-		TOKEN_FUNCTION_MAP.put(TStringValue.class, TokenExecutor::onStringValue);
+		
+		TOKEN_FUNCTION_MAP.put(TLineStringValue.class, TokenExecutor::onLineStringValue);
+		TOKEN_FUNCTION_MAP.put(TBlockStringValue.class, TokenExecutor::onBlockStringValue);
 		
 		TOKEN_FUNCTION_MAP.put(TIdentifier.class, TokenExecutor::onIdentifier);
 		TOKEN_FUNCTION_MAP.put(TLabel.class, TokenExecutor::onLabel);
@@ -342,40 +355,48 @@ public class TokenExecutor extends TokenReader implements Scope {
 		TOKEN_FUNCTION_MAP.put(BlockToken.class, TokenExecutor::onBlock);
 	}
 	
-	protected static TokenResult onBlank(TokenExecutor exec, Token token) {
+	protected static TokenResult onBlank(TokenExecutor exec, @NonNull Token token) {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onComment(TokenExecutor exec, Token token) {
+	protected static TokenResult onComment(TokenExecutor exec, @NonNull Token token) {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onLBrace(TokenExecutor exec, Token token) {
+	protected static TokenResult onLBrace(TokenExecutor exec, @NonNull Token token) {
 		TokenCollector collector = new TokenCollector(exec.interpreter, exec.iterator);
 		collector.iterate();
 		exec.push(new BlockElement(collector.listStack.pop()));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onRBrace(TokenExecutor exec, Token token) {
+	protected static TokenResult onRBrace(TokenExecutor exec, @NonNull Token token) {
 		throw new IllegalArgumentException(String.format("Encountered \"}\" token without corresponding \"{\" token!"));
 	}
 	
-	protected static TokenResult onLBracket(TokenExecutor exec, Token token) {
+	protected static TokenResult onLBracket(TokenExecutor exec, @NonNull Token token) {
 		exec.push(new LBracketElement());
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onRBracket(TokenExecutor exec, Token token) {
+	protected static TokenResult onRBracket(TokenExecutor exec, @NonNull Token token) {
 		exec.push(new RBracketElement());
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onDef(TokenExecutor exec, Token token) {
+	protected static TokenResult onImport(TokenExecutor exec, @NonNull Token token) {
+		return exec.interpreter.importImpl.onImport(exec);
+	}
+	
+	protected static TokenResult onNative(TokenExecutor exec, @NonNull Token token) {
+		return exec.interpreter.nativeImpl.onNative(exec);
+	}
+	
+	protected static TokenResult onDef(TokenExecutor exec, @NonNull Token token) {
 		return assign(exec, true);
 	}
 	
-	protected static TokenResult onClass(TokenExecutor exec, Token token) {
+	protected static TokenResult onClass(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
 		if (!(elem0 instanceof LabelElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"class\" requires label element as first argument!"));
@@ -385,12 +406,12 @@ public class TokenExecutor extends TokenReader implements Scope {
 		}
 		
 		TokenExecutor clazzExec = ((BlockElement) elem1).executor(exec);
+		((LabelElement) elem0).setClazz(clazzExec.getMaps());
 		TokenResult result = clazzExec.iterate();
-		((LabelElement) elem0).setClazz(clazzExec.defHierarchy.internal, clazzExec.clazzHierarchy.internal, clazzExec.magicMap);
 		return result;
 	}
 	
-	protected static TokenResult onMagic(TokenExecutor exec, Token token) {
+	protected static TokenResult onMagic(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
 		if (!(elem0 instanceof LabelElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"magic\" requires label element as first argument!"));
@@ -410,7 +431,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onNew(TokenExecutor exec, Token token) {
+	protected static TokenResult onNew(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.pop();
 		if (!(elem instanceof ClassElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"new\" requires class element as argument!"));
@@ -418,29 +439,29 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return ((ClassElement) elem).instantiate(exec);
 	}
 	
-	protected static TokenResult onExch(TokenExecutor exec, Token token) {
+	protected static TokenResult onExch(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
 		exec.push(elem1);
 		exec.push(elem0);
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onPop(TokenExecutor exec, Token token) {
+	protected static TokenResult onPop(TokenExecutor exec, @NonNull Token token) {
 		exec.pop();
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onDup(TokenExecutor exec, Token token) {
+	protected static TokenResult onDup(TokenExecutor exec, @NonNull Token token) {
 		exec.push(exec.peek());
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onClone(TokenExecutor exec, Token token) {
+	protected static TokenResult onClone(TokenExecutor exec, @NonNull Token token) {
 		exec.push(exec.peek().clone());
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onRoll(TokenExecutor exec, Token token) {
+	protected static TokenResult onRoll(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
 		IntElement intElem0 = elem0.intCastImplicit(), intElem1 = elem1.intCastImplicit();
 		if (intElem0 == null || intElem1 == null) {
@@ -459,7 +480,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onRid(TokenExecutor exec, Token token) {
+	protected static TokenResult onRid(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.pop();
 		IntElement intElem = elem.intCastImplicit();
 		if (intElem == null) {
@@ -477,7 +498,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onCopy(TokenExecutor exec, Token token) {
+	protected static TokenResult onCopy(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.pop();
 		IntElement intElem = elem.intCastImplicit();
 		if (intElem == null) {
@@ -495,7 +516,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onIndex(TokenExecutor exec, Token token) {
+	protected static TokenResult onIndex(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.pop();
 		IntElement intElem = elem.intCastImplicit();
 		if (intElem == null) {
@@ -511,50 +532,40 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onCount(TokenExecutor exec, Token token) {
-		exec.push(new IntElement(exec.interpreter.elemStack.size()));
+	protected static TokenResult onCount(TokenExecutor exec, @NonNull Token token) {
+		exec.push(new IntElement(exec.elemStackSize()));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onCountto(TokenExecutor exec, Token token) {
+	protected static TokenResult onCountto(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.pop();
-		boolean includeLabel = false;
 		if (!(elem instanceof LabelElement)) {
-			boolean valid = false;
-			BoolElement boolElem = elem.boolCastImplicit();
-			if (boolElem != null) {
-				@NonNull Element next = exec.pop();
-				if (next instanceof LabelElement) {
-					includeLabel = boolElem.primitiveBool();
-					elem = next;
-					valid = true;
-				}
-			}
-			if (!valid) {
-				throw new IllegalArgumentException(String.format("Keyword \"countto\" requires label element as first argument, and bool value element as optional second argument!"));
-			}
+			throw new IllegalArgumentException(String.format("Keyword \"countto\" requires label element as argument!"));
 		}
-		exec.push(new IntElement(countElemsToLabel(exec, (LabelElement) elem, includeLabel)));
+		exec.push(new IntElement(countElemsToLabel(exec, (LabelElement) elem)));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onRead(TokenExecutor exec, Token token) {
-		exec.push(new StringElement(exec.interpreter.io.read()));
+	protected static TokenResult onRead(TokenExecutor exec, @NonNull Token token) {
+		String str = exec.interpreter.io.read();
+		if (str != null) {
+			exec.push(new StringElement(str));
+		}
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onPrint(TokenExecutor exec, Token token) {
+	protected static TokenResult onPrint(TokenExecutor exec, @NonNull Token token) {
 		exec.interpreter.printList.add(exec.pop().toString());
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onPrintln(TokenExecutor exec, Token token) {
+	protected static TokenResult onPrintln(TokenExecutor exec, @NonNull Token token) {
 		exec.interpreter.printList.add(exec.pop().toString());
 		exec.interpreter.printList.add("\n");
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onInterpret(TokenExecutor exec, Token token) {
+	protected static TokenResult onInterpret(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.pop();
 		StringElement stringElem = elem.stringCastImplicit();
 		if (stringElem == null) {
@@ -563,32 +574,32 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return new TokenExecutor(new LexerIterator(stringElem.toString()), exec).iterate();
 	}
 	
-	protected static TokenResult onInt(TokenExecutor exec, Token token) {
+	protected static TokenResult onInt(TokenExecutor exec, @NonNull Token token) {
 		exec.push(exec.pop().intCastExplicit());
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onBool(TokenExecutor exec, Token token) {
+	protected static TokenResult onBool(TokenExecutor exec, @NonNull Token token) {
 		exec.push(exec.pop().boolCastExplicit());
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onFloat(TokenExecutor exec, Token token) {
+	protected static TokenResult onFloat(TokenExecutor exec, @NonNull Token token) {
 		exec.push(exec.pop().floatCastExplicit());
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onChar(TokenExecutor exec, Token token) {
+	protected static TokenResult onChar(TokenExecutor exec, @NonNull Token token) {
 		exec.push(exec.pop().charCastExplicit());
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onString(TokenExecutor exec, Token token) {
+	protected static TokenResult onString(TokenExecutor exec, @NonNull Token token) {
 		exec.push(exec.pop().stringCastExplicit());
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onRange(TokenExecutor exec, Token token) {
+	protected static TokenResult onRange(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.pop();
 		if (elem instanceof RBracketElement) {
 			exec.push(new RangeElement(getElemsToLBracket(exec)));
@@ -599,7 +610,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onList(TokenExecutor exec, Token token) {
+	protected static TokenResult onList(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.pop();
 		if (elem instanceof RBracketElement) {
 			exec.push(new ListElement(getElemsToLBracket(exec)));
@@ -610,7 +621,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onTuple(TokenExecutor exec, Token token) {
+	protected static TokenResult onTuple(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.pop();
 		if (elem instanceof RBracketElement) {
 			exec.push(new TupleElement(getElemsToLBracket(exec)));
@@ -621,7 +632,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onSet(TokenExecutor exec, Token token) {
+	protected static TokenResult onSet(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.pop();
 		if (elem instanceof RBracketElement) {
 			exec.push(new SetElement(getElemsToLBracket(exec)));
@@ -632,7 +643,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onDict(TokenExecutor exec, Token token) {
+	protected static TokenResult onDict(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.pop();
 		if (elem instanceof RBracketElement) {
 			exec.push(new DictElement(getElemsToLBracket(exec)));
@@ -643,17 +654,17 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onNull(TokenExecutor exec, Token token) {
+	protected static TokenResult onNull(TokenExecutor exec, @NonNull Token token) {
 		exec.push(NullElement.INSTANCE);
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onHash(TokenExecutor exec, Token token) {
+	protected static TokenResult onHash(TokenExecutor exec, @NonNull Token token) {
 		exec.push(new IntElement(exec.pop().hashCode()));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onForeach(TokenExecutor exec, Token token) {
+	protected static TokenResult onForeach(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
 		if (!(elem0 instanceof IterableElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"foreach\" requires iterable element as first argument!"));
@@ -679,93 +690,93 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onUnpack(TokenExecutor exec, Token token) {
+	protected static TokenResult onUnpack(TokenExecutor exec, @NonNull Token token) {
 		return exec.pop().onUnpack(exec);
 	}
 	
-	protected static TokenResult onSize(TokenExecutor exec, Token token) {
+	protected static TokenResult onSize(TokenExecutor exec, @NonNull Token token) {
 		return exec.pop().onSize(exec);
 	}
 	
-	protected static TokenResult onEmpty(TokenExecutor exec, Token token) {
+	protected static TokenResult onEmpty(TokenExecutor exec, @NonNull Token token) {
 		return exec.pop().onEmpty(exec);
 	}
 	
-	protected static TokenResult onHas(TokenExecutor exec, Token token) {
+	protected static TokenResult onContains(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
-		return elem0.onHas(exec, elem1);
+		return elem0.onContains(exec, elem1);
 	}
 	
-	protected static TokenResult onAdd(TokenExecutor exec, Token token) {
+	protected static TokenResult onAdd(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
 		return elem0.onAdd(exec, elem1);
 	}
 	
-	protected static TokenResult onRem(TokenExecutor exec, Token token) {
+	protected static TokenResult onRemove(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
-		return elem0.onRem(exec, elem1);
+		return elem0.onRemove(exec, elem1);
 	}
 	
-	protected static TokenResult onHasall(TokenExecutor exec, Token token) {
+	protected static TokenResult onContainsall(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
-		return elem0.onHasall(exec, elem1);
+		return elem0.onContainsall(exec, elem1);
 	}
 	
-	protected static TokenResult onAddall(TokenExecutor exec, Token token) {
+	protected static TokenResult onAddall(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
 		return elem0.onAddall(exec, elem1);
 	}
 	
-	protected static TokenResult onRemall(TokenExecutor exec, Token token) {
+	protected static TokenResult onRemoveall(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
-		return elem0.onRemall(exec, elem1);
+		return elem0.onRemoveall(exec, elem1);
 	}
 	
-	protected static TokenResult onClear(TokenExecutor exec, Token token) {
+	protected static TokenResult onClear(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.pop();
 		return elem.onClear(exec);
 	}
 	
-	protected static TokenResult onGet(TokenExecutor exec, Token token) {
+	protected static TokenResult onGet(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
 		return elem0.onGet(exec, elem1);
 	}
 	
-	protected static TokenResult onPut(TokenExecutor exec, Token token) {
+	protected static TokenResult onPut(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem2 = exec.pop(), elem1 = exec.pop(), elem0 = exec.pop();
 		return elem0.onPut(exec, elem1, elem2);
 	}
 	
-	protected static TokenResult onPutall(TokenExecutor exec, Token token) {
+	protected static TokenResult onPutall(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
 		return elem0.onPutall(exec, elem1);
 	}
 	
-	protected static TokenResult onHaskey(TokenExecutor exec, Token token) {
+	protected static TokenResult onContainskey(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
 		if (!(elem0 instanceof DictElement)) {
-			throw new IllegalArgumentException(String.format("Keyword \"haskey\" requires dict element as argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"containskey\" requires dict element as argument!"));
 		}
-		return ((DictElement) elem0).onHaskey(exec, elem1);
+		return ((DictElement) elem0).onContainskey(exec, elem1);
 	}
 	
-	protected static TokenResult onHasvalue(TokenExecutor exec, Token token) {
+	protected static TokenResult onContainsvalue(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
 		if (!(elem0 instanceof DictElement)) {
-			throw new IllegalArgumentException(String.format("Keyword \"hasvalue\" requires dict element as argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"containsvalue\" requires dict element as argument!"));
 		}
-		return ((DictElement) elem0).onHasvalue(exec, elem1);
+		return ((DictElement) elem0).onContainsvalue(exec, elem1);
 	}
 	
-	protected static TokenResult onHasentry(TokenExecutor exec, Token token) {
+	protected static TokenResult onContainsentry(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem2 = exec.pop(), elem1 = exec.pop(), elem0 = exec.pop();
 		if (!(elem0 instanceof DictElement)) {
-			throw new IllegalArgumentException(String.format("Keyword \"hasentry\" requires dict element as argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"containsentry\" requires dict element as argument!"));
 		}
-		return ((DictElement) elem0).onHasentry(exec, elem1, elem2);
+		return ((DictElement) elem0).onContainsentry(exec, elem1, elem2);
 	}
 	
-	protected static TokenResult onKeys(TokenExecutor exec, Token token) {
+	protected static TokenResult onKeys(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.pop();
 		if (!(elem instanceof DictElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"keyset\" requires dict element as argument!"));
@@ -773,7 +784,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return ((DictElement) elem).onKeys(exec);
 	}
 	
-	protected static TokenResult onValues(TokenExecutor exec, Token token) {
+	protected static TokenResult onValues(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.pop();
 		if (!(elem instanceof DictElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"values\" requires dict element as argument!"));
@@ -781,7 +792,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return ((DictElement) elem).onValues(exec);
 	}
 	
-	protected static TokenResult onEntries(TokenExecutor exec, Token token) {
+	protected static TokenResult onEntries(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.pop();
 		if (!(elem instanceof DictElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"entryset\" requires dict element as argument!"));
@@ -789,12 +800,12 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return ((DictElement) elem).onEntries(exec);
 	}
 	
-	protected static TokenResult onType(TokenExecutor exec, Token token) {
+	protected static TokenResult onType(TokenExecutor exec, @NonNull Token token) {
 		exec.push(new TypeElement(exec.pop()));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onCast(TokenExecutor exec, Token token) {
+	protected static TokenResult onCast(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.pop();
 		if (!(elem instanceof TypeElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"cast\" requires type element as argument!"));
@@ -803,7 +814,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onExec(TokenExecutor exec, Token token) {
+	protected static TokenResult onExec(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.pop();
 		if (!(elem instanceof BlockElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"exec\" requires block element as argument!"));
@@ -811,7 +822,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return ((BlockElement) elem).executor(exec).iterate();
 	}
 	
-	protected static TokenResult onIf(TokenExecutor exec, Token token) {
+	protected static TokenResult onIf(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
 		BoolElement boolElem = elem0.boolCastImplicit();
 		if (boolElem == null) {
@@ -829,7 +840,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		}
 	}
 	
-	protected static TokenResult onIfelse(TokenExecutor exec, Token token) {
+	protected static TokenResult onIfelse(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem2 = exec.pop(), elem1 = exec.pop(), elem0 = exec.pop();
 		BoolElement boolElem = elem0.boolCastImplicit();
 		if (boolElem == null) {
@@ -850,7 +861,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		}
 	}
 	
-	protected static TokenResult onRepeat(TokenExecutor exec, Token token) {
+	protected static TokenResult onRepeat(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
 		IntElement intElem = elem0.intCastImplicit();
 		if (intElem == null) {
@@ -881,7 +892,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onLoop(TokenExecutor exec, Token token) {
+	protected static TokenResult onLoop(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.pop();
 		if (!(elem instanceof BlockElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"loop\" requires block element as second argument!"));
@@ -903,24 +914,24 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onQuit(TokenExecutor exec, Token token) {
+	protected static TokenResult onQuit(TokenExecutor exec, @NonNull Token token) {
 		exec.interpreter.halt = true;
 		return TokenResult.QUIT;
 	}
 	
-	protected static TokenResult onContinue(TokenExecutor exec, Token token) {
+	protected static TokenResult onContinue(TokenExecutor exec, @NonNull Token token) {
 		return TokenResult.CONTINUE;
 	}
 	
-	protected static TokenResult onBreak(TokenExecutor exec, Token token) {
+	protected static TokenResult onBreak(TokenExecutor exec, @NonNull Token token) {
 		return TokenResult.BREAK;
 	}
 	
-	protected static TokenResult onEquals(TokenExecutor exec, Token token) {
+	protected static TokenResult onEquals(TokenExecutor exec, @NonNull Token token) {
 		return assign(exec, false);
 	}
 	
-	protected static TokenResult onIncrement(TokenExecutor exec, Token token) {
+	protected static TokenResult onIncrement(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.peek();
 		if (!(elem instanceof LabelElement)) {
 			throw new IllegalArgumentException(String.format("Increment operator \"++\" requires label element as argument!"));
@@ -936,7 +947,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return assign(exec, false);
 	}
 	
-	protected static TokenResult onDecrement(TokenExecutor exec, Token token) {
+	protected static TokenResult onDecrement(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.peek();
 		if (!(elem instanceof LabelElement)) {
 			throw new IllegalArgumentException(String.format("Decrement operator \"--\" requires label element as argument!"));
@@ -952,233 +963,233 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return assign(exec, false);
 	}
 	
-	protected static TokenResult onPlusEquals(TokenExecutor exec, Token token) {
+	protected static TokenResult onPlusEquals(TokenExecutor exec, @NonNull Token token) {
 		AssignmentOpPair elems = assignmentOpElems(exec, token);
 		exec.push(elems.left.elem.onPlus(elems.right));
 		return assign(exec, false);
 	}
 	
-	protected static TokenResult onAndEquals(TokenExecutor exec, Token token) {
+	protected static TokenResult onAndEquals(TokenExecutor exec, @NonNull Token token) {
 		AssignmentOpPair elems = assignmentOpElems(exec, token);
 		exec.push(elems.left.elem.onAnd(elems.right));
 		return assign(exec, false);
 	}
 	
-	protected static TokenResult onOrEquals(TokenExecutor exec, Token token) {
+	protected static TokenResult onOrEquals(TokenExecutor exec, @NonNull Token token) {
 		AssignmentOpPair elems = assignmentOpElems(exec, token);
 		exec.push(elems.left.elem.onOr(elems.right));
 		return assign(exec, false);
 	}
 	
-	protected static TokenResult onXorEquals(TokenExecutor exec, Token token) {
+	protected static TokenResult onXorEquals(TokenExecutor exec, @NonNull Token token) {
 		AssignmentOpPair elems = assignmentOpElems(exec, token);
 		exec.push(elems.left.elem.onXor(elems.right));
 		return assign(exec, false);
 	}
 	
-	protected static TokenResult onMinusEquals(TokenExecutor exec, Token token) {
+	protected static TokenResult onMinusEquals(TokenExecutor exec, @NonNull Token token) {
 		AssignmentOpPair elems = assignmentOpElems(exec, token);
 		exec.push(elems.left.elem.onMinus(elems.right));
 		return assign(exec, false);
 	}
 	
-	protected static TokenResult onConcatEquals(TokenExecutor exec, Token token) {
+	protected static TokenResult onConcatEquals(TokenExecutor exec, @NonNull Token token) {
 		AssignmentOpPair elems = assignmentOpElems(exec, token);
 		exec.push(elems.left.elem.onConcat(elems.right));
 		return assign(exec, false);
 	}
 	
-	protected static TokenResult onLeftShiftEquals(TokenExecutor exec, Token token) {
+	protected static TokenResult onLeftShiftEquals(TokenExecutor exec, @NonNull Token token) {
 		AssignmentOpPair elems = assignmentOpElems(exec, token);
 		exec.push(elems.left.elem.onArithmeticLeftShift(elems.right));
 		return assign(exec, false);
 	}
 	
-	protected static TokenResult onRightShiftEquals(TokenExecutor exec, Token token) {
+	protected static TokenResult onRightShiftEquals(TokenExecutor exec, @NonNull Token token) {
 		AssignmentOpPair elems = assignmentOpElems(exec, token);
 		exec.push(elems.left.elem.onArithmeticRightShift(elems.right));
 		return assign(exec, false);
 	}
 	
-	protected static TokenResult onMultiplyEquals(TokenExecutor exec, Token token) {
+	protected static TokenResult onMultiplyEquals(TokenExecutor exec, @NonNull Token token) {
 		AssignmentOpPair elems = assignmentOpElems(exec, token);
 		exec.push(elems.left.elem.onMultiply(elems.right));
 		return assign(exec, false);
 	}
 	
-	protected static TokenResult onDivideEquals(TokenExecutor exec, Token token) {
+	protected static TokenResult onDivideEquals(TokenExecutor exec, @NonNull Token token) {
 		AssignmentOpPair elems = assignmentOpElems(exec, token);
 		exec.push(elems.left.elem.onDivide(elems.right));
 		return assign(exec, false);
 	}
 	
-	protected static TokenResult onRemainderEquals(TokenExecutor exec, Token token) {
+	protected static TokenResult onRemainderEquals(TokenExecutor exec, @NonNull Token token) {
 		AssignmentOpPair elems = assignmentOpElems(exec, token);
 		exec.push(elems.left.elem.onRemainder(elems.right));
 		return assign(exec, false);
 	}
 	
-	protected static TokenResult onPowerEquals(TokenExecutor exec, Token token) {
+	protected static TokenResult onPowerEquals(TokenExecutor exec, @NonNull Token token) {
 		AssignmentOpPair elems = assignmentOpElems(exec, token);
 		exec.push(elems.left.elem.onPower(elems.right));
 		return assign(exec, false);
 	}
 	
-	protected static TokenResult onIdivideEquals(TokenExecutor exec, Token token) {
+	protected static TokenResult onIdivideEquals(TokenExecutor exec, @NonNull Token token) {
 		AssignmentOpPair elems = assignmentOpElems(exec, token);
 		exec.push(elems.left.elem.onIdivide(elems.right));
 		return assign(exec, false);
 	}
 	
-	protected static TokenResult onModuloEquals(TokenExecutor exec, Token token) {
+	protected static TokenResult onModuloEquals(TokenExecutor exec, @NonNull Token token) {
 		AssignmentOpPair elems = assignmentOpElems(exec, token);
 		exec.push(elems.left.elem.onModulo(elems.right));
 		return assign(exec, false);
 	}
 	
-	protected static TokenResult onEqualTo(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		boolean nullLeft = NullElement.INSTANCE.equals(elems.left), nullRight = NullElement.INSTANCE.equals(elems.right);
+	protected static TokenResult onEqualTo(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		boolean nullLeft = NullElement.INSTANCE.equals(elem0), nullRight = NullElement.INSTANCE.equals(elem1);
 		if (nullLeft || nullRight) {
 			exec.push(new BoolElement(nullLeft == nullRight));
 		}
 		else {
-			exec.push(elems.left.onEqualTo(elems.right));
+			exec.push(elem0.onEqualTo(elem1));
 		}
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onNotEqualTo(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		boolean nullLeft = NullElement.INSTANCE.equals(elems.left), nullRight = NullElement.INSTANCE.equals(elems.right);
+	protected static TokenResult onNotEqualTo(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		boolean nullLeft = NullElement.INSTANCE.equals(elem0), nullRight = NullElement.INSTANCE.equals(elem1);
 		if (nullLeft || nullRight) {
 			exec.push(new BoolElement(nullLeft != nullRight));
 		}
 		else {
-			exec.push(elems.left.onNotEqualTo(elems.right));
+			exec.push(elem0.onNotEqualTo(elem1));
 		}
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onLessThan(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		exec.push(elems.left.onLessThan(elems.right));
+	protected static TokenResult onLessThan(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		exec.push(elem0.onLessThan(elem1));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onLessOrEqual(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		exec.push(elems.left.onLessOrEqual(elems.right));
+	protected static TokenResult onLessOrEqual(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		exec.push(elem0.onLessOrEqual(elem1));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onMoreThan(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		exec.push(elems.left.onMoreThan(elems.right));
+	protected static TokenResult onMoreThan(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		exec.push(elem0.onMoreThan(elem1));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onMoreOrEqual(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		exec.push(elems.left.onMoreOrEqual(elems.right));
+	protected static TokenResult onMoreOrEqual(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		exec.push(elem0.onMoreOrEqual(elem1));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onPlus(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		exec.push(elems.left.onPlus(elems.right));
+	protected static TokenResult onPlus(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		exec.push(elem0.onPlus(elem1));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onAnd(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		exec.push(elems.left.onAnd(elems.right));
+	protected static TokenResult onAnd(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		exec.push(elem0.onAnd(elem1));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onOr(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		exec.push(elems.left.onOr(elems.right));
+	protected static TokenResult onOr(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		exec.push(elem0.onOr(elem1));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onXor(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		exec.push(elems.left.onXor(elems.right));
+	protected static TokenResult onXor(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		exec.push(elem0.onXor(elem1));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onMinus(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		exec.push(elems.left.onMinus(elems.right));
+	protected static TokenResult onMinus(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		exec.push(elem0.onMinus(elem1));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onConcat(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		exec.push(elems.left.onConcat(elems.right));
+	protected static TokenResult onConcat(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		exec.push(elem0.onConcat(elem1));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onLeftShift(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		exec.push(elems.left.onArithmeticLeftShift(elems.right));
+	protected static TokenResult onLeftShift(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		exec.push(elem0.onArithmeticLeftShift(elem1));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onRightShift(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		exec.push(elems.left.onArithmeticRightShift(elems.right));
+	protected static TokenResult onRightShift(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		exec.push(elem0.onArithmeticRightShift(elem1));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onMultiply(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		exec.push(elems.left.onMultiply(elems.right));
+	protected static TokenResult onMultiply(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		exec.push(elem0.onMultiply(elem1));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onDivide(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		exec.push(elems.left.onDivide(elems.right));
+	protected static TokenResult onDivide(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		exec.push(elem0.onDivide(elem1));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onRemainder(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		exec.push(elems.left.onRemainder(elems.right));
+	protected static TokenResult onRemainder(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		exec.push(elem0.onRemainder(elem1));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onPower(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		exec.push(elems.left.onPower(elems.right));
+	protected static TokenResult onPower(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		exec.push(elem0.onPower(elem1));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onIdivide(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		exec.push(elems.left.onIdivide(elems.right));
+	protected static TokenResult onIdivide(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		exec.push(elem0.onIdivide(elem1));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onModulo(TokenExecutor exec, Token token) {
-		ElementPair elems = binaryOpElems(exec, token);
-		exec.push(elems.left.onModulo(elems.right));
+	protected static TokenResult onModulo(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		exec.push(elem0.onModulo(elem1));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onNot(TokenExecutor exec, Token token) {
+	protected static TokenResult onNot(TokenExecutor exec, @NonNull Token token) {
 		exec.push(exec.pop().onNot());
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onNeg(TokenExecutor exec, Token token) {
+	protected static TokenResult onNeg(TokenExecutor exec, @NonNull Token token) {
 		exec.push(exec.pop().onNeg());
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onDeref(TokenExecutor exec, Token token) {
+	protected static TokenResult onDeref(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem = exec.pop();
 		if (!(elem instanceof LabelElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"deref\" requires label element as argument!"));
@@ -1199,33 +1210,38 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onIntValue(TokenExecutor exec, Token token) {
+	protected static TokenResult onIntValue(TokenExecutor exec, @NonNull Token token) {
 		exec.push(new IntElement(new BigInteger(token.getText())));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onBoolValue(TokenExecutor exec, Token token) {
+	protected static TokenResult onBoolValue(TokenExecutor exec, @NonNull Token token) {
 		exec.push(new BoolElement(Boolean.parseBoolean(token.getText())));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onFloatValue(TokenExecutor exec, Token token) {
+	protected static TokenResult onFloatValue(TokenExecutor exec, @NonNull Token token) {
 		exec.push(new FloatElement(Double.parseDouble(token.getText())));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onCharValue(TokenExecutor exec, Token token) {
+	protected static TokenResult onCharValue(TokenExecutor exec, @NonNull Token token) {
 		exec.push(new CharElement(Helpers.parseChar(token.getText())));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onStringValue(TokenExecutor exec, Token token) {
-		exec.push(new StringElement(Helpers.parseString(token.getText())));
+	protected static TokenResult onLineStringValue(TokenExecutor exec, @NonNull Token token) {
+		exec.push(new StringElement(Helpers.parseLineString(token.getText())));
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onIdentifier(TokenExecutor exec, Token token) {
-		String identifier = token.getText();
+	protected static TokenResult onBlockStringValue(TokenExecutor exec, @NonNull Token token) {
+		exec.push(new StringElement(Helpers.parseBlockString(token.getText())));
+		return TokenResult.PASS;
+	}
+	
+	protected static TokenResult onIdentifier(TokenExecutor exec, @NonNull Token token) {
+		@SuppressWarnings("null") @NonNull String identifier = token.getText();
 		Def def;
 		Clazz clazz;
 		if ((def = exec.getDef(identifier)) != null) {
@@ -1240,7 +1256,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onLabel(TokenExecutor exec, Token token) {
+	protected static TokenResult onLabel(TokenExecutor exec, @NonNull Token token) {
 		@SuppressWarnings("null") @NonNull String label = token.getText().substring(1);
 		if (Helpers.KEYWORDS.contains(label)) {
 			throw new IllegalArgumentException(String.format("Keyword \"%s\" can not be used as a label!", label));
@@ -1249,7 +1265,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onMember(TokenExecutor exec, Token token) {
+	protected static TokenResult onMember(TokenExecutor exec, @NonNull Token token) {
 		@SuppressWarnings("null") @NonNull String member = token.getText().substring(1);
 		if (Helpers.KEYWORDS.contains(member)) {
 			throw new IllegalArgumentException(String.format("Keyword \"%s\" can not be used as a member!", member));
@@ -1280,7 +1296,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 					exec.push(subclazz.elem);
 				}
 				else {
-					throw new IllegalArgumentException(String.format("Instance member \"%s.%s\" not defined!", clazz.identifier, member));
+					throw new IllegalArgumentException(String.format("Instance member \"%s\" not defined!", Helpers.memberString(clazz.identifier, member)));
 				}
 			}
 		}
@@ -1293,7 +1309,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 				exec.push(subclazz.elem);
 			}
 			else {
-				throw new IllegalArgumentException(String.format("Class member \"%s.%s\" not defined!", clazz.identifier, member));
+				throw new IllegalArgumentException(String.format("Class member \"%s\" not defined!", Helpers.memberString(clazz.identifier, member)));
 			}
 		}
 		else {
@@ -1302,7 +1318,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult onBlock(TokenExecutor exec, Token token) {
+	protected static TokenResult onBlock(TokenExecutor exec, @NonNull Token token) {
 		exec.push(new BlockElement(((BlockToken) token).tokens));
 		return TokenResult.PASS;
 	}
@@ -1322,14 +1338,14 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static int countElemsToLabel(TokenExecutor exec, LabelElement label, boolean includeLabel) {
+	protected static int countElemsToLabel(TokenExecutor exec, LabelElement label) {
 		Iterator<@NonNull Element> iter = exec.interpreter.elemStack.iterator();
 		int count = 0;
 		
 		while (iter.hasNext()) {
 			@SuppressWarnings("null") @NonNull Element elem = iter.next();
 			if (label.equals(elem)) {
-				return includeLabel ? count + 1 : count;
+				return count;
 			}
 			else {
 				++count;
@@ -1361,7 +1377,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		}
 	}
 	
-	protected static AssignmentOpPair assignmentOpElems(TokenExecutor exec, Token token) {
+	protected static AssignmentOpPair assignmentOpElems(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.peek();
 		if (!(elem0 instanceof LabelElement)) {
 			throw new IllegalArgumentException(String.format("Assignment operator \"%s\" requires label element as first argument!", token.getText()));
@@ -1374,17 +1390,5 @@ public class TokenExecutor extends TokenReader implements Scope {
 		}
 		
 		return new AssignmentOpPair(def, elem1);
-	}
-	
-	protected static class ElementPair extends Pair<@NonNull Element, @NonNull Element> {
-		
-		public ElementPair(@NonNull Element left, @NonNull Element right) {
-			super(left, right);
-		}
-	}
-	
-	protected static ElementPair binaryOpElems(TokenExecutor exec, Token token) {
-		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
-		return new ElementPair(elem0, elem1);
 	}
 }

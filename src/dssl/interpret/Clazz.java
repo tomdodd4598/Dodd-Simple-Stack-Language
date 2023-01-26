@@ -14,21 +14,21 @@ public class Clazz implements Scope {
 	public final @NonNull String shallow;
 	public final @NonNull Element elem;
 	
-	public final Map<String, Def> defMap;
-	public final Map<String, Clazz> clazzMap;
-	public final Map<String, Magic> magicMap;
+	public final Map<@NonNull String, Def> defMap;
+	public final Map<@NonNull String, Clazz> clazzMap;
+	public final Map<@NonNull String, Magic> magicMap;
 	
-	public Clazz(String prev, @NonNull String extension, Map<String, Def> defMap, Map<String, Clazz> clazzMap, Map<String, Magic> magicMap) {
+	public Clazz(String prev, @NonNull String extension, ScopeMaps maps) {
 		identifier = prev == null ? extension : prev + "." + extension;
 		shallow = extension;
 		elem = new ClassElement(this);
-		this.defMap = defMap;
-		this.clazzMap = clazzMap;
-		this.magicMap = magicMap;
+		defMap = maps.defMap;
+		clazzMap = maps.clazzMap;
+		magicMap = maps.magicMap;
 	}
 	
 	@Override
-	public Def getDef(String identifier) {
+	public Def getDef(@NonNull String identifier) {
 		return defMap.get(identifier);
 	}
 	
@@ -38,12 +38,17 @@ public class Clazz implements Scope {
 	}
 	
 	@Override
-	public Clazz getClazz(String shallow) {
+	public Clazz getClazz(@NonNull String shallow) {
 		return clazzMap.get(shallow);
 	}
 	
 	@Override
-	public void setClazz(@NonNull String shallow, Map<String, Def> defMap, Map<String, Clazz> clazzMap, Map<String, Magic> magicMap) {
-		clazzMap.put(shallow, new Clazz(identifier, shallow, defMap, clazzMap, magicMap));
+	public void setClazz(@NonNull String shallow, ScopeMaps maps) {
+		clazzMap.put(shallow, new Clazz(identifier, shallow, maps));
+	}
+	
+	@Override
+	public ScopeMaps getMaps() {
+		return new ScopeMaps(defMap, clazzMap, magicMap);
 	}
 }

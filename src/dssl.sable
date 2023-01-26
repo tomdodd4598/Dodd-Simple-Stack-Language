@@ -11,10 +11,12 @@ Helpers
 	lf = 10;
 	cr = 13;
 	eol = cr | lf | cr lf;
-	separator = ' ' | tab | eol;
+	whitespace = ' ' | tab;
+	separator = whitespace | eol;
 	
 	apostrophe = 39;
 	quote = 34;
+	tick = 96;
 	not_eol = [all - [cr + lf]];
 	escape_char = '\' not_eol;
 	
@@ -22,15 +24,14 @@ Helpers
 	c_char_sequence = c_char+;
 	s_char = [all - [quote + ['\' + [lf + cr]]]] | escape_char;
 	s_char_sequence = s_char*;
+	b_char = [all - [tick + '\']] | escape_char;
+	b_char_sequence = b_char*;
 	
 	not_star = [all - '*'];
 	not_star_slash = [not_star - '/'];
 	
-	double_slash = '//';
-	slash_star = '/*';
-	
-	line_comment = double_slash not_eol* eol;
-	block_comment = slash_star not_star* '*'+ (not_star_slash not_star* '*'+)* '/';
+	line_comment = '#' not_eol* eol?;
+	block_comment = '/*' not_star* '*'+ (not_star_slash not_star* '*'+)* '/';
 
 Tokens
 	blank = separator+;
@@ -89,21 +90,21 @@ Tokens
 	size = 'size';
 	empty = 'empty';
 	
-	has = 'has';
+	contains = 'contains';
 	add = 'add';
-	rem = 'rem';
-	hasall = 'hasall';
+	remove = 'remove';
+	containsall = 'containsall';
 	addall = 'addall';
-	remall = 'remall';
+	removeall = 'removeall';
 	clear = 'clear';
 	
 	get = 'get';
 	put = 'put';
 	putall = 'putall';
 	
-	haskey = 'haskey';
-	hasvalue = 'hasvalue';
-	hasentry = 'hasentry';
+	containskey = 'containskey';
+	containsvalue = 'containsvalue';
+	containsentry = 'containsentry';
 	keys = 'keys';
 	values = 'values';
 	entries = 'entries';
@@ -177,7 +178,9 @@ Tokens
 	bool_value = 'true' | 'false';
 	float_value = sign? (digit+ '.' digit* | '.' digit+);
 	char_value = apostrophe c_char apostrophe;
-	string_value = quote s_char_sequence quote;
+	
+	line_string_value = 'r'? quote s_char_sequence quote;
+	block_string_value = 'r'? tick whitespace* eol b_char_sequence tick;
 	
 	identifier = name;
 	label = '/' name;

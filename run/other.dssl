@@ -1,0 +1,2 @@
+"Hello from other file!" println
+/var [ 1 2 3 ] tuple string def

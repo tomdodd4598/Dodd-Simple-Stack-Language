@@ -199,28 +199,28 @@ public abstract class Element {
 		throw keywordError("empty");
 	}
 	
-	public TokenResult onHas(TokenExecutor exec, @NonNull Element elem) {
-		throw keywordError("has");
+	public TokenResult onContains(TokenExecutor exec, @NonNull Element elem) {
+		throw keywordError("contains");
 	}
 	
 	public TokenResult onAdd(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("add");
 	}
 	
-	public TokenResult onRem(TokenExecutor exec, @NonNull Element elem) {
-		throw keywordError("rem");
+	public TokenResult onRemove(TokenExecutor exec, @NonNull Element elem) {
+		throw keywordError("remove");
 	}
 	
-	public TokenResult onHasall(TokenExecutor exec, @NonNull Element elem) {
-		throw keywordError("hasall");
+	public TokenResult onContainsall(TokenExecutor exec, @NonNull Element elem) {
+		throw keywordError("containsall");
 	}
 	
 	public TokenResult onAddall(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("addall");
 	}
 	
-	public TokenResult onRemall(TokenExecutor exec, @NonNull Element elem) {
-		throw keywordError("remall");
+	public TokenResult onRemoveall(TokenExecutor exec, @NonNull Element elem) {
+		throw keywordError("removeall");
 	}
 	
 	public TokenResult onClear(TokenExecutor exec) {

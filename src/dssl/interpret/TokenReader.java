@@ -1,24 +1,22 @@
 package dssl.interpret;
 
-import java.util.Iterator;
-
 import org.eclipse.jdt.annotation.NonNull;
 
 import dssl.node.Token;
 
 public abstract class TokenReader {
 	
-	protected final Interpreter interpreter;
-	protected final Iterator<@NonNull Token> iterator;
+	public final Interpreter interpreter;
+	protected final TokenIterator iterator;
 	protected final TokenReader prev;
 	
-	protected TokenReader(Interpreter interpreter, Iterator<@NonNull Token> iterator) {
+	protected TokenReader(Interpreter interpreter, TokenIterator iterator) {
 		this.interpreter = interpreter;
 		this.iterator = iterator;
 		this.prev = null;
 	}
 	
-	protected TokenReader(Iterator<@NonNull Token> iterator, TokenReader prev) {
+	protected TokenReader(TokenIterator iterator, TokenReader prev) {
 		interpreter = prev.interpreter;
 		this.iterator = iterator;
 		this.prev = prev;

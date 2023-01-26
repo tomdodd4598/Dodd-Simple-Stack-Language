@@ -5,14 +5,14 @@ package dssl.node;
 import dssl.analysis.*;
 
 @SuppressWarnings("nls")
-public final class TStringValue extends Token
+public final class TBlockStringValue extends Token
 {
-    public TStringValue(String text)
+    public TBlockStringValue(String text)
     {
         setText(text);
     }
 
-    public TStringValue(String text, int line, int pos)
+    public TBlockStringValue(String text, int line, int pos)
     {
         setText(text);
         setLine(line);
@@ -22,12 +22,12 @@ public final class TStringValue extends Token
     @Override
     public Object clone()
     {
-      return new TStringValue(getText(), getLine(), getPos());
+      return new TBlockStringValue(getText(), getLine(), getPos());
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseTStringValue(this);
+        ((Analysis) sw).caseTBlockStringValue(this);
     }
 }

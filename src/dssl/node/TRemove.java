@@ -5,16 +5,16 @@ package dssl.node;
 import dssl.analysis.*;
 
 @SuppressWarnings("nls")
-public final class THasall extends Token
+public final class TRemove extends Token
 {
-    public THasall()
+    public TRemove()
     {
-        super.setText("hasall");
+        super.setText("remove");
     }
 
-    public THasall(int line, int pos)
+    public TRemove(int line, int pos)
     {
-        super.setText("hasall");
+        super.setText("remove");
         setLine(line);
         setPos(pos);
     }
@@ -22,18 +22,18 @@ public final class THasall extends Token
     @Override
     public Object clone()
     {
-      return new THasall(getLine(), getPos());
+      return new TRemove(getLine(), getPos());
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseTHasall(this);
+        ((Analysis) sw).caseTRemove(this);
     }
 
     @Override
     public void setText(@SuppressWarnings("unused") String text)
     {
-        throw new RuntimeException("Cannot change THasall text.");
+        throw new RuntimeException("Cannot change TRemove text.");
     }
 }

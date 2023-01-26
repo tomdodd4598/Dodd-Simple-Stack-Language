@@ -59,6 +59,11 @@ public class TupleElement extends CollectionElement {
 	}
 	
 	@Override
+	public int size() {
+		return value.size();
+	}
+	
+	@Override
 	public Iterator<@NonNull Element> iterator() {
 		return value.iterator();
 	}
@@ -83,7 +88,7 @@ public class TupleElement extends CollectionElement {
 	}
 	
 	@Override
-	public TokenResult onHas(TokenExecutor exec, @NonNull Element elem) {
+	public TokenResult onContains(TokenExecutor exec, @NonNull Element elem) {
 		exec.push(new BoolElement(value.contains(elem)));
 		return TokenResult.PASS;
 	}
@@ -94,14 +99,14 @@ public class TupleElement extends CollectionElement {
 	}
 	
 	@Override
-	public TokenResult onRem(TokenExecutor exec, @NonNull Element elem) {
-		throw keywordError("rem");
+	public TokenResult onRemove(TokenExecutor exec, @NonNull Element elem) {
+		throw keywordError("remove");
 	}
 	
 	@Override
-	public TokenResult onHasall(TokenExecutor exec, @NonNull Element elem) {
+	public TokenResult onContainsall(TokenExecutor exec, @NonNull Element elem) {
 		if (!(elem instanceof IterableElement)) {
-			throw new IllegalArgumentException(String.format("Keyword \"hasall\" requires iterable element as second argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"containsall\" requires iterable element as second argument!"));
 		}
 		exec.push(new BoolElement(value.containsAll(((IterableElement) elem).collection())));
 		return TokenResult.PASS;
@@ -113,8 +118,8 @@ public class TupleElement extends CollectionElement {
 	}
 	
 	@Override
-	public TokenResult onRemall(TokenExecutor exec, @NonNull Element elem) {
-		throw keywordError("remall");
+	public TokenResult onRemoveall(TokenExecutor exec, @NonNull Element elem) {
+		throw keywordError("removeall");
 	}
 	
 	@Override
@@ -146,11 +151,6 @@ public class TupleElement extends CollectionElement {
 	@Override
 	public TokenResult onPutall(TokenExecutor exec, @NonNull Element elem) {
 		throw keywordError("putall");
-	}
-	
-	@Override
-	public int size() {
-		return value.size();
 	}
 	
 	@Override

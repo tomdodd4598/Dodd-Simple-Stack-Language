@@ -13,22 +13,22 @@ public class InstanceElement extends Element implements Scope {
 	
 	public final Clazz clazz;
 	
-	public final Map<String, Def> defMap;
-	public final Map<String, Clazz> clazzMap;
-	public final Map<String, Magic> magicMap;
+	public final Map<@NonNull String, Def> defMap;
+	public final Map<@NonNull String, Clazz> clazzMap;
+	public final Map<@NonNull String, Magic> magicMap;
 	
 	public final @NonNull String scopeIdentifier;
 	
 	public InstanceElement(Clazz clazz) {
-		this(clazz, new HashMap<>(), new HashMap<>(), new HashMap<>());
+		this(clazz, ScopeMaps.empty());
 	}
 	
-	protected InstanceElement(Clazz clazz, Map<String, Def> defMap, Map<String, Clazz> clazzMap, Map<String, Magic> magicMap) {
+	protected InstanceElement(Clazz clazz, ScopeMaps maps) {
 		super();
 		this.clazz = clazz;
-		this.defMap = defMap;
-		this.clazzMap = clazzMap;
-		this.magicMap = magicMap;
+		defMap = maps.defMap;
+		clazzMap = maps.clazzMap;
+		magicMap = maps.magicMap;
 		scopeIdentifier = clazz.identifier + "@" + Integer.toString(objectHashCode(), 16);
 	}
 	
@@ -43,7 +43,7 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public Def getDef(String identifier) {
+	public Def getDef(@NonNull String identifier) {
 		return defMap.get(identifier);
 	}
 	
@@ -53,18 +53,23 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public Clazz getClazz(String shallow) {
+	public Clazz getClazz(@NonNull String shallow) {
 		return clazzMap.get(shallow);
 	}
 	
 	@Override
-	public void setClazz(@NonNull String shallow, Map<String, Def> defMap, Map<String, Clazz> clazzMap, Map<String, Magic> magicMap) {
-		clazzMap.put(shallow, new Clazz(scopeIdentifier, shallow, defMap, clazzMap, magicMap));
+	public void setClazz(@NonNull String shallow, ScopeMaps maps) {
+		clazzMap.put(shallow, new Clazz(scopeIdentifier, shallow, maps));
+	}
+	
+	@Override
+	public ScopeMaps getMaps() {
+		return new ScopeMaps(defMap, clazzMap, magicMap);
 	}
 	
 	@Override
 	public @NonNull Element clone() {
-		return new InstanceElement(clazz, new HashMap<>(defMap), new HashMap<>(clazzMap), new HashMap<>(magicMap));
+		return new InstanceElement(clazz, getMaps().clone());
 	}
 	
 	@Override

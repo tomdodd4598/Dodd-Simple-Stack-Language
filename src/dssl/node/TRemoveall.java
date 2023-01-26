@@ -5,16 +5,16 @@ package dssl.node;
 import dssl.analysis.*;
 
 @SuppressWarnings("nls")
-public final class THas extends Token
+public final class TRemoveall extends Token
 {
-    public THas()
+    public TRemoveall()
     {
-        super.setText("has");
+        super.setText("removeall");
     }
 
-    public THas(int line, int pos)
+    public TRemoveall(int line, int pos)
     {
-        super.setText("has");
+        super.setText("removeall");
         setLine(line);
         setPos(pos);
     }
@@ -22,18 +22,18 @@ public final class THas extends Token
     @Override
     public Object clone()
     {
-      return new THas(getLine(), getPos());
+      return new TRemoveall(getLine(), getPos());
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseTHas(this);
+        ((Analysis) sw).caseTRemoveall(this);
     }
 
     @Override
     public void setText(@SuppressWarnings("unused") String text)
     {
-        throw new RuntimeException("Cannot change THas text.");
+        throw new RuntimeException("Cannot change TRemoveall text.");
     }
 }

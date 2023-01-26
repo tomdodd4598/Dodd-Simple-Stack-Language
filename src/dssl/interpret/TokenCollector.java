@@ -11,7 +11,7 @@ public class TokenCollector extends TokenReader {
 	
 	protected final Deque<List<@NonNull Token>> listStack = new ArrayDeque<>();
 	
-	protected TokenCollector(Interpreter interpreter, Iterator<@NonNull Token> iterator) {
+	protected TokenCollector(Interpreter interpreter, TokenIterator iterator) {
 		super(interpreter, iterator);
 		listStack.push(new ArrayList<>());
 	}

@@ -2,6 +2,7 @@ package dssl.interpret.element.collection;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNull;
 
@@ -13,6 +14,7 @@ public class DictElement extends Element implements IterableElement {
 	
 	public final Map<@NonNull Element, @NonNull Element> value;
 	protected List<@NonNull Element> list = null;
+	protected Set<@NonNull Element> entries = null;
 	
 	public DictElement(Collection<@NonNull Element> elems) {
 		super();
@@ -119,6 +121,11 @@ public class DictElement extends Element implements IterableElement {
 	}
 	
 	@Override
+	public int size() {
+		return value.size();
+	}
+	
+	@Override
 	public Iterator<@NonNull Element> iterator() {
 		return list().iterator();
 	}
@@ -149,8 +156,8 @@ public class DictElement extends Element implements IterableElement {
 	}
 	
 	@Override
-	public TokenResult onHas(TokenExecutor exec, @NonNull Element elem) {
-		throw keywordError("has");
+	public TokenResult onContains(TokenExecutor exec, @NonNull Element elem) {
+		throw keywordError("contains");
 	}
 	
 	@Override
@@ -159,18 +166,17 @@ public class DictElement extends Element implements IterableElement {
 	}
 	
 	@Override
-	public TokenResult onRem(TokenExecutor exec, @NonNull Element elem) {
-		@SuppressWarnings("null") Element rem = value.remove(elem);
-		if (rem != null) {
+	public TokenResult onRemove(TokenExecutor exec, @NonNull Element elem) {
+		if (value.remove(elem) != null) {
 			list = null;
+			entries = null;
 		}
-		exec.push(rem == null ? NullElement.INSTANCE : rem);
 		return TokenResult.PASS;
 	}
 	
 	@Override
-	public TokenResult onHasall(TokenExecutor exec, @NonNull Element elem) {
-		throw keywordError("hasall");
+	public TokenResult onContainsall(TokenExecutor exec, @NonNull Element elem) {
+		throw keywordError("containsall");
 	}
 	
 	@Override
@@ -179,21 +185,22 @@ public class DictElement extends Element implements IterableElement {
 	}
 	
 	@Override
-	public TokenResult onRemall(TokenExecutor exec, @NonNull Element elem) {
+	public TokenResult onRemoveall(TokenExecutor exec, @NonNull Element elem) {
 		if (!(elem instanceof IterableElement)) {
-			throw new IllegalArgumentException(String.format("Keyword \"remall\" requires iterable element as second argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"removeall\" requires iterable element as second argument!"));
 		}
-		final Set<@NonNull Element> set = new HashSet<>();
+		
+		boolean modified = false;
 		for (@NonNull Element e : (IterableElement) elem) {
-			@SuppressWarnings("null") Element rem = value.remove(e);
-			if (rem != null) {
-				set.add(rem);
+			if (value.remove(e) != null) {
+				modified = true;
 			}
 		}
-		if (!set.isEmpty()) {
+		
+		if (modified) {
 			list = null;
+			entries = null;
 		}
-		exec.push(new SetElement(set));
 		return TokenResult.PASS;
 	}
 	
@@ -201,18 +208,23 @@ public class DictElement extends Element implements IterableElement {
 	public TokenResult onClear(TokenExecutor exec) {
 		value.clear();
 		list = null;
+		entries = null;
 		return TokenResult.PASS;
 	}
 	
 	@Override
 	public TokenResult onGet(TokenExecutor exec, @NonNull Element elem) {
-		exec.push(value.get(elem));
+		@SuppressWarnings("null") Element get = value.get(elem);
+		exec.push(get == null ? NullElement.INSTANCE : get);
 		return TokenResult.PASS;
 	}
 	
 	@Override
 	public TokenResult onPut(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
-		exec.push(value.put(elem0, elem1));
+		if (value.put(elem0, elem1) != null) {
+			list = null;
+			entries = null;
+		}
 		return TokenResult.PASS;
 	}
 	
@@ -228,35 +240,34 @@ public class DictElement extends Element implements IterableElement {
 			throw new IllegalArgumentException(String.format("The second argument of keyword \"putall\" requires value with an iterator over an even number of elements, but instead it iterates over %s elements!", elemCount));
 		}
 		
-		final Set<@NonNull Element> set = new HashSet<>();
+		boolean modified = false;
 		Iterator<@NonNull Element> iter = iterableElem.iterator();
 		while (iter.hasNext()) {
-			@SuppressWarnings("null") @NonNull Element k = iter.next(), v = iter.next();
-			@SuppressWarnings("null") Element put = value.put(k, v);
-			if (put != null) {
-				set.add(put);
+			@SuppressWarnings("null") Element k = iter.next(), v = iter.next();
+			if (value.put(k, v) != null) {
+				modified = true;
 			}
-			set.add(put);
 		}
 		
-		if (!set.isEmpty()) {
+		if (modified) {
 			list = null;
+			entries = null;
 		}
 		return TokenResult.PASS;
 	}
 	
-	public TokenResult onHaskey(TokenExecutor exec, @NonNull Element elem) {
+	public TokenResult onContainskey(TokenExecutor exec, @NonNull Element elem) {
 		exec.push(new BoolElement(value.containsKey(elem)));
 		return TokenResult.PASS;
 	}
 	
-	public TokenResult onHasvalue(TokenExecutor exec, @NonNull Element elem) {
+	public TokenResult onContainsvalue(TokenExecutor exec, @NonNull Element elem) {
 		exec.push(new BoolElement(value.containsValue(elem)));
 		return TokenResult.PASS;
 	}
 	
-	public TokenResult onHasentry(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
-		exec.push(new BoolElement(hasEntry(elem0, elem1)));
+	public TokenResult onContainsentry(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
+		exec.push(new BoolElement(containsEntry(elem0, elem1)));
 		return TokenResult.PASS;
 	}
 	
@@ -271,13 +282,8 @@ public class DictElement extends Element implements IterableElement {
 	}
 	
 	public TokenResult onEntries(TokenExecutor exec) {
-		exec.push(new ListElement(list()));
+		exec.push(new SetElement(entries()));
 		return TokenResult.PASS;
-	}
-	
-	@Override
-	public int size() {
-		return value.size();
 	}
 	
 	protected List<@NonNull Element> list() {
@@ -291,7 +297,14 @@ public class DictElement extends Element implements IterableElement {
 		return list;
 	}
 	
-	protected boolean hasEntry(@NonNull Element k, @NonNull Element v) {
+	protected Set<@NonNull Element> entries() {
+		if (entries == null) {
+			entries = value.entrySet().stream().map(x -> new TupleElement(Arrays.asList(x.getKey(), x.getValue()))).collect(Collectors.toSet());
+		}
+		return entries;
+	}
+	
+	protected boolean containsEntry(@NonNull Element k, @NonNull Element v) {
 		@SuppressWarnings("null") Element val = value.get(k);
 		return val != null && val.equals(v);
 	}

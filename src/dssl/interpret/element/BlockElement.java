@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import dssl.interpret.TokenExecutor;
+import dssl.interpret.*;
 import dssl.interpret.element.primitive.StringElement;
 import dssl.node.Token;
 
@@ -28,7 +28,26 @@ public class BlockElement extends Element {
 	}
 	
 	public TokenExecutor executor(TokenExecutor exec) {
-		return new TokenExecutor(tokens.iterator(), exec);
+		return new TokenExecutor(new TokenIterator() {
+			
+			Iterator<@NonNull Token> internal = tokens.iterator();
+			
+			@Override
+			public void onStart() {
+				curr = getNextChecked();
+			}
+			
+			@Override
+			public boolean validNext() {
+				return internal.hasNext();
+			}
+			
+			@SuppressWarnings("null")
+			@Override
+			protected Token getNext() {
+				return internal.next();
+			}
+		}, exec);
 	}
 	
 	@SuppressWarnings("null")

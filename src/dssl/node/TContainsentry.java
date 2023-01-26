@@ -5,16 +5,16 @@ package dssl.node;
 import dssl.analysis.*;
 
 @SuppressWarnings("nls")
-public final class TRem extends Token
+public final class TContainsentry extends Token
 {
-    public TRem()
+    public TContainsentry()
     {
-        super.setText("rem");
+        super.setText("containsentry");
     }
 
-    public TRem(int line, int pos)
+    public TContainsentry(int line, int pos)
     {
-        super.setText("rem");
+        super.setText("containsentry");
         setLine(line);
         setPos(pos);
     }
@@ -22,18 +22,18 @@ public final class TRem extends Token
     @Override
     public Object clone()
     {
-      return new TRem(getLine(), getPos());
+      return new TContainsentry(getLine(), getPos());
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseTRem(this);
+        ((Analysis) sw).caseTContainsentry(this);
     }
 
     @Override
     public void setText(@SuppressWarnings("unused") String text)
     {
-        throw new RuntimeException("Cannot change TRem text.");
+        throw new RuntimeException("Cannot change TContainsentry text.");
     }
 }

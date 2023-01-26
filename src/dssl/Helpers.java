@@ -2,13 +2,20 @@ package dssl;
 
 import java.io.*;
 import java.math.*;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.*;
 import java.util.stream.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.translate.*;
 import org.eclipse.jdt.annotation.NonNull;
+
+import dssl.lexer.*;
+import dssl.node.*;
 
 public class Helpers {
 	
@@ -18,18 +25,14 @@ public class Helpers {
 		SPACE_JOIN_COLLECTOR = Collectors.joining(" ");
 	}
 	
-	public static PushbackReader getPushbackReader(Reader reader) {
-		return new PushbackReader(reader, 8192);
-	}
-	
 	public static String readFile(String fileName) {
 		try {
 			return new String(Files.readAllBytes(Paths.get(fileName)), Charset.defaultCharset());
 		}
 		catch (Exception e) {
 			e.printStackTrace();
+			throw new RuntimeException();
 		}
-		return null;
 	}
 	
 	public static void writeFile(String fileName, String contents) {
@@ -38,11 +41,50 @@ public class Helpers {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
+			throw new RuntimeException();
+		}
+	}
+	
+	public static PushbackReader getPushbackReader(Reader reader) {
+		return new PushbackReader(reader, 16384);
+	}
+	
+	public static Lexer stringLexer(String str) {
+		return new Lexer(getPushbackReader(new StringReader(str)));
+	}
+	
+	public static Token getLexerNext(Lexer lexer) {
+		try {
+			return lexer.next();
+		}
+		catch (LexerException e) {
+			throw new IllegalArgumentException(String.format("Encountered invalid token \"%s\"!", e.getToken().getText()));
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+			throw new RuntimeException();
 		}
 	}
 	
 	public static String lowerCase(String str) {
 		return str.toLowerCase(Locale.ROOT);
+	}
+	
+	public static String memberString(String identifier, String member) {
+		return String.format("%s.%s", identifier, member).replaceAll(".", " .");
+	}
+	
+	public static int leadingWhitespaceCount(String str) {
+		int count = 0, len = str.length();
+		for (int i = 0; i < len; ++i) {
+			if (Character.isWhitespace(str.charAt(i))) {
+				++count;
+			}
+			else {
+				break;
+			}
+		}
+		return count;
 	}
 	
 	private static final CharSequenceTranslator UNESCAPE_TRANSLATOR;
@@ -57,25 +99,66 @@ public class Helpers {
 		unescapeMap.put("\\\\", "\\");
 		unescapeMap.put("\\'", "'");
 		unescapeMap.put("\\\"", "\"");
+		unescapeMap.put("\\`", "`");
 		unescapeMap.put("\\", "");
 		
 		UNESCAPE_TRANSLATOR = new LookupTranslator(unescapeMap);
 	}
 	
-	public static @NonNull Character parseChar(String str) {
-		String unescape = parseString(str);
-		if (unescape.length() != 1) {
-			throw new IllegalArgumentException(String.format("Character value %s is invalid!", str));
-		}
-		return unescape.charAt(0);
-	}
-	
 	public static @NonNull String parseString(String str) {
-		String parsed = UNESCAPE_TRANSLATOR.translate(str.substring(1, str.length() - 1));
+		boolean raw = str.charAt(0) == 'r';
+		int start = raw ? 2 : 1, end = str.length() - 1;
+		String parsed = raw ? str.substring(start, end) : UNESCAPE_TRANSLATOR.translate(CharBuffer.wrap(str, start, end));
 		if (parsed == null) {
-			throw new RuntimeException(String.format("Failed to parse string \"%s\"!", str));
+			throw new RuntimeException(String.format("Failed to parse token %s!", str));
 		}
 		return parsed;
+	}
+	
+	public static @NonNull Character parseChar(String str) {
+		String parsed = parseString(str);
+		if (parsed.length() != 1) {
+			throw new IllegalArgumentException(String.format("Character value %s is invalid!", str));
+		}
+		return parsed.charAt(0);
+	}
+	
+	public static @NonNull String parseLineString(String str) {
+		return parseString(str);
+	}
+	
+	public static @NonNull String parseBlockString(String str) {
+		String[] lines = parseString(str).split("\\r?\\n");
+		boolean[] blanks = new boolean[lines.length];
+		int commonWhitespace = -1;
+		for (int i = 1; i < lines.length; ++i) {
+			String line = lines[i];
+			boolean blank = blanks[i] = StringUtils.isBlank(line);
+			if (i == lines.length - 1 || !blank) {
+				int whitespaceCount = leadingWhitespaceCount(line);
+				if (commonWhitespace == -1 || commonWhitespace > whitespaceCount) {
+					commonWhitespace = whitespaceCount;
+				}
+			}
+		}
+		
+		if (commonWhitespace < 0) {
+			commonWhitespace = 0;
+		}
+		
+		for (int i = 1; i < lines.length; ++i) {
+			lines[i] = blanks[i] ? "" : lines[i].substring(commonWhitespace);
+		}
+		
+		String joined = StringUtils.join(Arrays.asList(lines).subList(1, lines.length), '\n');
+		if (joined == null) {
+			throw new RuntimeException(String.format("Failed to parse block string!"));
+		}
+		return joined;
+	}
+	
+	public static boolean isSeparator(Token token) {
+		return token instanceof TBlank || token instanceof TComment;
 	}
 	
 	public static int mod(int a, int b) {
@@ -94,8 +177,8 @@ public class Helpers {
 		return BigDecimal.valueOf(d).toBigInteger();
 	}
 	
-	public static <T> T nullable(@NonNull T obj) {
-		return obj;
+	public static <A, B, C, D> Collector<Entry<A, B>, ?, Map<C, D>> mapCollector(Function<A, C> keyFunction, Function<B, D> valueFunction, BinaryOperator<D> mergeFunction) {
+		return Collectors.toMap(x -> keyFunction.apply(x.getKey()), x -> valueFunction.apply(x.getValue()), mergeFunction);
 	}
 	
 	public static final Set<String> KEYWORDS;
@@ -153,21 +236,21 @@ public class Helpers {
 	public static final String SIZE = "size";
 	public static final String EMPTY = "empty";
 	
-	public static final String HAS = "has";
+	public static final String CONTAINS = "contains";
 	public static final String ADD = "add";
-	public static final String REM = "rem";
-	public static final String HASALL = "hasall";
+	public static final String REMOVE = "remove";
+	public static final String CONTAINSALL = "containsall";
 	public static final String ADDALL = "addall";
-	public static final String REMALL = "remall";
+	public static final String REMOVEALL = "removeall";
 	public static final String CLEAR = "clear";
 	
 	public static final String GET = "get";
 	public static final String PUT = "put";
 	public static final String PUTALL = "putall";
 	
-	public static final String HASKEY = "haskey";
-	public static final String HASVALUE = "hasvalue";
-	public static final String HASENTRY = "hasentry";
+	public static final String CONTAINSKEY = "containskey";
+	public static final String CONTAINSVALUE = "containsvalue";
+	public static final String CONTAINSENTRY = "containsentry";
 	public static final String KEYS = "keys";
 	public static final String VALUES = "values";
 	public static final String ENTRIES = "entries";
@@ -293,21 +376,21 @@ public class Helpers {
 		KEYWORDS.add(SIZE);
 		KEYWORDS.add(EMPTY);
 		
-		KEYWORDS.add(HAS);
+		KEYWORDS.add(CONTAINS);
 		KEYWORDS.add(ADD);
-		KEYWORDS.add(REM);
-		KEYWORDS.add(HASALL);
+		KEYWORDS.add(REMOVE);
+		KEYWORDS.add(CONTAINSALL);
 		KEYWORDS.add(ADDALL);
-		KEYWORDS.add(REMALL);
+		KEYWORDS.add(REMOVEALL);
 		KEYWORDS.add(CLEAR);
 		
 		KEYWORDS.add(GET);
 		KEYWORDS.add(PUT);
 		KEYWORDS.add(PUTALL);
 		
-		KEYWORDS.add(HASKEY);
-		KEYWORDS.add(HASVALUE);
-		KEYWORDS.add(HASENTRY);
+		KEYWORDS.add(CONTAINSKEY);
+		KEYWORDS.add(CONTAINSVALUE);
+		KEYWORDS.add(CONTAINSENTRY);
 		KEYWORDS.add(KEYS);
 		KEYWORDS.add(VALUES);
 		KEYWORDS.add(ENTRIES);
@@ -380,12 +463,25 @@ public class Helpers {
 	
 	public static class Pair<L, R> {
 		
-		public L left;
-		public R right;
+		public final L left;
+		public final R right;
 		
 		public Pair(L left, R right) {
 			this.left = left;
 			this.right = right;
+		}
+	}
+	
+	public static class Triple<F, S, T> {
+		
+		public final F first;
+		public final S second;
+		public final T third;
+		
+		public Triple(F first, S second, T third) {
+			this.first = first;
+			this.second = second;
+			this.third = third;
 		}
 	}
 }

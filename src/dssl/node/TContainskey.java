@@ -5,16 +5,16 @@ package dssl.node;
 import dssl.analysis.*;
 
 @SuppressWarnings("nls")
-public final class TRemall extends Token
+public final class TContainskey extends Token
 {
-    public TRemall()
+    public TContainskey()
     {
-        super.setText("remall");
+        super.setText("containskey");
     }
 
-    public TRemall(int line, int pos)
+    public TContainskey(int line, int pos)
     {
-        super.setText("remall");
+        super.setText("containskey");
         setLine(line);
         setPos(pos);
     }
@@ -22,18 +22,18 @@ public final class TRemall extends Token
     @Override
     public Object clone()
     {
-      return new TRemall(getLine(), getPos());
+      return new TContainskey(getLine(), getPos());
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseTRemall(this);
+        ((Analysis) sw).caseTContainskey(this);
     }
 
     @Override
     public void setText(@SuppressWarnings("unused") String text)
     {
-        throw new RuntimeException("Cannot change TRemall text.");
+        throw new RuntimeException("Cannot change TContainskey text.");
     }
 }
