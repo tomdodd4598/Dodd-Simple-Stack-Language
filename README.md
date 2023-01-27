@@ -86,12 +86,12 @@ Block elements are also used in control flow statements. The following program p
 ```
 /n 0 def
 {
-	/n ++							# Increment n
-	n 10 > { break } if				# Break out of loop if n > 10
-	n " is " ~						# Concatenate n with " is "
-	n isEven exec					# Push result of isEven execution
-	{ "even" } { "odd" } ifelse ~	# Concatenate previous string with "even" or "odd"
-	println							# Print string
+    /n ++                          # Increment n
+    n 10 > { break } if            # Break out of loop if n > 10
+    n " is " ~                     # Concatenate n with " is "
+    n isEven exec                  # Push result of isEven execution
+    { "even" } { "odd" } ifelse ~  # Concatenate previous string with "even" or "odd"
+    println                        # Print string
 } loop
 ```
 The keyword `break` causes the interpreter to end the current loop. The other related keywords are `continue`, which moves to the next loop iteration, and `quit`, which stops the entire program.
@@ -124,11 +124,11 @@ A collection is an opening bracket element `[` followed by any number of element
 Lists and sets are constructed in an intuitively similar manner to the tuple above, but are mutable unlike tuples. Ranges are constructed using one to three arguments as in Python, and can be used in a similar way. A `foreach` loop, which iterates through a collection and executes a block after pushing each element to the stack, could be used to rewrite the example using `isEven` above:
 ```
 [ 1 11 ] range {
-	/n exch def
-	n " is " ~
-	n isEven exec
-	{ "even" } { "odd" } ifelse ~
-	println
+    /n exch def
+    n " is " ~
+    n isEven exec
+    { "even" } { "odd" } ifelse ~
+    println
 } foreach
 ```
 Instead of manually incrementing a counter and conditionally breaking the loop, we instead use the `def` keyword to store the value of the current yielded element locally. The `exch` keyword, which swaps the two top elements on the stack, is needed to put the label before the value.
@@ -153,13 +153,13 @@ The `import` keyword is used to dynamically run other scripts. It requires two a
 ```
 /Other "relative/path/to/other.dssl" import
 
-/Other .x 10 *=		# Modify Other .var
-Other .x println	# Print Other .var
+/Other .x 10 *=   # Modify Other .var
+Other .x println  # Print Other .var
 ```
 More variables can also be added to the sub-hierarchy from outside the imported script:
 ```
-/Other .y 0.577 def	# Define Other .y
-Other .y println	# Print Other .y
+/Other .y 0.577 def  # Define Other .y
+Other .y println     # Print Other .y
 ```
 
 An important note is that although sub-hierarchies are scoped, the definitions *within* sub-hierarchies are not. For example, a new definition of `Other .var` within an executed block element will not shadow the definition accessible in the outer scope.
@@ -173,11 +173,11 @@ DSSL adds support for object-oriented programming through classes. A class is de
     /e 2.7182818284590452354 def
     
     /factorial {
-		/result 1 def
+        /result 1 def
         1 + [ 1 3 2 roll ] range {
-			/result exch *=
-		} foreach
-		result
+            /result exch *=
+        } foreach
+        result
     } def
 } class
 
@@ -187,31 +187,31 @@ DSSL adds support for object-oriented programming through classes. A class is de
 The `new` keyword is used to create **instances** of a class from a **class element** on the top of the stack, which can be created by using the class's identifier. The following defines two variables `a` and `b` as instances of the `Complex` class and prints them:
 ```
 /Complex {
-	/init {
-		/this exch def		# Save instance to local variable
-		/this .im exch def	# Define imaginary component to second argument
-		/this .re exch def	# Define real component to first argument
-		this				# Push instance back to the stack
-	} magic
-	
-	/i 0.0 1.0 Complex new def
-	
-	/mult {
-		dup .re /yre exch def .im /yim exch def
-		dup .re /xre exch def .im /xim exch def
-		xre yre * xim yim * - xre yim * xim yre * + Complex new
-	} def
-	
-	/toString {
-		/this exch def
-		this .re string
-		this .im 0.0 >= { '+' ~ } if
-		this .im string ~ 'i' ~
-	} def
+    /init {
+        /this exch def      # Save instance to local variable
+        /this .im exch def  # Define imaginary component to second argument
+        /this .re exch def  # Define real component to first argument
+        this                # Push instance back to the stack
+    } magic
+    
+    /i 0.0 1.0 Complex new def
+    
+    /mult {
+        dup .re /yre exch def .im /yim exch def
+        dup .re /xre exch def .im /xim exch def
+        xre yre * xim yim * - xre yim * xim yre * + Complex new
+    } def
+    
+    /toString {
+        /this exch def
+        this .re string
+        this .im 0.0 >= { '+' ~ } if
+        this .im string ~ 'i' ~
+    } def
 } class
 
-a Complex .toString exec println	# static access
-b .toString exec println			# instance access
+a Complex .toString exec println  # static access
+b .toString exec println          # instance access
 ```
 The instances are converted to strings by executing the `toString` function. While `a` is converted using a **static access** to the function, the interpreter knows that `b` is an instance of `Complex` and so performs an **instance access**, which first pushes `b` to the stack before pushing the function, resulting in the same outcome. The following is another example of instance access, used to define `c` as the product of `a` and `b`:
 ```

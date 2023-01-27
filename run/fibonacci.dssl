@@ -1,0 +1,35 @@
+# ------------------- #
+# RECURSIVE FIBONACCI #
+# ------------------- #
+
+/f 0 def
+/n 0 def
+
+/fib {
+	dup 1 > {
+		dup 1 - fib exec
+		exch 2 - fib exec +
+	} if
+} def
+
+{
+	/n ++
+	n 10 > { break } if
+	/f n fib exec =
+	f println
+} loop
+
+# ------------------- #
+# ITERATIVE FIBONACCI #
+# ------------------- #
+
+/fib {
+	dup 1 > {
+		dup 1 - fib exec
+		exch 2 - fib exec +
+	} if
+} def
+
+[ 1 11 ] range {
+	fib exec println
+} foreach

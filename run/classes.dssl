@@ -1,0 +1,113 @@
+# ----------------- #
+# COUNTER CONTAINER #
+# ----------------- #
+
+/Container {
+	/init {
+		/this exch def
+		/this .counter 0 def
+		this
+		"Made a Container!" println
+	} magic
+	
+	/increment {
+		/this exch def
+		/this .counter ++
+		"Counter: " this .counter ~ println
+	} def
+} class
+
+/inst Container new def
+
+5 {
+	inst .increment exec
+} repeat
+
+# ---------------- #
+# LINKED LIST ITEM #
+# ---------------- #
+
+/Item {
+	/init {
+		/this exch def
+		/this .value exch def
+		/this .next null def
+		this
+	} magic
+	
+	/addNext {
+		/curr exch def
+		/prev null def
+		{
+			/prev curr =
+			/curr curr .next =
+			curr null == { break } if
+		} loop
+		/prev .next exch Item new =
+	} def
+	
+	/printGetNext {
+		/item exch def
+		item .value print
+		item .next dup null == { '\n' } { ", " } ifelse print
+	} def
+	
+	/printList {
+		/item exch def
+		{
+			/item item .printGetNext exec =
+			item null == { break } if
+		} loop
+	} def
+	
+	/printRecursive {
+		.printGetNext exec /next exch def
+		next null != {
+			next .printRecursive exec
+		} if
+	} def
+} class
+
+/item "First" Item new def
+"Second" item .addNext exec
+"Third" item .addNext exec
+item .printList exec
+item .printRecursive exec
+
+# -------------- #
+# COMPLEX NUMBER #
+# -------------- #
+
+/Complex {
+	/init {
+		/this exch def
+		/this .im exch def
+		/this .re exch def
+		this
+	} magic
+	
+	/i 0.0 1.0 Complex new def
+	
+	/mult {
+		dup .re /yre exch def .im /yim exch def
+		dup .re /xre exch def .im /xim exch def
+		xre yre * xim yim * - xre yim * xim yre * + Complex new
+	} def
+	
+	/toString {
+		/this exch def
+		this .re string
+		this .im 0.0 >= { '+' ~ } if
+		this .im string ~ 'i' ~
+	} def
+} class
+
+/a 2.3 3.4 Complex new def
+/b 6.2 -1.9 Complex new def
+
+a Complex .toString exec println
+b .toString exec println
+
+/c a b .mult exec def
+/c .shout { "Hello!" println } def
+c .shout exec
