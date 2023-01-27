@@ -15,10 +15,12 @@ out
 
 # gradle
 build/
-run/test.dssl
 .gradle
 
 # other
 eclipse/
 *.suo
 /.vs
+
+run/test.dssl
+run/other.dssl
