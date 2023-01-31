@@ -455,7 +455,11 @@ public class TokenExecutor extends TokenReader implements Scope {
 			throw new IllegalArgumentException(String.format("Keyword \"macro\" requires block element as second argument!"));
 		}
 		
-		((LabelElement) elem0).setMacro((BlockElement) elem1);
+		LabelElement label = (LabelElement) elem0;
+		if (Helpers.KEYWORDS.contains(label.identifier)) {
+			throw new IllegalArgumentException(String.format("Keyword \"%s\" can not be used as a macro identifier!", label.identifier));
+		}
+		label.setMacro((BlockElement) elem1);
 		return TokenResult.PASS;
 	}
 	
@@ -468,8 +472,12 @@ public class TokenExecutor extends TokenReader implements Scope {
 			throw new IllegalArgumentException(String.format("Keyword \"class\" requires block element as second argument!"));
 		}
 		
+		LabelElement label = (LabelElement) elem0;
+		if (Helpers.KEYWORDS.contains(label.identifier)) {
+			throw new IllegalArgumentException(String.format("Keyword \"%s\" can not be used as a class identifier!", label.identifier));
+		}
 		TokenExecutor clazzExec = ((BlockElement) elem1).executor(exec);
-		((LabelElement) elem0).setClazz(clazzExec.getMaps());
+		label.setClazz(clazzExec.getMaps());
 		TokenResult result = clazzExec.iterate();
 		return result;
 	}
@@ -1313,12 +1321,9 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return result;
 	}
 	
+	@SuppressWarnings("null")
 	protected static TokenResult onLabel(TokenExecutor exec, @NonNull Token token) {
-		@SuppressWarnings("null") @NonNull String label = token.getText().substring(1);
-		if (Helpers.KEYWORDS.contains(label)) {
-			throw new IllegalArgumentException(String.format("Keyword \"%s\" can not be used as a label!", label));
-		}
-		exec.push(new LabelElement(exec, label));
+		exec.push(new LabelElement(exec, token.getText().substring(1)));
 		return TokenResult.PASS;
 	}
 	
@@ -1364,18 +1369,23 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return TokenResult.PASS;
 	}
 	
-	protected static TokenResult assign(TokenExecutor exec, boolean shadow) {
+	protected static TokenResult assign(TokenExecutor exec, boolean def) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
 		if (!(elem0 instanceof LabelElement)) {
-			throw new IllegalArgumentException(String.format("%s requires label element as first argument!", shadow ? "Keyword \"def\"" : "Assignment"));
+			throw new IllegalArgumentException(String.format("%s requires label element as first argument!", def ? "Keyword \"def\"" : "Assignment"));
 		}
 		
 		LabelElement label = (LabelElement) elem0;
-		if (!shadow && label.getDef() == null) {
+		if (def) {
+			if (Helpers.KEYWORDS.contains(label.identifier)) {
+				throw new IllegalArgumentException(String.format("Keyword \"%s\" can not be used as a variable identifier!", label.identifier));
+			}
+		}
+		else if (label.getDef() == null) {
 			throw new IllegalArgumentException(String.format("Variable \"%s\" not defined!", label.identifier));
 		}
 		
-		label.setDef(elem1, shadow);
+		label.setDef(elem1, def);
 		return TokenResult.PASS;
 	}
 	
