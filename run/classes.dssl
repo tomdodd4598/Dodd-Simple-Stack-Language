@@ -14,13 +14,13 @@
 		/this exch def
 		/this .counter ++
 		"Counter: " this .counter ~ println
-	} def
+	} macro
 } class
 
 /inst Container new def
 
 5 {
-	inst .increment exec
+	inst .increment
 } repeat
 
 # ---------------- #
@@ -44,35 +44,35 @@
 			curr null == { break } if
 		} loop
 		/prev .next exch Item new =
-	} def
+	} macro
 	
 	/printGetNext {
 		/item exch def
 		item .value print
 		item .next dup null == { '\n' } { ", " } ifelse print
-	} def
+	} macro
 	
 	/printList {
 		/item exch def
 		{
-			/item item .printGetNext exec =
+			/item item .printGetNext =
 			item null == { break } if
 		} loop
-	} def
+	} macro
 	
 	/printRecursive {
-		.printGetNext exec /next exch def
+		.printGetNext /next exch def
 		next null != {
-			next .printRecursive exec
+			next .printRecursive
 		} if
-	} def
+	} macro
 } class
 
 /item "First" Item new def
-"Second" item .addNext exec
-"Third" item .addNext exec
-item .printList exec
-item .printRecursive exec
+"Second" item .addNext
+"Third" item .addNext
+item .printList
+item .printRecursive
 
 # -------------- #
 # COMPLEX NUMBER #
@@ -92,22 +92,22 @@ item .printRecursive exec
 		dup .re /yre exch def .im /yim exch def
 		dup .re /xre exch def .im /xim exch def
 		xre yre * xim yim * - xre yim * xim yre * + Complex new
-	} def
+	} macro
 	
 	/toString {
 		/this exch def
 		this .re string
 		this .im 0.0 >= { '+' ~ } if
 		this .im string ~ 'i' ~
-	} def
+	} macro
 } class
 
 /a 2.3 3.4 Complex new def
 /b 6.2 -1.9 Complex new def
 
-a Complex .toString exec println
-b .toString exec println
+a Complex .toString println
+b .toString println
 
-/c a b .mult exec def
-/c .shout { "Hello!" println } def
-c .shout exec
+/c a b .mult def
+/c .shout { "Hello!" println } macro
+c .shout

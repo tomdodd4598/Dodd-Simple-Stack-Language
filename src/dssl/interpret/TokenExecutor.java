@@ -2,6 +2,7 @@ package dssl.interpret;
 
 import java.math.BigInteger;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.StreamSupport;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -19,20 +20,29 @@ import dssl.node.*;
 
 public class TokenExecutor extends TokenReader implements Scope {
 	
+	protected final boolean baseScope;
+	
 	protected final Hierarchy<@NonNull String, Def> defHierarchy;
+	protected final Hierarchy<@NonNull String, Macro> macroHierarchy;
 	protected final Hierarchy<@NonNull String, Clazz> clazzHierarchy;
-	protected final Map<@NonNull String, Magic> magicMap = new HashMap<>();
+	protected final Map<@NonNull String, Magic> magicMap;
 	
 	protected TokenExecutor(Interpreter interpreter, TokenIterator iterator) {
 		super(interpreter, iterator);
-		defHierarchy = new Hierarchy<>(null);
-		clazzHierarchy = new Hierarchy<>(null);
+		baseScope = true;
+		defHierarchy = new Hierarchy<>();
+		macroHierarchy = new Hierarchy<>();
+		clazzHierarchy = new Hierarchy<>();
+		magicMap = new HashMap<>();
 	}
 	
-	public TokenExecutor(TokenIterator iterator, TokenExecutor prev) {
+	public TokenExecutor(TokenIterator iterator, TokenExecutor prev, boolean child) {
 		super(iterator, prev);
-		defHierarchy = new Hierarchy<>(prev == null ? null : prev.defHierarchy);
-		clazzHierarchy = new Hierarchy<>(prev == null ? null : prev.clazzHierarchy);
+		baseScope = prev.baseScope && !child;
+		defHierarchy = child ? prev.defHierarchy.child() : prev.defHierarchy;
+		macroHierarchy = child ? prev.macroHierarchy.child() : prev.macroHierarchy;
+		clazzHierarchy = child ? prev.clazzHierarchy.child() : prev.clazzHierarchy;
+		magicMap = child ? new HashMap<>() : prev.magicMap;
 	}
 	
 	@Override
@@ -73,13 +83,40 @@ public class TokenExecutor extends TokenReader implements Scope {
 	}
 	
 	@Override
+	public boolean hasDef(@NonNull String identifier) {
+		return defHierarchy.containsKey(identifier);
+	}
+	
+	@Override
 	public Def getDef(@NonNull String identifier) {
 		return defHierarchy.get(identifier);
 	}
 	
 	@Override
 	public void setDef(@NonNull String identifier, @NonNull Element value, boolean shadow) {
+		checkDef(identifier);
 		defHierarchy.put(identifier, new Def(identifier, value), shadow);
+	}
+	
+	@Override
+	public boolean hasMacro(@NonNull String identifier) {
+		return macroHierarchy.containsKey(identifier);
+	}
+	
+	@Override
+	public Macro getMacro(@NonNull String identifier) {
+		return macroHierarchy.get(identifier);
+	}
+	
+	@Override
+	public void setMacro(@NonNull String identifier, @NonNull BlockElement block) {
+		checkMacro(identifier);
+		macroHierarchy.put(identifier, new Macro(identifier, block), true);
+	}
+	
+	@Override
+	public boolean hasClazz(@NonNull String shallow) {
+		return clazzHierarchy.containsKey(shallow);
 	}
 	
 	@Override
@@ -89,12 +126,23 @@ public class TokenExecutor extends TokenReader implements Scope {
 	
 	@Override
 	public void setClazz(@NonNull String shallow, ScopeMaps maps) {
+		checkClazz(shallow);
 		clazzHierarchy.put(shallow, new Clazz(null, shallow, maps), true);
 	}
 	
 	@Override
+	public boolean hasMagic(@NonNull String identifier) {
+		return magicMap.containsKey(identifier);
+	}
+	
+	@Override
+	public Magic getMagic(@NonNull String identifier) {
+		return magicMap.get(identifier);
+	}
+	
+	@Override
 	public ScopeMaps getMaps() {
-		return new ScopeMaps(defHierarchy.internal, clazzHierarchy.internal, magicMap);
+		return new ScopeMaps(defHierarchy.internal, macroHierarchy.internal, clazzHierarchy.internal, magicMap);
 	}
 	
 	public void push(@NonNull Element elem) {
@@ -213,8 +261,10 @@ public class TokenExecutor extends TokenReader implements Scope {
 		TOKEN_FUNCTION_MAP.put(TNative.class, TokenExecutor::onNative);
 		
 		TOKEN_FUNCTION_MAP.put(TDef.class, TokenExecutor::onDef);
+		TOKEN_FUNCTION_MAP.put(TMacro.class, TokenExecutor::onMacro);
 		TOKEN_FUNCTION_MAP.put(TClass.class, TokenExecutor::onClass);
 		TOKEN_FUNCTION_MAP.put(TMagic.class, TokenExecutor::onMagic);
+		
 		TOKEN_FUNCTION_MAP.put(TNew.class, TokenExecutor::onNew);
 		
 		TOKEN_FUNCTION_MAP.put(TExch.class, TokenExecutor::onExch);
@@ -396,6 +446,19 @@ public class TokenExecutor extends TokenReader implements Scope {
 		return assign(exec, true);
 	}
 	
+	protected static TokenResult onMacro(TokenExecutor exec, @NonNull Token token) {
+		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		if (!(elem0 instanceof LabelElement)) {
+			throw new IllegalArgumentException(String.format("Keyword \"macro\" requires label element as first argument!"));
+		}
+		if (!(elem1 instanceof BlockElement)) {
+			throw new IllegalArgumentException(String.format("Keyword \"macro\" requires block element as second argument!"));
+		}
+		
+		((LabelElement) elem0).setMacro((BlockElement) elem1);
+		return TokenResult.PASS;
+	}
+	
 	protected static TokenResult onClass(TokenExecutor exec, @NonNull Token token) {
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
 		if (!(elem0 instanceof LabelElement)) {
@@ -412,6 +475,10 @@ public class TokenExecutor extends TokenReader implements Scope {
 	}
 	
 	protected static TokenResult onMagic(TokenExecutor exec, @NonNull Token token) {
+		if (exec.baseScope) {
+			throw new IllegalArgumentException(String.format("Keyword \"magic\" can not be used in a base scope!"));
+		}
+		
 		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
 		if (!(elem0 instanceof LabelElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"magic\" requires label element as first argument!"));
@@ -571,7 +638,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 		if (stringElem == null) {
 			throw new IllegalArgumentException(String.format("Keyword \"interpret\" requires string value element as argument!"));
 		}
-		return new TokenExecutor(new LexerIterator(stringElem.toString()), exec).iterate();
+		return new TokenExecutor(new LexerIterator(stringElem.toString()), exec, false).iterate();
 	}
 	
 	protected static TokenResult onInt(TokenExecutor exec, @NonNull Token token) {
@@ -1196,18 +1263,11 @@ public class TokenExecutor extends TokenReader implements Scope {
 		}
 		
 		LabelElement label = (LabelElement) elem;
-		Def def;
-		Clazz clazz;
-		if ((def = label.getDef()) != null) {
-			exec.push(def.elem);
+		TokenResult result = scopeAction(exec, label::getDef, label::getMacro, label::getClazz);
+		if (result == null) {
+			throw new IllegalArgumentException(String.format("Variable, macro or class \"%s\" not defined!", label.identifier));
 		}
-		else if ((clazz = label.getClazz()) != null) {
-			exec.push(clazz.elem);
-		}
-		else {
-			throw new IllegalArgumentException(String.format("Variable or class \"%s\" not defined!", label.identifier));
-		}
-		return TokenResult.PASS;
+		return result;
 	}
 	
 	protected static TokenResult onIntValue(TokenExecutor exec, @NonNull Token token) {
@@ -1242,18 +1302,15 @@ public class TokenExecutor extends TokenReader implements Scope {
 	
 	protected static TokenResult onIdentifier(TokenExecutor exec, @NonNull Token token) {
 		@SuppressWarnings("null") @NonNull String identifier = token.getText();
-		Def def;
-		Clazz clazz;
-		if ((def = exec.getDef(identifier)) != null) {
-			exec.push(def.elem);
+		if (Helpers.KEYWORDS.contains(identifier)) {
+			throw new IllegalArgumentException(String.format("Keyword \"%s\" can not be used as an identifier!", identifier));
 		}
-		else if ((clazz = exec.getClazz(identifier)) != null) {
-			exec.push(clazz.elem);
+		
+		TokenResult result = scopeAction(exec, identifier, exec);
+		if (result == null) {
+			throw new IllegalArgumentException(String.format("Variable, macro or class \"%s\" not defined!", identifier));
 		}
-		else {
-			throw new IllegalArgumentException(String.format("Variable or class \"%s\" not defined!", identifier));
-		}
-		return TokenResult.PASS;
+		return result;
 	}
 	
 	protected static TokenResult onLabel(TokenExecutor exec, @NonNull Token token) {
@@ -1272,50 +1329,34 @@ public class TokenExecutor extends TokenReader implements Scope {
 		}
 		
 		@NonNull Element elem = exec.pop();
-		Def def;
-		Clazz clazz, subclazz;
+		TokenResult result;
+		Clazz clazz;
 		if (elem instanceof LabelElement) {
 			exec.push(((LabelElement) elem).extended(member));
+			return TokenResult.PASS;
 		}
 		else if (elem instanceof InstanceElement) {
 			InstanceElement instance = (InstanceElement) elem;
-			if ((def = instance.defMap.get(member)) != null) {
-				exec.push(def.elem);
-			}
-			else if ((subclazz = instance.clazzMap.get(member)) != null) {
-				exec.push(subclazz.elem);
+			if ((result = scopeAction(exec, member, instance)) != null) {
+				return result;
 			}
 			else {
-				clazz = instance.clazz;
-				if ((def = clazz.defMap.get(member)) != null) {
-					exec.push(instance);
-					exec.push(def.elem);
-				}
-				else if ((subclazz = clazz.clazzMap.get(member)) != null) {
-					exec.push(instance);
-					exec.push(subclazz.elem);
-				}
-				else {
+				exec.push(instance);
+				if ((result = scopeAction(exec, member, clazz = instance.clazz)) == null) {
 					throw new IllegalArgumentException(String.format("Instance member \"%s\" not defined!", Helpers.memberString(clazz.identifier, member)));
 				}
+				return result;
 			}
 		}
 		else if (elem instanceof ClassElement) {
-			clazz = ((ClassElement) elem).clazz;
-			if ((def = clazz.defMap.get(member)) != null) {
-				exec.push(def.elem);
-			}
-			else if ((subclazz = clazz.clazzMap.get(member)) != null) {
-				exec.push(subclazz.elem);
-			}
-			else {
+			if ((result = scopeAction(exec, member, clazz = ((ClassElement) elem).clazz)) == null) {
 				throw new IllegalArgumentException(String.format("Class member \"%s\" not defined!", Helpers.memberString(clazz.identifier, member)));
 			}
+			return result;
 		}
 		else {
 			throw new IllegalArgumentException(String.format("Member access \".%s\" requires label, instance or class element as first argument!", member));
 		}
-		return TokenResult.PASS;
 	}
 	
 	protected static TokenResult onBlock(TokenExecutor exec, @NonNull Token token) {
@@ -1336,6 +1377,30 @@ public class TokenExecutor extends TokenReader implements Scope {
 		
 		label.setDef(elem1, shadow);
 		return TokenResult.PASS;
+	}
+	
+	protected static TokenResult scopeAction(TokenExecutor exec, Supplier<Def> getDef, Supplier<Macro> getMacro, Supplier<Clazz> getClazz) {
+		Def def;
+		Macro macro;
+		Clazz clazz;
+		if ((def = getDef.get()) != null) {
+			exec.push(def.elem);
+			return TokenResult.PASS;
+		}
+		else if ((macro = getMacro.get()) != null) {
+			return macro.block.executor(exec).iterate();
+		}
+		else if ((clazz = getClazz.get()) != null) {
+			exec.push(clazz.elem);
+			return TokenResult.PASS;
+		}
+		else {
+			return null;
+		}
+	}
+	
+	protected static TokenResult scopeAction(TokenExecutor exec, @NonNull String identifier, Scope scope) {
+		return scopeAction(exec, () -> scope.getDef(identifier), () -> scope.getMacro(identifier), () -> scope.getClazz(identifier));
 	}
 	
 	protected static int countElemsToLabel(TokenExecutor exec, LabelElement label) {

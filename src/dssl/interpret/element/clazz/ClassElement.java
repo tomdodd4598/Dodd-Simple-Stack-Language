@@ -28,17 +28,25 @@ public class ClassElement extends Element {
 		return new StringElement(toString());
 	}
 	
-	public Def getDef(String identifier) {
-		return clazz.defMap.get(identifier);
+	public Def getDef(@NonNull String identifier) {
+		return clazz.getDef(identifier);
 	}
 	
-	public Clazz getClazz(String identifier) {
-		return clazz.clazzMap.get(identifier);
+	public Macro getMacro(@NonNull String identifier) {
+		return clazz.getMacro(identifier);
+	}
+	
+	public Clazz getClazz(@NonNull String shallow) {
+		return clazz.getClazz(shallow);
+	}
+	
+	public Magic getMagic(@NonNull String identifier) {
+		return clazz.getMagic(identifier);
 	}
 	
 	public TokenResult instantiate(TokenExecutor exec) {
 		exec.push(new InstanceElement(clazz));
-		Magic init = clazz.magicMap.get("init");
+		Magic init = clazz.getMagic("init");
 		if (init == null) {
 			return TokenResult.PASS;
 		}

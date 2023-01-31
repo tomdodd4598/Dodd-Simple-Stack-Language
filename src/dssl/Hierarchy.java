@@ -9,7 +9,11 @@ public class Hierarchy<K, V> {
 	public final Map<K, V> internal = new HashMap<>();
 	protected final Hierarchy<K, V> prev;
 	
-	public Hierarchy(Hierarchy<K, V> prev) {
+	public Hierarchy() {
+		this(null);
+	}
+	
+	protected Hierarchy(Hierarchy<K, V> prev) {
 		this.prev = prev;
 	}
 	
@@ -34,5 +38,9 @@ public class Hierarchy<K, V> {
 			return true;
 		}
 		return prev == null ? false : prev.containsKey(key);
+	}
+	
+	public Hierarchy<K, V> child() {
+		return new Hierarchy<>(this);
 	}
 }

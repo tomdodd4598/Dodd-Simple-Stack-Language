@@ -4,7 +4,6 @@ import java.math.BigInteger;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import dssl.interpret.*;
 import dssl.interpret.element.Element;
 import dssl.interpret.value.*;
 
@@ -90,12 +89,6 @@ public abstract class PrimitiveElement<@NonNull T> extends Element {
 			throw castError("string");
 		}
 		return new StringElement(stringValue);
-	}
-	
-	@Override
-	public TokenResult onSize(TokenExecutor exec) {
-		exec.push(new IntElement(1));
-		return TokenResult.PASS;
 	}
 	
 	@Override

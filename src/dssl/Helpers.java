@@ -193,8 +193,10 @@ public class Helpers {
 	public static final String NATIVE = "native";
 	
 	public static final String DEF = "def";
+	public static final String MACRO = "macro";
 	public static final String CLASS = "class";
 	public static final String MAGIC = "magic";
+	
 	public static final String NEW = "new";
 	
 	public static final String EXCH = "exch";
@@ -333,8 +335,10 @@ public class Helpers {
 		KEYWORDS.add(NATIVE);
 		
 		KEYWORDS.add(DEF);
+		KEYWORDS.add(MACRO);
 		KEYWORDS.add(CLASS);
 		KEYWORDS.add(MAGIC);
+		
 		KEYWORDS.add(NEW);
 		
 		KEYWORDS.add(EXCH);

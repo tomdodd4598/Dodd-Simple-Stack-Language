@@ -64,6 +64,14 @@ public class LabelElement extends Element {
 		scope.setDef(shallow, value, shadow);
 	}
 	
+	public Macro getMacro() {
+		return scope.getMacro(shallow);
+	}
+	
+	public void setMacro(@NonNull BlockElement block) {
+		scope.setMacro(shallow, block);
+	}
+	
 	public Clazz getClazz() {
 		return scope.getClazz(shallow);
 	}

@@ -17,7 +17,6 @@ Planned Features
 ----------------
 
 - Class extensions and inheritance.
-- A `macro` keyword to define immediately-executing functions.
 - Operator overloading with `magic` definitions.
 - Container type keywords replaced with member-accessible macros.
 

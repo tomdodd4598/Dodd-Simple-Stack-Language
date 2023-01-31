@@ -54,6 +54,12 @@ public class StringElement extends PrimitiveElement<@NonNull String> implements 
 	}
 	
 	@Override
+	public TokenResult onSize(TokenExecutor exec) {
+		exec.push(new IntElement(size()));
+		return TokenResult.PASS;
+	}
+	
+	@Override
 	public @NonNull Element onNot() {
 		throw unaryOpError("not");
 	}

@@ -47,8 +47,10 @@ Tokens
 	native = 'native';
 	
 	def = 'def';
+	macro = 'macro';
 	class = 'class';
 	magic = 'magic';
+	
 	new = 'new';
 	
 	exch = 'exch';

@@ -47,7 +47,7 @@ public class BlockElement extends Element {
 			protected Token getNext() {
 				return internal.next();
 			}
-		}, exec);
+		}, exec, true);
 	}
 	
 	@SuppressWarnings("null")

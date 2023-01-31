@@ -1,7 +1,0 @@
-Add class extensions and inheritance.
-
-Add `macro` keyword to define immediately-executing functions.
-
-Operator overloading with magic definitions.
-
-Container type keywords replaced with member-accessible macros.
