@@ -429,13 +429,13 @@ public class NativeImpl implements Native {
 			return new StringElement((String) obj);
 		}
 		else if (obj instanceof List) {
-			return new ListElement(((List<?>) obj).stream().map(NativeImpl::convert).collect(Collectors.toList()));
+			return new ListElement(Helpers.map((List<?>) obj, NativeImpl::convert));
 		}
 		else if (obj.getClass().isArray()) {
 			return new TupleElement(IntStream.range(0, Array.getLength(obj)).boxed().map(x -> Array.get(obj, x)).map(NativeImpl::convert).collect(Collectors.toList()));
 		}
 		else if (obj instanceof Set) {
-			return new SetElement(((Set<?>) obj).stream().map(NativeImpl::convert).collect(Collectors.toSet()));
+			return new SetElement(Helpers.map((Set<?>) obj, NativeImpl::convert));
 		}
 		else if (obj instanceof Map) {
 			return new DictElement(((Map<?, ?>) obj).entrySet().stream().collect(Helpers.mapCollector(NativeImpl::convert, NativeImpl::convert, (x, y) -> y)));

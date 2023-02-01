@@ -1,6 +1,6 @@
 package dssl.interpret.element;
 
-import java.util.Objects;
+import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNull;
 
@@ -76,8 +76,8 @@ public class LabelElement extends Element {
 		return scope.getClazz(shallow);
 	}
 	
-	public void setClazz(ScopeMaps maps) {
-		scope.setClazz(shallow, maps);
+	public void setClazz(HierarchicalScope base, List<@NonNull Clazz> supers) {
+		scope.setClazz(shallow, base, supers);
 	}
 	
 	public @NonNull LabelElement extended(@NonNull String extension) {

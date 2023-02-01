@@ -6,41 +6,69 @@ import org.eclipse.jdt.annotation.Nullable;
 
 public class Hierarchy<K, V> {
 	
-	public final Map<K, V> internal = new HashMap<>();
-	protected final Hierarchy<K, V> prev;
+	protected final Map<K, V> internal;
+	protected final List<Hierarchy<K, V>> parents;
 	
 	public Hierarchy() {
-		this(null);
+		this(new HashMap<>(), Arrays.asList());
 	}
 	
-	protected Hierarchy(Hierarchy<K, V> prev) {
-		this.prev = prev;
+	protected Hierarchy(Map<K, V> internal, List<Hierarchy<K, V>> parents) {
+		this.internal = internal;
+		this.parents = parents;
+	}
+	
+	protected @Nullable V putInternal(K key, V value, boolean shadow) {
+		if (shadow || internal.containsKey(key)) {
+			return internal.put(key, value);
+		}
+		for (Hierarchy<K, V> parent : parents) {
+			V prev = parent.putInternal(key, value, false);
+			if (prev != null) {
+				return prev;
+			}
+		}
+		return null;
 	}
 	
 	public @Nullable V put(K key, V value, boolean shadow) {
-		if (shadow || prev == null || internal.containsKey(key)) {
-			return internal.put(key, value);
+		V prev = putInternal(key, value, shadow);
+		if (!shadow && prev == null) {
+			throw new IllegalArgumentException(String.format("Encountered unexpected key \"%s\"!", key));
 		}
-		else {
-			return prev.put(key, value, shadow);
-		}
+		return prev;
 	}
 	
 	public @Nullable V get(K key) {
 		if (internal.containsKey(key)) {
 			return internal.get(key);
 		}
-		return prev == null ? null : prev.get(key);
+		for (Hierarchy<K, V> parent : parents) {
+			V value = parent.get(key);
+			if (value != null) {
+				return value;
+			}
+		}
+		return null;
 	}
 	
 	public boolean containsKey(K key) {
 		if (internal.containsKey(key)) {
 			return true;
 		}
-		return prev == null ? false : prev.containsKey(key);
+		for (Hierarchy<K, V> parent : parents) {
+			if (parent.containsKey(key)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
-	public Hierarchy<K, V> child() {
-		return new Hierarchy<>(this);
+	public Hierarchy<K, V> copy(boolean child) {
+		return child ? new Hierarchy<>(new HashMap<>(), Arrays.asList(this)) : this;
+	}
+	
+	public Hierarchy<K, V> branch(List<Hierarchy<K, V>> parents) {
+		return new Hierarchy<>(internal, parents);
 	}
 }

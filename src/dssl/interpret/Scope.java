@@ -1,5 +1,6 @@
 package dssl.interpret;
 
+import java.util.List;
 import java.util.function.BiPredicate;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -57,11 +58,9 @@ public interface Scope {
 	
 	public Clazz getClazz(@NonNull String shallow);
 	
-	public void setClazz(@NonNull String shallow, ScopeMaps maps);
+	public void setClazz(@NonNull String shallow, HierarchicalScope base, List<@NonNull Clazz> supers);
 	
 	public boolean hasMagic(@NonNull String identifier);
 	
 	public Magic getMagic(@NonNull String identifier);
-	
-	public ScopeMaps getMaps();
 }

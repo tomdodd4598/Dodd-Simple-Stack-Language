@@ -177,6 +177,14 @@ public class Helpers {
 		return BigDecimal.valueOf(d).toBigInteger();
 	}
 	
+	public static <A, B> List<B> map(List<A> list, Function<A, B> function) {
+		return list.stream().map(function).collect(Collectors.toList());
+	}
+	
+	public static <A, B> Set<B> map(Set<A> set, Function<A, B> function) {
+		return set.stream().map(function).collect(Collectors.toSet());
+	}
+	
 	public static <A, B, C, D> Collector<Entry<A, B>, ?, Map<C, D>> mapCollector(Function<A, C> keyFunction, Function<B, D> valueFunction, BinaryOperator<D> mergeFunction) {
 		return Collectors.toMap(x -> keyFunction.apply(x.getKey()), x -> valueFunction.apply(x.getValue()), mergeFunction);
 	}

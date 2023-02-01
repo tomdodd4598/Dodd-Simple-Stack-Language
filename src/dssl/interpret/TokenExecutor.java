@@ -18,14 +18,14 @@ import dssl.interpret.magic.*;
 import dssl.interpret.token.BlockToken;
 import dssl.node.*;
 
-public class TokenExecutor extends TokenReader implements Scope {
+public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected final boolean baseScope;
 	
 	protected final Hierarchy<@NonNull String, Def> defHierarchy;
 	protected final Hierarchy<@NonNull String, Macro> macroHierarchy;
 	protected final Hierarchy<@NonNull String, Clazz> clazzHierarchy;
-	protected final Map<@NonNull String, Magic> magicMap;
+	protected final Hierarchy<@NonNull String, Magic> magicHierarchy;
 	
 	protected TokenExecutor(Interpreter interpreter, TokenIterator iterator) {
 		super(interpreter, iterator);
@@ -33,16 +33,16 @@ public class TokenExecutor extends TokenReader implements Scope {
 		defHierarchy = new Hierarchy<>();
 		macroHierarchy = new Hierarchy<>();
 		clazzHierarchy = new Hierarchy<>();
-		magicMap = new HashMap<>();
+		magicHierarchy = new Hierarchy<>();
 	}
 	
 	public TokenExecutor(TokenIterator iterator, TokenExecutor prev, boolean child) {
 		super(iterator, prev);
 		baseScope = prev.baseScope && !child;
-		defHierarchy = child ? prev.defHierarchy.child() : prev.defHierarchy;
-		macroHierarchy = child ? prev.macroHierarchy.child() : prev.macroHierarchy;
-		clazzHierarchy = child ? prev.clazzHierarchy.child() : prev.clazzHierarchy;
-		magicMap = child ? new HashMap<>() : prev.magicMap;
+		defHierarchy = prev.defHierarchy.copy(child);
+		macroHierarchy = prev.macroHierarchy.copy(child);
+		clazzHierarchy = prev.clazzHierarchy.copy(child);
+		magicHierarchy = prev.magicHierarchy.copy(child);
 	}
 	
 	@Override
@@ -125,24 +125,39 @@ public class TokenExecutor extends TokenReader implements Scope {
 	}
 	
 	@Override
-	public void setClazz(@NonNull String shallow, ScopeMaps maps) {
+	public void setClazz(@NonNull String shallow, HierarchicalScope base, List<@NonNull Clazz> supers) {
 		checkClazz(shallow);
-		clazzHierarchy.put(shallow, new Clazz(null, shallow, maps), true);
+		clazzHierarchy.put(shallow, new Clazz(null, shallow, base, supers), true);
 	}
 	
 	@Override
 	public boolean hasMagic(@NonNull String identifier) {
-		return magicMap.containsKey(identifier);
+		return magicHierarchy.containsKey(identifier);
 	}
 	
 	@Override
 	public Magic getMagic(@NonNull String identifier) {
-		return magicMap.get(identifier);
+		return magicHierarchy.get(identifier);
 	}
 	
 	@Override
-	public ScopeMaps getMaps() {
-		return new ScopeMaps(defHierarchy.internal, macroHierarchy.internal, clazzHierarchy.internal, magicMap);
+	public Hierarchy<@NonNull String, Def> getDefHierarchy() {
+		return defHierarchy;
+	}
+	
+	@Override
+	public Hierarchy<@NonNull String, Macro> getMacroHierarchy() {
+		return macroHierarchy;
+	}
+	
+	@Override
+	public Hierarchy<@NonNull String, Clazz> getClazzHierarchy() {
+		return clazzHierarchy;
+	}
+	
+	@Override
+	public Hierarchy<@NonNull String, Magic> getMagicHierarchy() {
+		return magicHierarchy;
 	}
 	
 	public void push(@NonNull Element elem) {
@@ -464,12 +479,18 @@ public class TokenExecutor extends TokenReader implements Scope {
 	}
 	
 	protected static TokenResult onClass(TokenExecutor exec, @NonNull Token token) {
-		@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
+		@NonNull Element elem1 = exec.pop(), elem0;
+		if (!(elem1 instanceof BlockElement)) {
+			throw new IllegalArgumentException(String.format("Keyword \"class\" requires block element as last argument!"));
+		}
+		
+		List<@NonNull Clazz> supers = new ArrayList<>();
+		while ((elem0 = exec.pop()) instanceof ClassElement) {
+			supers.add(((ClassElement) elem0).clazz);
+		}
+		
 		if (!(elem0 instanceof LabelElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"class\" requires label element as first argument!"));
-		}
-		if (!(elem1 instanceof BlockElement)) {
-			throw new IllegalArgumentException(String.format("Keyword \"class\" requires block element as second argument!"));
 		}
 		
 		LabelElement label = (LabelElement) elem0;
@@ -477,7 +498,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 			throw new IllegalArgumentException(String.format("Keyword \"%s\" can not be used as a class identifier!", label.identifier));
 		}
 		TokenExecutor clazzExec = ((BlockElement) elem1).executor(exec);
-		label.setClazz(clazzExec.getMaps());
+		label.setClazz(clazzExec, supers);
 		TokenResult result = clazzExec.iterate();
 		return result;
 	}
@@ -498,7 +519,7 @@ public class TokenExecutor extends TokenReader implements Scope {
 				if (!(elem1 instanceof BlockElement)) {
 					throw new IllegalArgumentException(String.format("Magic \"init\" requires block element as second argument!"));
 				}
-				exec.magicMap.put("init", new InitMagic((BlockElement) elem1));
+				exec.magicHierarchy.put("init", new InitMagic((BlockElement) elem1), true);
 				break;
 			default:
 				throw new IllegalArgumentException(String.format("Magic \"%s\" not supported!", identifier));

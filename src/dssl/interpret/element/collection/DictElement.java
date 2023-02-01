@@ -2,10 +2,10 @@ package dssl.interpret.element.collection;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import dssl.Helpers;
 import dssl.interpret.*;
 import dssl.interpret.element.*;
 import dssl.interpret.element.primitive.*;
@@ -299,7 +299,7 @@ public class DictElement extends Element implements IterableElement {
 	
 	protected Set<@NonNull Element> entries() {
 		if (entries == null) {
-			entries = value.entrySet().stream().map(x -> new TupleElement(Arrays.asList(x.getKey(), x.getValue()))).collect(Collectors.toSet());
+			entries = Helpers.map(value.entrySet(), x -> new TupleElement(Arrays.asList(x.getKey(), x.getValue())));
 		}
 		return entries;
 	}

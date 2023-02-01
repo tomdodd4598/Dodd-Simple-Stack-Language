@@ -111,3 +111,47 @@ b .toString println
 /c a b .mult def
 /c .shout { "Hello!" println } macro
 c .shout
+
+# ------------------- #
+# DIAMOND INHERITANCE #
+# ------------------- #
+
+/Person {
+	/talk {
+		"Person talked." println
+	} macro
+} class
+
+/Worker Person {
+	/work {
+		"Worker worked." println
+	} macro
+} class
+
+/Miner Worker {
+	/talk {
+		"Miner talked." println
+	} macro
+	
+	/mine {
+		"Miner mined." println
+	} macro
+} class
+
+/Programmer Worker {
+	/work {
+		"Programmer worked." println
+	} macro
+	
+	/code {
+		"Programmer coded." println
+	} macro
+} class
+
+/Satoshi Miner Programmer { } class
+
+/satoshi Satoshi new def
+satoshi .talk
+satoshi .work
+satoshi .mine
+satoshi .code

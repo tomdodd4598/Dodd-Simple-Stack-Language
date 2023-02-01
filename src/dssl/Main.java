@@ -87,7 +87,7 @@ public class Main {
 				try (PushbackReader reader = Helpers.getPushbackReader(new FileReader(stringElem.toString()))) {
 					TokenExecutor otherExec = exec.interpreter.newExecutor(new LexerIterator(reader));
 					TokenResult result = otherExec.iterate();
-					((LabelElement) elem0).setClazz(otherExec.getMaps());
+					((LabelElement) elem0).setClazz(otherExec, new ArrayList<>());
 					return result;
 				}
 				catch (Exception e) {

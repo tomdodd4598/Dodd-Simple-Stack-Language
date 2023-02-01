@@ -11,7 +11,7 @@ import dssl.interpret.magic.Magic;
 
 public class InstanceElement extends Element implements Scope {
 	
-	public final Clazz clazz;
+	public final @NonNull Clazz clazz;
 	
 	protected final Map<@NonNull String, Def> defMap;
 	protected final Map<@NonNull String, Macro> macroMap;
@@ -20,17 +20,17 @@ public class InstanceElement extends Element implements Scope {
 	
 	public final @NonNull String scopeIdentifier;
 	
-	public InstanceElement(Clazz clazz) {
-		this(clazz, ScopeMaps.empty());
+	public InstanceElement(@NonNull Clazz clazz) {
+		this(clazz, new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
 	}
 	
-	protected InstanceElement(Clazz clazz, ScopeMaps maps) {
+	protected InstanceElement(@NonNull Clazz clazz, Map<@NonNull String, Def> defMap, Map<@NonNull String, Macro> macroMap, Map<@NonNull String, Clazz> clazzMap, Map<@NonNull String, Magic> magicMap) {
 		super();
 		this.clazz = clazz;
-		defMap = maps.defMap;
-		macroMap = maps.macroMap;
-		clazzMap = maps.clazzMap;
-		magicMap = maps.magicMap;
+		this.defMap = defMap;
+		this.macroMap = macroMap;
+		this.clazzMap = clazzMap;
+		this.magicMap = magicMap;
 		scopeIdentifier = clazz.identifier + "@" + Integer.toString(objectHashCode(), 16);
 	}
 	
@@ -87,9 +87,9 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public void setClazz(@NonNull String shallow, ScopeMaps maps) {
+	public void setClazz(@NonNull String shallow, HierarchicalScope base, List<@NonNull Clazz> supers) {
 		checkClazz(shallow);
-		clazzMap.put(shallow, new Clazz(scopeIdentifier, shallow, maps));
+		clazzMap.put(shallow, new Clazz(scopeIdentifier, shallow, base, supers));
 	}
 	
 	@Override
@@ -103,13 +103,8 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public ScopeMaps getMaps() {
-		return new ScopeMaps(defMap, macroMap, clazzMap, magicMap);
-	}
-	
-	@Override
 	public @NonNull Element clone() {
-		return new InstanceElement(clazz, getMaps().clone());
+		return new InstanceElement(clazz, new HashMap<>(defMap), new HashMap<>(macroMap), new HashMap<>(clazzMap), new HashMap<>(magicMap));
 	}
 	
 	@Override
