@@ -16,7 +16,6 @@ All documentation can be found in the [wiki](https://github.com/tomdodd4598/Dodd
 Planned Features
 ----------------
 
-- Class extensions and inheritance.
 - Operator overloading with `magic` definitions.
 - Container type keywords replaced with member-accessible macros.
 
