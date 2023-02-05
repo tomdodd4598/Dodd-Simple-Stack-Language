@@ -230,6 +230,8 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		
 		TOKEN_FUNCTION_MAP.put(TNew.class, TokenExecutor::onNew);
 		
+		TOKEN_FUNCTION_MAP.put(TDeref.class, TokenExecutor::onDeref);
+		
 		TOKEN_FUNCTION_MAP.put(TExch.class, TokenExecutor::onExch);
 		TOKEN_FUNCTION_MAP.put(TPop.class, TokenExecutor::onPop);
 		TOKEN_FUNCTION_MAP.put(TDup.class, TokenExecutor::onDup);
@@ -350,8 +352,6 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		
 		TOKEN_FUNCTION_MAP.put(TNot.class, TokenExecutor::onNot);
 		TOKEN_FUNCTION_MAP.put(TNeg.class, TokenExecutor::onNeg);
-		
-		TOKEN_FUNCTION_MAP.put(TDeref.class, TokenExecutor::onDeref);
 		
 		TOKEN_FUNCTION_MAP.put(TIntValue.class, TokenExecutor::onIntValue);
 		TOKEN_FUNCTION_MAP.put(TBoolValue.class, TokenExecutor::onBoolValue);
@@ -475,6 +475,20 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Keyword \"new\" requires class element as argument!"));
 		}
 		return ((ClassElement) elem).instantiate(this);
+	}
+	
+	protected TokenResult onDeref(@NonNull Token token) {
+		@NonNull Element elem = pop();
+		if (!(elem instanceof LabelElement)) {
+			throw new IllegalArgumentException(String.format("Keyword \"deref\" requires label element as argument!"));
+		}
+		
+		LabelElement label = (LabelElement) elem;
+		TokenResult result = scopeAction(label::getDef, label::getMacro, label::getClazz);
+		if (result == null) {
+			throw new IllegalArgumentException(String.format("Variable, macro or class \"%s\" not defined!", label.identifier));
+		}
+		return result;
 	}
 	
 	protected TokenResult onExch(@NonNull Token token) {
@@ -1174,20 +1188,6 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected TokenResult onNeg(@NonNull Token token) {
 		return pop().onNeg(this);
-	}
-	
-	protected TokenResult onDeref(@NonNull Token token) {
-		@NonNull Element elem = pop();
-		if (!(elem instanceof LabelElement)) {
-			throw new IllegalArgumentException(String.format("Keyword \"deref\" requires label element as argument!"));
-		}
-		
-		LabelElement label = (LabelElement) elem;
-		TokenResult result = scopeAction(label::getDef, label::getMacro, label::getClazz);
-		if (result == null) {
-			throw new IllegalArgumentException(String.format("Variable, macro or class \"%s\" not defined!", label.identifier));
-		}
-		return result;
 	}
 	
 	protected TokenResult onIntValue(@NonNull Token token) {

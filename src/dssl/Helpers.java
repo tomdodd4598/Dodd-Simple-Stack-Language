@@ -197,7 +197,9 @@ public class Helpers {
 	public static final String L_BRACKET = "[";
 	public static final String R_BRACKET = "]";
 	
+	public static final String INCLUDE = "include";
 	public static final String IMPORT = "import";
+	
 	public static final String NATIVE = "native";
 	
 	public static final String DEF = "def";
@@ -206,6 +208,8 @@ public class Helpers {
 	public static final String MAGIC = "magic";
 	
 	public static final String NEW = "new";
+	
+	public static final String DEREF = "deref";
 	
 	public static final String EXCH = "exch";
 	public static final String POP = "pop";
@@ -328,8 +332,6 @@ public class Helpers {
 	public static final String NOT = "not";
 	public static final String NEG = "neg";
 	
-	public static final String DEREF = "deref";
-	
 	static {
 		KEYWORDS = new HashSet<>();
 		
@@ -339,7 +341,9 @@ public class Helpers {
 		KEYWORDS.add(L_BRACKET);
 		KEYWORDS.add(R_BRACKET);
 		
+		KEYWORDS.add(INCLUDE);
 		KEYWORDS.add(IMPORT);
+		
 		KEYWORDS.add(NATIVE);
 		
 		KEYWORDS.add(DEF);
@@ -348,6 +352,8 @@ public class Helpers {
 		KEYWORDS.add(MAGIC);
 		
 		KEYWORDS.add(NEW);
+		
+		KEYWORDS.add(DEREF);
 		
 		KEYWORDS.add(EXCH);
 		KEYWORDS.add(POP);
@@ -469,8 +475,6 @@ public class Helpers {
 		
 		KEYWORDS.add(NOT);
 		KEYWORDS.add(NEG);
-		
-		KEYWORDS.add(DEREF);
 	}
 	
 	public static class Pair<L, R> {

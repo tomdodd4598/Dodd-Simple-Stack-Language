@@ -25,6 +25,7 @@ public interface Analysis extends Switch
     void caseTClass(TClass node);
     void caseTMagic(TMagic node);
     void caseTNew(TNew node);
+    void caseTDeref(TDeref node);
     void caseTExch(TExch node);
     void caseTPop(TPop node);
     void caseTDup(TDup node);
@@ -120,7 +121,6 @@ public interface Analysis extends Switch
     void caseTModulo(TModulo node);
     void caseTNot(TNot node);
     void caseTNeg(TNeg node);
-    void caseTDeref(TDeref node);
     void caseTIntValue(TIntValue node);
     void caseTBoolValue(TBoolValue node);
     void caseTFloatValue(TFloatValue node);

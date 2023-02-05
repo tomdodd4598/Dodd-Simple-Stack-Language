@@ -19,6 +19,7 @@ Helpers
 	tick = 96;
 	not_eol = [all - [cr + lf]];
 	escape_char = '\' not_eol;
+	multi_tick = tick tick tick;
 	
 	c_char = [all - [apostrophe + ['\' + [lf + cr]]]] | escape_char;
 	c_char_sequence = c_char+;
@@ -54,6 +55,8 @@ Tokens
 	magic = 'magic';
 	
 	new = 'new';
+	
+	deref = 'deref';
 	
 	exch = 'exch';
 	pop = 'pop';
@@ -176,15 +179,13 @@ Tokens
 	not = 'not';
 	neg = 'neg';
 	
-	deref = 'deref';
-	
 	int_value = sign? digit+;
 	bool_value = 'true' | 'false';
 	float_value = sign? (digit+ '.' digit* | '.' digit+);
 	char_value = apostrophe c_char apostrophe;
 	
 	line_string_value = 'r'? quote s_char_sequence quote;
-	block_string_value = 'r'? tick whitespace* eol b_char_sequence tick;
+	block_string_value = 'r'? multi_tick whitespace* eol b_char_sequence multi_tick;
 	
 	identifier = name;
 	label = '/' name;
