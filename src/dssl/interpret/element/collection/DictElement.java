@@ -10,7 +10,7 @@ import dssl.interpret.*;
 import dssl.interpret.element.*;
 import dssl.interpret.element.primitive.*;
 
-public class DictElement extends Element implements IterableElement {
+public class DictElement extends ValueElement implements IterableElement {
 	
 	public final Map<@NonNull Element, @NonNull Element> value;
 	protected List<@NonNull Element> list = null;

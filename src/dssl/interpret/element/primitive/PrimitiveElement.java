@@ -4,10 +4,11 @@ import java.math.BigInteger;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import dssl.interpret.element.Element;
+import dssl.interpret.*;
+import dssl.interpret.element.*;
 import dssl.interpret.value.*;
 
-public abstract class PrimitiveElement<@NonNull T> extends Element {
+public abstract class PrimitiveElement<@NonNull T> extends ValueElement {
 	
 	public final @NonNull PrimitiveValue<@NonNull T> value;
 	
@@ -92,230 +93,250 @@ public abstract class PrimitiveElement<@NonNull T> extends Element {
 	}
 	
 	@Override
-	public @NonNull Element onEqualTo(@NonNull Element other) {
+	public TokenResult onEqualTo(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
 			Element elem = PrimitiveBinaryOpLogic.onEqualTo(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError("==", other);
+		return super.onEqualTo(exec, other);
 	}
 	
 	@Override
-	public @NonNull Element onNotEqualTo(@NonNull Element other) {
+	public TokenResult onNotEqualTo(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
 			Element elem = PrimitiveBinaryOpLogic.onNotEqualTo(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError("!=", other);
+		return super.onNotEqualTo(exec, other);
 	}
 	
 	@Override
-	public @NonNull Element onLessThan(@NonNull Element other) {
+	public TokenResult onLessThan(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
 			Element elem = PrimitiveBinaryOpLogic.onLessThan(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError("<", other);
+		return super.onLessThan(exec, other);
 	}
 	
 	@Override
-	public @NonNull Element onLessOrEqual(@NonNull Element other) {
+	public TokenResult onLessOrEqual(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
 			Element elem = PrimitiveBinaryOpLogic.onLessOrEqual(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError("<=", other);
+		return super.onLessOrEqual(exec, other);
 	}
 	
 	@Override
-	public @NonNull Element onMoreThan(@NonNull Element other) {
+	public TokenResult onMoreThan(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
 			Element elem = PrimitiveBinaryOpLogic.onMoreThan(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError(">", other);
+		return super.onMoreThan(exec, other);
 	}
 	
 	@Override
-	public @NonNull Element onMoreOrEqual(@NonNull Element other) {
+	public TokenResult onMoreOrEqual(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
 			Element elem = PrimitiveBinaryOpLogic.onMoreOrEqual(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError(">=", other);
+		return super.onMoreOrEqual(exec, other);
 	}
 	
 	@Override
-	public @NonNull Element onPlus(@NonNull Element other) {
+	public TokenResult onPlus(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
 			Element elem = PrimitiveBinaryOpLogic.onPlus(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError("+", other);
+		return super.onPlus(exec, other);
 	}
 	
 	@Override
-	public @NonNull Element onAnd(@NonNull Element other) {
+	public TokenResult onAnd(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
 			Element elem = PrimitiveBinaryOpLogic.onAnd(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError("&", other);
+		return super.onAnd(exec, other);
 	}
 	
 	@Override
-	public @NonNull Element onOr(@NonNull Element other) {
+	public TokenResult onOr(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
 			Element elem = PrimitiveBinaryOpLogic.onOr(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError("|", other);
+		return super.onOr(exec, other);
 	}
 	
 	@Override
-	public @NonNull Element onXor(@NonNull Element other) {
+	public TokenResult onXor(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
 			Element elem = PrimitiveBinaryOpLogic.onXor(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError("^", other);
+		return super.onXor(exec, other);
 	}
 	
 	@Override
-	public @NonNull Element onMinus(@NonNull Element other) {
+	public TokenResult onMinus(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
 			Element elem = PrimitiveBinaryOpLogic.onMinus(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError("-", other);
+		return super.onMinus(exec, other);
 	}
 	
 	@Override
-	public @NonNull Element onConcat(@NonNull Element other) {
+	public TokenResult onConcat(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
 			Element elem = PrimitiveBinaryOpLogic.onConcat(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError("~", other);
+		return super.onConcat(exec, other);
 	}
 	
 	@Override
-	public @NonNull Element onArithmeticLeftShift(@NonNull Element other) {
+	public TokenResult onLeftShift(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
-			Element elem = PrimitiveBinaryOpLogic.onArithmeticLeftShift(value, ((PrimitiveElement<?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onLeftShift(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError("<<", other);
+		return super.onLeftShift(exec, other);
 	}
 	
 	@Override
-	public @NonNull Element onArithmeticRightShift(@NonNull Element other) {
+	public TokenResult onRightShift(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
-			Element elem = PrimitiveBinaryOpLogic.onArithmeticRightShift(value, ((PrimitiveElement<?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onRightShift(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError(">>", other);
+		return super.onRightShift(exec, other);
 	}
 	
 	@Override
-	public @NonNull Element onMultiply(@NonNull Element other) {
+	public TokenResult onMultiply(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
 			Element elem = PrimitiveBinaryOpLogic.onMultiply(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError("*", other);
+		return super.onMultiply(exec, other);
 	}
 	
 	@Override
-	public @NonNull Element onDivide(@NonNull Element other) {
+	public TokenResult onDivide(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
 			Element elem = PrimitiveBinaryOpLogic.onDivide(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError("/", other);
+		return super.onDivide(exec, other);
 	}
 	
 	@Override
-	public @NonNull Element onRemainder(@NonNull Element other) {
+	public TokenResult onRemainder(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
 			Element elem = PrimitiveBinaryOpLogic.onRemainder(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError("%", other);
+		return super.onRemainder(exec, other);
 	}
 	
 	@Override
-	public @NonNull Element onPower(@NonNull Element other) {
+	public TokenResult onPower(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
 			Element elem = PrimitiveBinaryOpLogic.onPower(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError("**", other);
+		return super.onPower(exec, other);
 	}
 	
 	@Override
-	public @NonNull Element onIdivide(@NonNull Element other) {
+	public TokenResult onIdivide(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
 			Element elem = PrimitiveBinaryOpLogic.onIdivide(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError("//", other);
+		return super.onIdivide(exec, other);
 	}
 	
 	@Override
-	public @NonNull Element onModulo(@NonNull Element other) {
+	public TokenResult onModulo(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?>) {
 			Element elem = PrimitiveBinaryOpLogic.onModulo(value, ((PrimitiveElement<?>) other).value);
 			if (elem != null) {
-				return elem;
+				exec.push(elem);
+				return TokenResult.PASS;
 			}
 		}
-		throw binaryOpError("%%", other);
+		return super.onModulo(exec, other);
 	}
 	
 	@Override
-	public abstract @NonNull Element onNot();
+	public abstract TokenResult onNot(TokenExecutor exec);
 	
 	@Override
-	public abstract @NonNull Element onNeg();
+	public abstract TokenResult onNeg(TokenExecutor exec);
 	
 	@Override
 	public @NonNull String toString() {

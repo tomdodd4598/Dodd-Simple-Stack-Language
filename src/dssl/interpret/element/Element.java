@@ -91,83 +91,83 @@ public abstract class Element {
 		return new IllegalArgumentException(String.format("Binary operator \"%s\" is undefined for argument types \"%s\" and \"%s\"!", operator, typeName(), other.typeName()));
 	}
 	
-	public @NonNull Element onEqualTo(@NonNull Element other) {
+	public TokenResult onEqualTo(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError("==", other);
 	}
 	
-	public @NonNull Element onNotEqualTo(@NonNull Element other) {
+	public TokenResult onNotEqualTo(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError("!=", other);
 	}
 	
-	public @NonNull Element onLessThan(@NonNull Element other) {
+	public TokenResult onLessThan(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError("<", other);
 	}
 	
-	public @NonNull Element onLessOrEqual(@NonNull Element other) {
+	public TokenResult onLessOrEqual(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError("<=", other);
 	}
 	
-	public @NonNull Element onMoreThan(@NonNull Element other) {
+	public TokenResult onMoreThan(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError(">", other);
 	}
 	
-	public @NonNull Element onMoreOrEqual(@NonNull Element other) {
+	public TokenResult onMoreOrEqual(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError(">=", other);
 	}
 	
-	public @NonNull Element onPlus(@NonNull Element other) {
+	public TokenResult onPlus(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError("+", other);
 	}
 	
-	public @NonNull Element onAnd(@NonNull Element other) {
+	public TokenResult onAnd(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError("&", other);
 	}
 	
-	public @NonNull Element onOr(@NonNull Element other) {
+	public TokenResult onOr(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError("|", other);
 	}
 	
-	public @NonNull Element onXor(@NonNull Element other) {
+	public TokenResult onXor(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError("^", other);
 	}
 	
-	public @NonNull Element onMinus(@NonNull Element other) {
+	public TokenResult onMinus(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError("-", other);
 	}
 	
-	public @NonNull Element onConcat(@NonNull Element other) {
+	public TokenResult onConcat(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError("~", other);
 	}
 	
-	public @NonNull Element onArithmeticLeftShift(@NonNull Element other) {
+	public TokenResult onLeftShift(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError("<<", other);
 	}
 	
-	public @NonNull Element onArithmeticRightShift(@NonNull Element other) {
+	public TokenResult onRightShift(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError(">>", other);
 	}
 	
-	public @NonNull Element onMultiply(@NonNull Element other) {
+	public TokenResult onMultiply(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError("*", other);
 	}
 	
-	public @NonNull Element onDivide(@NonNull Element other) {
+	public TokenResult onDivide(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError("/", other);
 	}
 	
-	public @NonNull Element onRemainder(@NonNull Element other) {
+	public TokenResult onRemainder(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError("%", other);
 	}
 	
-	public @NonNull Element onPower(@NonNull Element other) {
+	public TokenResult onPower(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError("**", other);
 	}
 	
-	public @NonNull Element onIdivide(@NonNull Element other) {
+	public TokenResult onIdivide(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError("//", other);
 	}
 	
-	public @NonNull Element onModulo(@NonNull Element other) {
+	public TokenResult onModulo(TokenExecutor exec, @NonNull Element other) {
 		throw binaryOpError("%%", other);
 	}
 	
@@ -175,11 +175,11 @@ public abstract class Element {
 		return new IllegalArgumentException(String.format("Unary operator \"%s\" is undefined for argument type \"%s\"!", operator, typeName()));
 	}
 	
-	public @NonNull Element onNot() {
+	public TokenResult onNot(TokenExecutor exec) {
 		throw unaryOpError("not");
 	}
 	
-	public @NonNull Element onNeg() {
+	public TokenResult onNeg(TokenExecutor exec) {
 		throw unaryOpError("neg");
 	}
 	

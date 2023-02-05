@@ -9,7 +9,7 @@ import dssl.interpret.*;
 import dssl.interpret.element.*;
 import dssl.interpret.element.primitive.*;
 
-public class RangeElement extends Element implements IterableElement {
+public class RangeElement extends ValueElement implements IterableElement {
 	
 	protected final int start, stop, step;
 	protected final IntStream value;

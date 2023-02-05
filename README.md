@@ -16,9 +16,7 @@ All documentation can be found in the [wiki](https://github.com/tomdodd4598/Dodd
 Planned Features
 ----------------
 
-- Operator overloading with `magic` definitions.
-- Container type keywords replaced with member-accessible macros.
-
+- Various keywords replaced with static or member functions.
 
 Permissions
 -----------

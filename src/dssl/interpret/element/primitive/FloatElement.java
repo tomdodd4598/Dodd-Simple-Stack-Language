@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import dssl.interpret.*;
 import dssl.interpret.element.Element;
 import dssl.interpret.value.FloatValue;
 
@@ -24,13 +25,14 @@ public class FloatElement extends PrimitiveElement<@NonNull Double> {
 	}
 	
 	@Override
-	public @NonNull Element onNot() {
+	public TokenResult onNot(TokenExecutor exec) {
 		throw unaryOpError("not");
 	}
 	
 	@Override
-	public @NonNull Element onNeg() {
-		return new FloatElement(-value.raw);
+	public TokenResult onNeg(TokenExecutor exec) {
+		exec.push(new FloatElement(-value.raw));
+		return TokenResult.PASS;
 	}
 	
 	@Override

@@ -2,14 +2,13 @@ package dssl.interpret.element.clazz;
 
 import java.util.*;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import dssl.interpret.*;
 import dssl.interpret.element.*;
 import dssl.interpret.element.primitive.StringElement;
-import dssl.interpret.magic.Magic;
 
-public class InstanceElement extends Element implements Scope {
+public class InstanceElement extends ValueElement implements Scope {
 	
 	public final @NonNull Clazz clazz;
 	
@@ -42,6 +41,204 @@ public class InstanceElement extends Element implements Scope {
 	@Override
 	public @NonNull StringElement stringCastExplicit() {
 		return new StringElement(toString());
+	}
+	
+	@Override
+	public TokenResult onEqualTo(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "eq", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onEqualTo(exec, other);
+	}
+	
+	@Override
+	public TokenResult onNotEqualTo(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "ne", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onNotEqualTo(exec, other);
+	}
+	
+	@Override
+	public TokenResult onLessThan(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "lt", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onLessThan(exec, other);
+	}
+	
+	@Override
+	public TokenResult onLessOrEqual(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "le", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onLessOrEqual(exec, other);
+	}
+	
+	@Override
+	public TokenResult onMoreThan(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "gt", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onMoreThan(exec, other);
+	}
+	
+	@Override
+	public TokenResult onMoreOrEqual(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "ge", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onMoreOrEqual(exec, other);
+	}
+	
+	@Override
+	public TokenResult onPlus(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "add", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onPlus(exec, other);
+	}
+	
+	@Override
+	public TokenResult onAnd(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "and", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onAnd(exec, other);
+	}
+	
+	@Override
+	public TokenResult onOr(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "or", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onOr(exec, other);
+	}
+	
+	@Override
+	public TokenResult onXor(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "xor", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onXor(exec, other);
+	}
+	
+	@Override
+	public TokenResult onMinus(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "sub", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onMinus(exec, other);
+	}
+	
+	@Override
+	public TokenResult onConcat(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "concat", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onConcat(exec, other);
+	}
+	
+	@Override
+	public TokenResult onLeftShift(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "lshift", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onLeftShift(exec, other);
+	}
+	
+	@Override
+	public TokenResult onRightShift(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "rshift", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onRightShift(exec, other);
+	}
+	
+	@Override
+	public TokenResult onMultiply(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "mul", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onMultiply(exec, other);
+	}
+	
+	@Override
+	public TokenResult onDivide(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "div", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onDivide(exec, other);
+	}
+	
+	@Override
+	public TokenResult onRemainder(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "rem", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onRemainder(exec, other);
+	}
+	
+	@Override
+	public TokenResult onPower(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "pow", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onPower(exec, other);
+	}
+	
+	@Override
+	public TokenResult onIdivide(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "floordiv", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onIdivide(exec, other);
+	}
+	
+	@Override
+	public TokenResult onModulo(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "mod", other);
+		if (magic != null) {
+			return magic;
+		}
+		return super.onModulo(exec, other);
+	}
+	
+	@Override
+	public TokenResult onNot(TokenExecutor exec) {
+		TokenResult magic = magicAction(exec, "not");
+		if (magic != null) {
+			return magic;
+		}
+		return super.onNot(exec);
+	}
+	
+	@Override
+	public TokenResult onNeg(TokenExecutor exec) {
+		TokenResult magic = magicAction(exec, "neg");
+		if (magic != null) {
+			return magic;
+		}
+		return super.onNeg(exec);
 	}
 	
 	@Override
@@ -100,6 +297,42 @@ public class InstanceElement extends Element implements Scope {
 	@Override
 	public Magic getMagic(@NonNull String identifier) {
 		return magicMap.get(identifier);
+	}
+	
+	@Override
+	public void setMagic(@NonNull String identifier, @NonNull BlockElement block) {
+		magicMap.put(identifier, new Magic(identifier, block));
+	}
+	
+	@Override
+	public @Nullable TokenResult scopeAction(TokenExecutor exec, @NonNull String identifier) {
+		TokenResult result = Scope.super.scopeAction(exec, identifier);
+		if (result != null) {
+			return result;
+		}
+		else {
+			exec.push(this);
+			return clazz.scopeAction(exec, identifier);
+		}
+	}
+	
+	public @Nullable TokenResult magicAction(TokenExecutor exec, @NonNull String identifier, @NonNull Element... args) {
+		Magic magic = getMagic(identifier);
+		boolean clazzMagic = false;
+		if (magic == null) {
+			magic = clazz.getMagic(identifier);
+			clazzMagic = true;
+		}
+		if (magic != null) {
+			for (@NonNull Element arg : args) {
+				exec.push(arg);
+			}
+			if (clazzMagic) {
+				exec.push(this);
+			}
+			return magic.block.executor(exec).iterate();
+		}
+		return null;
 	}
 	
 	@Override

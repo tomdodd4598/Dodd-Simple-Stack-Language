@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.apache.commons.text.StringEscapeUtils;
 import org.eclipse.jdt.annotation.NonNull;
 
+import dssl.interpret.*;
 import dssl.interpret.element.Element;
 import dssl.interpret.value.CharValue;
 
@@ -25,12 +26,12 @@ public class CharElement extends PrimitiveElement<@NonNull Character> {
 	}
 	
 	@Override
-	public @NonNull Element onNot() {
+	public TokenResult onNot(TokenExecutor exec) {
 		throw unaryOpError("not");
 	}
 	
 	@Override
-	public @NonNull Element onNeg() {
+	public TokenResult onNeg(TokenExecutor exec) {
 		throw unaryOpError("neg");
 	}
 	

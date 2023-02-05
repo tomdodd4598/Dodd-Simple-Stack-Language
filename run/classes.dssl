@@ -17,11 +17,16 @@
 	} macro
 } class
 
-/inst Container new def
+/cont Container new def
 
 5 {
-	inst .increment
+	cont .increment
 } repeat
+
+/cont .shout { "Hello!" println } macro
+cont .shout
+
+'\n' print
 
 # ---------------- #
 # LINKED LIST ITEM #
@@ -74,6 +79,8 @@
 item .printList
 item .printRecursive
 
+'\n' print
+
 # -------------- #
 # COMPLEX NUMBER #
 # -------------- #
@@ -88,11 +95,28 @@ item .printRecursive
 	
 	/i 0.0 1.0 Complex new def
 	
-	/mult {
-		dup .re /yre exch def .im /yim exch def
-		dup .re /xre exch def .im /xim exch def
+	/binOpSetup "dup .re /xre exch def .im /xim exch def dup .re /yre exch def .im /yim exch def" def
+	
+	/add {
+		Complex .binOpSetup interpret
+		xre yre + xim yim + Complex new
+	} magic
+	
+	/sub {
+		Complex .binOpSetup interpret
+		xre yre - xim yim - Complex new
+	} magic
+	
+	/mul {
+		Complex .binOpSetup interpret
 		xre yre * xim yim * - xre yim * xim yre * + Complex new
-	} macro
+	} magic
+	
+	/div {
+		Complex .binOpSetup interpret
+		/ysq yre yre * yim yim * + def
+		xre yre * xim yim * + ysq / xim yre * xre yim * - ysq / Complex new
+	} magic
 	
 	/toString {
 		/this exch def
@@ -108,9 +132,14 @@ item .printRecursive
 a Complex .toString println
 b .toString println
 
-/c a b .mult def
-/c .shout { "Hello!" println } macro
-c .shout
+'\n' print
+
+"a+b = " print a b + .toString println
+"a-b = " print a b - .toString println
+"a*b = " print a b * .toString println
+"a/b = " print a b / .toString println
+
+'\n' print
 
 # ------------------- #
 # DIAMOND INHERITANCE #

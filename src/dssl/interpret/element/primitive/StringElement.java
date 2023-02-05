@@ -60,12 +60,12 @@ public class StringElement extends PrimitiveElement<@NonNull String> implements 
 	}
 	
 	@Override
-	public @NonNull Element onNot() {
+	public TokenResult onNot(TokenExecutor exec) {
 		throw unaryOpError("not");
 	}
 	
 	@Override
-	public @NonNull Element onNeg() {
+	public TokenResult onNeg(TokenExecutor exec) {
 		throw unaryOpError("neg");
 	}
 	

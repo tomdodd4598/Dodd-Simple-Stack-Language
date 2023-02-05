@@ -3,11 +3,10 @@ package dssl.interpret;
 import java.util.List;
 import java.util.function.BiPredicate;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import dssl.Helpers.Pair;
 import dssl.interpret.element.*;
-import dssl.interpret.magic.Magic;
 
 public interface Scope {
 	
@@ -63,4 +62,10 @@ public interface Scope {
 	public boolean hasMagic(@NonNull String identifier);
 	
 	public Magic getMagic(@NonNull String identifier);
+	
+	public void setMagic(@NonNull String identifier, @NonNull BlockElement block);
+	
+	public default @Nullable TokenResult scopeAction(TokenExecutor exec, @NonNull String identifier) {
+		return exec.scopeAction(() -> getDef(identifier), () -> getMacro(identifier), () -> getClazz(identifier));
+	}
 }

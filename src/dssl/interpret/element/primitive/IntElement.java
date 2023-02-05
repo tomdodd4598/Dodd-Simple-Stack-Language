@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import dssl.interpret.*;
 import dssl.interpret.element.Element;
 import dssl.interpret.value.IntValue;
 
@@ -34,14 +35,15 @@ public class IntElement extends PrimitiveElement<@NonNull BigInteger> {
 	}
 	
 	@Override
-	public @NonNull Element onNot() {
+	public TokenResult onNot(TokenExecutor exec) {
 		throw unaryOpError("not");
 	}
 	
 	@SuppressWarnings("null")
 	@Override
-	public @NonNull Element onNeg() {
-		return new IntElement(value.raw.negate());
+	public TokenResult onNeg(TokenExecutor exec) {
+		exec.push(new IntElement(value.raw.negate()));
+		return TokenResult.PASS;
 	}
 	
 	@Override

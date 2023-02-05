@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import dssl.interpret.*;
 import dssl.interpret.element.Element;
 import dssl.interpret.value.BoolValue;
 
@@ -28,12 +29,13 @@ public class BoolElement extends PrimitiveElement<@NonNull Boolean> {
 	}
 	
 	@Override
-	public @NonNull Element onNot() {
-		return new BoolElement(!value.raw);
+	public TokenResult onNot(TokenExecutor exec) {
+		exec.push(new BoolElement(!value.raw));
+		return TokenResult.PASS;
 	}
 	
 	@Override
-	public @NonNull Element onNeg() {
+	public TokenResult onNeg(TokenExecutor exec) {
 		throw unaryOpError("neg");
 	}
 	

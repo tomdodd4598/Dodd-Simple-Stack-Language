@@ -7,7 +7,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import dssl.interpret.*;
 import dssl.interpret.element.Element;
 import dssl.interpret.element.primitive.StringElement;
-import dssl.interpret.magic.*;
 
 public class ClassElement extends Element {
 	
@@ -45,13 +44,14 @@ public class ClassElement extends Element {
 	}
 	
 	public TokenResult instantiate(TokenExecutor exec) {
-		exec.push(new InstanceElement(clazz));
-		Magic init = clazz.getMagic("init");
+		InstanceElement instance = new InstanceElement(clazz);
+		TokenResult init = instance.magicAction(exec, "init");
 		if (init == null) {
+			exec.push(instance);
 			return TokenResult.PASS;
 		}
 		else {
-			return ((InitMagic) init).block.executor(exec).iterate();
+			return init;
 		}
 	}
 	

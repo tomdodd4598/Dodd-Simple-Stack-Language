@@ -80,6 +80,14 @@ public class LabelElement extends Element {
 		scope.setClazz(shallow, base, supers);
 	}
 	
+	public Magic getMagic() {
+		return scope.getMagic(shallow);
+	}
+	
+	public void setMagic(@NonNull BlockElement block) {
+		scope.setMagic(shallow, block);
+	}
+	
 	public @NonNull LabelElement extended(@NonNull String extension) {
 		return new LabelElement(this, extension);
 	}
