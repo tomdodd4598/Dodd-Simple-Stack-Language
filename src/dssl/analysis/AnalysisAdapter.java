@@ -105,6 +105,12 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseTInclude(TInclude node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseTImport(TImport node)
     {
         defaultCase(node);

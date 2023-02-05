@@ -70,7 +70,24 @@ public class Main {
 			}
 		};
 		
-		Import importImpl = new Import() {
+		Module moduleImpl = new Module() {
+			
+			@Override
+			public TokenResult onInclude(TokenExecutor exec) {
+				@NonNull Element elem = exec.pop();
+				StringElement stringElem = elem.stringCastImplicit();
+				if (stringElem == null) {
+					throw new IllegalArgumentException(String.format("Keyword \"include\" requires string value element as argument!"));
+				}
+				
+				try (PushbackReader reader = Helpers.getPushbackReader(new FileReader(stringElem.toString()))) {
+					return new TokenExecutor(new LexerIterator(reader), exec, false).iterate();
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+					throw new RuntimeException();
+				}
+			}
 			
 			@Override
 			public TokenResult onImport(TokenExecutor exec) {
@@ -144,12 +161,12 @@ public class Main {
 					return Helpers.getLexerNext(lexer);
 				}
 			};
-			Interpreter interpreter = new Interpreter(consoleIterator, consoleIO, importImpl, nativeImpl, debug);
+			Interpreter interpreter = new Interpreter(consoleIterator, consoleIO, moduleImpl, nativeImpl, debug);
 			interpreter.run();
 		}
 		else {
 			try (PushbackReader reader = Helpers.getPushbackReader(new FileReader(input.args.get(0)))) {
-				Interpreter interpreter = new Interpreter(new Lexer(reader), consoleIO, importImpl, nativeImpl, debug);
+				Interpreter interpreter = new Interpreter(new Lexer(reader), consoleIO, moduleImpl, nativeImpl, debug);
 				interpreter.run();
 			}
 			catch (Exception e) {

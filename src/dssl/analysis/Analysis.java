@@ -17,6 +17,7 @@ public interface Analysis extends Switch
     void caseTRBrace(TRBrace node);
     void caseTLBracket(TLBracket node);
     void caseTRBracket(TRBracket node);
+    void caseTInclude(TInclude node);
     void caseTImport(TImport node);
     void caseTNative(TNative node);
     void caseTDef(TDef node);

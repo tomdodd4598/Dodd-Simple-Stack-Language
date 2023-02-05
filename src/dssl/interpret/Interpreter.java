@@ -16,18 +16,18 @@ public class Interpreter {
 	protected final List<String> printList = new ArrayList<>();
 	
 	protected final IO io;
-	protected final Import importImpl;
+	protected final Module moduleImpl;
 	protected final Native nativeImpl;
 	protected final boolean debug;
 	
-	public Interpreter(Lexer lexer, IO io, Import importImpl, Native nativeImpl, boolean debug) {
+	public Interpreter(Lexer lexer, IO io, Module importImpl, Native nativeImpl, boolean debug) {
 		this(new LexerIterator(lexer), io, importImpl, nativeImpl, debug);
 	}
 	
-	public Interpreter(TokenIterator iterator, IO io, Import importImpl, Native nativeImpl, boolean debug) {
+	public Interpreter(TokenIterator iterator, IO io, Module moduleImpl, Native nativeImpl, boolean debug) {
 		root = newExecutor(iterator);
 		this.io = io;
-		this.importImpl = importImpl;
+		this.moduleImpl = moduleImpl;
 		this.nativeImpl = nativeImpl;
 		this.debug = debug;
 	}

@@ -218,7 +218,9 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		TOKEN_FUNCTION_MAP.put(TLBracket.class, TokenExecutor::onLBracket);
 		TOKEN_FUNCTION_MAP.put(TRBracket.class, TokenExecutor::onRBracket);
 		
+		TOKEN_FUNCTION_MAP.put(TInclude.class, TokenExecutor::onInclude);
 		TOKEN_FUNCTION_MAP.put(TImport.class, TokenExecutor::onImport);
+		
 		TOKEN_FUNCTION_MAP.put(TNative.class, TokenExecutor::onNative);
 		
 		TOKEN_FUNCTION_MAP.put(TDef.class, TokenExecutor::onDef);
@@ -395,8 +397,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		return TokenResult.PASS;
 	}
 	
+	protected TokenResult onInclude(@NonNull Token token) {
+		return interpreter.moduleImpl.onInclude(this);
+	}
+	
 	protected TokenResult onImport(@NonNull Token token) {
-		return interpreter.importImpl.onImport(this);
+		return interpreter.moduleImpl.onImport(this);
 	}
 	
 	protected TokenResult onNative(@NonNull Token token) {

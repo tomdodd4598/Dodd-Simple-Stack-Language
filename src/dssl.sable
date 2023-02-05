@@ -43,7 +43,9 @@ Tokens
 	l_bracket = '[';
 	r_bracket = ']';
 	
+	include = 'include';
 	import = 'import';
+	
 	native = 'native';
 	
 	def = 'def';
