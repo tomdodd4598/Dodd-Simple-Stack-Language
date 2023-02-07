@@ -176,11 +176,7 @@ public abstract class Element {
 	}
 	
 	public TokenResult onNot(TokenExecutor exec) {
-		throw unaryOpError("not");
-	}
-	
-	public TokenResult onNeg(TokenExecutor exec) {
-		throw unaryOpError("neg");
+		throw unaryOpError("!");
 	}
 	
 	protected RuntimeException keywordError(String keyword) {

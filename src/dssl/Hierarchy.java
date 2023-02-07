@@ -1,6 +1,7 @@
 package dssl;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -37,6 +38,15 @@ public class Hierarchy<K, V> {
 			throw new IllegalArgumentException(String.format("Encountered unexpected key \"%s\"!", key));
 		}
 		return prev;
+	}
+	
+	public void putAll(Hierarchy<K, V> other, boolean shadow) {
+		for (Entry<K, V> entry : other.internal.entrySet()) {
+			put(entry.getKey(), entry.getValue(), shadow);
+		}
+		for (Hierarchy<K, V> parent : other.parents) {
+			putAll(parent, shadow);
+		}
 	}
 	
 	public @Nullable V get(K key) {

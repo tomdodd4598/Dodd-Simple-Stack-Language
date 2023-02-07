@@ -16,7 +16,7 @@ public class RangeElement extends ValueElement implements IterableElement {
 	protected List<@NonNull Element> list = null;
 	
 	public RangeElement(Collection<@NonNull Element> elems) {
-		super();
+		super(BuiltIn.RANGE_CLAZZ);
 		int elemCount = elems.size();
 		if (elemCount < 1 || elemCount > 3) {
 			throw new IllegalArgumentException(String.format("Range element construction requires between one and three arguments but received %s!", elemCount));
@@ -27,7 +27,7 @@ public class RangeElement extends ValueElement implements IterableElement {
 		for (@NonNull Element elem : elems) {
 			IntElement intElem = elem.intCastImplicit();
 			if (intElem == null) {
-				throw new IllegalArgumentException(String.format("Range element construction requires int value elements as arguments!"));
+				throw new IllegalArgumentException(String.format("Range element construction requires int elements as arguments!"));
 			}
 			
 			args[index] = intElem.primitiveInt();
@@ -231,12 +231,12 @@ public class RangeElement extends ValueElement implements IterableElement {
 	public TokenResult onGet(TokenExecutor exec, @NonNull Element elem) {
 		IntElement intElem = elem.intCastImplicit();
 		if (intElem == null) {
-			throw new IllegalArgumentException(String.format("Keyword \"get\" requires non-negative int value element as argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"get\" requires non-negative int element as argument!"));
 		}
 		
 		int primitiveInt = intElem.primitiveInt();
 		if (primitiveInt < 0) {
-			throw new IllegalArgumentException(String.format("Keyword \"get\" requires non-negative int value element as argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"get\" requires non-negative int element as argument!"));
 		}
 		
 		exec.push(list().get(primitiveInt));

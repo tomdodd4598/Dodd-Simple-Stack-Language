@@ -72,22 +72,25 @@ public class Main {
 		
 		Module moduleImpl = new Module() {
 			
-			// TODO: INTRINSIC MODULES
-			
 			@Override
 			public TokenResult onInclude(TokenExecutor exec) {
 				@NonNull Element elem = exec.pop();
 				StringElement stringElem = elem.stringCastImplicit();
-				if (stringElem == null) {
-					throw new IllegalArgumentException(String.format("Keyword \"include\" requires string value element as argument!"));
+				if (stringElem != null) {
+					try (PushbackReader reader = Helpers.getPushbackReader(new FileReader(stringElem.toString()))) {
+						return new TokenExecutor(new LexerIterator(reader), exec, false).iterate();
+					}
+					catch (Exception e) {
+						e.printStackTrace();
+						throw new RuntimeException();
+					}
 				}
-				
-				try (PushbackReader reader = Helpers.getPushbackReader(new FileReader(stringElem.toString()))) {
-					return new TokenExecutor(new LexerIterator(reader), exec, false).iterate();
+				else if (elem instanceof ModuleElement) {
+					exec.putAll(((ModuleElement) elem).clazz, true);
+					return TokenResult.PASS;
 				}
-				catch (Exception e) {
-					e.printStackTrace();
-					throw new RuntimeException();
+				else {
+					throw new IllegalArgumentException(String.format("Keyword \"include\" requires string or module element as argument!"));
 				}
 			}
 			
@@ -99,19 +102,23 @@ public class Main {
 				}
 				
 				StringElement stringElem = elem1.stringCastImplicit();
-				if (stringElem == null) {
-					throw new IllegalArgumentException(String.format("Keyword \"import\" requires string value element as second argument!"));
+				if (stringElem != null) {
+					try (PushbackReader reader = Helpers.getPushbackReader(new FileReader(stringElem.toString()))) {
+						TokenExecutor otherExec = exec.interpreter.newExecutor(new LexerIterator(reader));
+						((LabelElement) elem0).setClazz(otherExec, new ArrayList<>());
+						return otherExec.iterate();
+					}
+					catch (Exception e) {
+						e.printStackTrace();
+						throw new RuntimeException();
+					}
 				}
-				
-				try (PushbackReader reader = Helpers.getPushbackReader(new FileReader(stringElem.toString()))) {
-					TokenExecutor otherExec = exec.interpreter.newExecutor(new LexerIterator(reader));
-					TokenResult result = otherExec.iterate();
-					((LabelElement) elem0).setClazz(otherExec, new ArrayList<>());
-					return result;
+				else if (elem1 instanceof ModuleElement) {
+					((LabelElement) elem0).setClazz(((ModuleElement) elem1).clazz, new ArrayList<>());
+					return TokenResult.PASS;
 				}
-				catch (Exception e) {
-					e.printStackTrace();
-					throw new RuntimeException();
+				else {
+					throw new IllegalArgumentException(String.format("Keyword \"import\" requires string or module element as second argument!"));
 				}
 			}
 		};

@@ -12,7 +12,7 @@ public class NullElement extends ValueElement {
 	public static final @NonNull NullElement INSTANCE = new NullElement();
 	
 	private NullElement() {
-		super();
+		super(new Clazz("null"));
 	}
 	
 	@Override

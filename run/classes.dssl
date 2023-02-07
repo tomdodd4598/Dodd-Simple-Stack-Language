@@ -95,25 +95,25 @@ item .printRecursive
 	
 	/i 0.0 1.0 Complex new def
 	
-	/binOpSetup "dup .re /xre exch def .im /xim exch def dup .re /yre exch def .im /yim exch def" def
+	/binaryDefs "dup .re /xre exch def .im /xim exch def dup .re /yre exch def .im /yim exch def" def
 	
 	/add {
-		Complex .binOpSetup interpret
+		Complex .binaryDefs interpret
 		xre yre + xim yim + Complex new
 	} magic
 	
 	/sub {
-		Complex .binOpSetup interpret
+		Complex .binaryDefs interpret
 		xre yre - xim yim - Complex new
 	} magic
 	
 	/mul {
-		Complex .binOpSetup interpret
+		Complex .binaryDefs interpret
 		xre yre * xim yim * - xre yim * xim yre * + Complex new
 	} magic
 	
 	/div {
-		Complex .binOpSetup interpret
+		Complex .binaryDefs interpret
 		/ysq yre yre * yim yim * + def
 		xre yre * xim yim * + ysq / xim yre * xre yim * - ysq / Complex new
 	} magic

@@ -1,6 +1,6 @@
 package dssl.interpret;
 
-import java.math.BigInteger;
+import java.math.*;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.StreamSupport;
@@ -30,6 +30,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		macroHierarchy = new Hierarchy<>();
 		clazzHierarchy = new Hierarchy<>();
 		magicHierarchy = new Hierarchy<>();
+		prelude();
 	}
 	
 	public TokenExecutor(TokenIterator iterator, TokenExecutor prev, boolean child) {
@@ -38,6 +39,10 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		macroHierarchy = prev.macroHierarchy.copy(child);
 		clazzHierarchy = prev.clazzHierarchy.copy(child);
 		magicHierarchy = prev.magicHierarchy.copy(child);
+	}
+	
+	protected void prelude() {
+		BuiltIn.CLAZZ_MAP.forEach((k, v) -> getClazzHierarchy().put(k, v, true));
 	}
 	
 	@Override
@@ -351,7 +356,6 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		TOKEN_FUNCTION_MAP.put(TModulo.class, TokenExecutor::onModulo);
 		
 		TOKEN_FUNCTION_MAP.put(TNot.class, TokenExecutor::onNot);
-		TOKEN_FUNCTION_MAP.put(TNeg.class, TokenExecutor::onNeg);
 		
 		TOKEN_FUNCTION_MAP.put(TIntValue.class, TokenExecutor::onIntValue);
 		TOKEN_FUNCTION_MAP.put(TBoolValue.class, TokenExecutor::onBoolValue);
@@ -364,9 +368,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		TOKEN_FUNCTION_MAP.put(TIdentifier.class, TokenExecutor::onIdentifier);
 		TOKEN_FUNCTION_MAP.put(TLabel.class, TokenExecutor::onLabel);
 		TOKEN_FUNCTION_MAP.put(TMember.class, TokenExecutor::onMember);
+		TOKEN_FUNCTION_MAP.put(TModule.class, TokenExecutor::onModule);
 		
 		TOKEN_FUNCTION_MAP.put(BlockToken.class, TokenExecutor::onBlock);
 	}
+	
+	// KEYWORDS
 	
 	protected TokenResult onBlank(@NonNull Token token) {
 		return TokenResult.PASS;
@@ -436,7 +443,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Keyword \"class\" requires block element as last argument!"));
 		}
 		
-		List<@NonNull Clazz> supers = new ArrayList<>();
+		List<dssl.interpret.Clazz> supers = new ArrayList<>();
 		while ((elem0 = pop()) instanceof ClassElement) {
 			supers.add(((ClassElement) elem0).clazz);
 		}
@@ -451,8 +458,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		}
 		TokenExecutor clazzExec = ((BlockElement) elem1).executor(this);
 		label.setClazz(clazzExec, supers);
-		TokenResult result = clazzExec.iterate();
-		return result;
+		return clazzExec.iterate();
 	}
 	
 	protected TokenResult onMagic(@NonNull Token token) {
@@ -515,16 +521,22 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected TokenResult onRoll(@NonNull Token token) {
 		@NonNull Element elem1 = pop(), elem0 = pop();
-		IntElement intElem0 = elem0.intCastImplicit(), intElem1 = elem1.intCastImplicit();
-		if (intElem0 == null || intElem1 == null) {
-			throw new IllegalArgumentException(String.format("Keyword \"roll\" requires two int value elements as arguments!"));
+		IntElement intElem0 = elem0.intCastImplicit();
+		if (intElem0 == null) {
+			throw new IllegalArgumentException(String.format("Keyword \"roll\" requires non-negative int element as first argument!"));
 		}
 		
-		int count = intElem0.primitiveInt(), roll = intElem1.primitiveInt();
+		int count = intElem0.primitiveInt();
 		if (count < 0) {
-			throw new IllegalArgumentException(String.format("Keyword \"roll\" requires non-negative int value element as first argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"roll\" requires non-negative int element as first argument!"));
 		}
 		
+		IntElement intElem1 = elem1.intCastImplicit();
+		if (intElem1 == null) {
+			throw new IllegalArgumentException(String.format("Keyword \"roll\" requires int element as second argument!"));
+		}
+		
+		int roll = intElem1.primitiveInt();
 		@NonNull Element[] elems = pop(count);
 		for (int i = 0; i < count; ++i) {
 			push(elems[Helpers.mod(i - roll, count)]);
@@ -536,12 +548,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		@NonNull Element elem = pop();
 		IntElement intElem = elem.intCastImplicit();
 		if (intElem == null) {
-			throw new IllegalArgumentException(String.format("Keyword \"rid\" requires non-negative int value element as argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"rid\" requires non-negative int element as argument!"));
 		}
 		
 		int primitiveInt = intElem.primitiveInt();
 		if (primitiveInt < 0) {
-			throw new IllegalArgumentException(String.format("Keyword \"rid\" requires non-negative int value element as argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"rid\" requires non-negative int element as argument!"));
 		}
 		
 		for (int i = 0; i < primitiveInt; ++i) {
@@ -554,12 +566,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		@NonNull Element elem = pop();
 		IntElement intElem = elem.intCastImplicit();
 		if (intElem == null) {
-			throw new IllegalArgumentException(String.format("Keyword \"copy\" requires non-negative int value element as argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"copy\" requires non-negative int element as argument!"));
 		}
 		
 		int primitiveInt = intElem.primitiveInt();
 		if (primitiveInt < 0) {
-			throw new IllegalArgumentException(String.format("Keyword \"copy\" requires non-negative int value element as argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"copy\" requires non-negative int element as argument!"));
 		}
 		
 		for (@NonNull Element e : peek(primitiveInt)) {
@@ -572,12 +584,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		@NonNull Element elem = pop();
 		IntElement intElem = elem.intCastImplicit();
 		if (intElem == null) {
-			throw new IllegalArgumentException(String.format("Keyword \"index\" requires non-negative int value element as argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"index\" requires non-negative int element as argument!"));
 		}
 		
 		int primitiveInt = intElem.primitiveInt();
 		if (primitiveInt < 0) {
-			throw new IllegalArgumentException(String.format("Keyword \"index\" requires non-negative int value element as argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"index\" requires non-negative int element as argument!"));
 		}
 		
 		push(peekAt(primitiveInt));
@@ -621,7 +633,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		@NonNull Element elem = pop();
 		StringElement stringElem = elem.stringCastImplicit();
 		if (stringElem == null) {
-			throw new IllegalArgumentException(String.format("Keyword \"interpret\" requires string value element as argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"interpret\" requires string element as argument!"));
 		}
 		return new TokenExecutor(new LexerIterator(stringElem.toString()), this, false).iterate();
 	}
@@ -727,7 +739,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		
 		loop: for (@NonNull Element elem : (IterableElement) elem0) {
 			push(elem);
-			TokenResult invokeResult = ((BlockElement) elem1).executor(this).iterate();
+			TokenResult invokeResult = ((BlockElement) elem1).invoke(this);
 			switch (invokeResult) {
 				case CONTINUE:
 					continue;
@@ -870,21 +882,21 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		if (!(elem instanceof BlockElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"exec\" requires block element as argument!"));
 		}
-		return ((BlockElement) elem).executor(this).iterate();
+		return ((BlockElement) elem).invoke(this);
 	}
 	
 	protected TokenResult onIf(@NonNull Token token) {
 		@NonNull Element elem1 = pop(), elem0 = pop();
 		BoolElement boolElem = elem0.boolCastImplicit();
 		if (boolElem == null) {
-			throw new IllegalArgumentException(String.format("Keyword \"if\" requires bool value element as first argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"if\" requires bool element as first argument!"));
 		}
 		if (!(elem1 instanceof BlockElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"if\" requires block element as second argument!"));
 		}
 		
 		if (boolElem.primitiveBool()) {
-			return ((BlockElement) elem1).executor(this).iterate();
+			return ((BlockElement) elem1).invoke(this);
 		}
 		else {
 			return TokenResult.PASS;
@@ -895,7 +907,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		@NonNull Element elem2 = pop(), elem1 = pop(), elem0 = pop();
 		BoolElement boolElem = elem0.boolCastImplicit();
 		if (boolElem == null) {
-			throw new IllegalArgumentException(String.format("Keyword \"ifelse\" requires bool value element as first argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"ifelse\" requires bool element as first argument!"));
 		}
 		if (!(elem1 instanceof BlockElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"ifelse\" requires block element as second argument!"));
@@ -905,10 +917,10 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		}
 		
 		if (boolElem.primitiveBool()) {
-			return ((BlockElement) elem1).executor(this).iterate();
+			return ((BlockElement) elem1).invoke(this);
 		}
 		else {
-			return ((BlockElement) elem2).executor(this).iterate();
+			return ((BlockElement) elem2).invoke(this);
 		}
 	}
 	
@@ -916,19 +928,19 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		@NonNull Element elem1 = pop(), elem0 = pop();
 		IntElement intElem = elem0.intCastImplicit();
 		if (intElem == null) {
-			throw new IllegalArgumentException(String.format("Keyword \"repeat\" requires non-negative int value element as first argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"repeat\" requires non-negative int element as first argument!"));
 		}
 		
 		int primitiveInt = intElem.primitiveInt();
 		if (primitiveInt < 0) {
-			throw new IllegalArgumentException(String.format("Keyword \"repeat\" requires non-negative int value element as first argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"repeat\" requires non-negative int element as first argument!"));
 		}
 		if (!(elem1 instanceof BlockElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"repeat\" requires block element as second argument!"));
 		}
 		
 		loop: for (int i = 0; i < primitiveInt; ++i) {
-			TokenResult invokeResult = ((BlockElement) elem1).executor(this).iterate();
+			TokenResult invokeResult = ((BlockElement) elem1).invoke(this);
 			switch (invokeResult) {
 				case CONTINUE:
 					continue;
@@ -950,7 +962,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		}
 		
 		loop: while (true) {
-			TokenResult invokeResult = ((BlockElement) elem).executor(this).iterate();
+			TokenResult invokeResult = ((BlockElement) elem).invoke(this);
 			switch (invokeResult) {
 				case CONTINUE:
 					continue;
@@ -1186,10 +1198,6 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		return pop().onNot(this);
 	}
 	
-	protected TokenResult onNeg(@NonNull Token token) {
-		return pop().onNeg(this);
-	}
-	
 	protected TokenResult onIntValue(@NonNull Token token) {
 		push(new IntElement(new BigInteger(token.getText())));
 		return TokenResult.PASS;
@@ -1270,6 +1278,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		}
 	}
 	
+	@SuppressWarnings("null")
+	protected TokenResult onModule(@NonNull Token token) {
+		push(new ModuleElement(token.getText().substring(1)));
+		return TokenResult.PASS;
+	}
+	
 	protected TokenResult onBlock(@NonNull Token token) {
 		push(new BlockElement(((BlockToken) token).tokens));
 		return TokenResult.PASS;
@@ -1282,12 +1296,10 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		}
 		
 		LabelElement label = (LabelElement) elem0;
-		if (def) {
-			if (Helpers.KEYWORDS.contains(label.identifier)) {
-				throw new IllegalArgumentException(String.format("Keyword \"%s\" can not be used as a variable identifier!", label.identifier));
-			}
+		if (Helpers.KEYWORDS.contains(label.identifier)) {
+			throw new IllegalArgumentException(String.format("Keyword \"%s\" can not be used as a variable identifier!", label.identifier));
 		}
-		else if (label.getDef() == null) {
+		else if (!def && label.getDef() == null) {
 			throw new IllegalArgumentException(String.format("Variable \"%s\" not defined!", label.identifier));
 		}
 		
@@ -1367,7 +1379,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			return TokenResult.PASS;
 		}
 		else if ((macro = getMacro.get()) != null) {
-			return macro.block.executor(this).iterate();
+			return macro.invokable.invoke(this);
 		}
 		else if ((clazz = getClazz.get()) != null) {
 			push(clazz.elem);
@@ -1376,5 +1388,283 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		else {
 			return null;
 		}
+	}
+	
+	// BUILT-INS
+	
+	protected TokenResult neg() {
+		@NonNull Element elem = pop();
+		IntElement intElem = elem.intCastImplicit();
+		if (intElem != null) {
+			push(new IntElement(intElem.value.raw.negate()));
+			return TokenResult.PASS;
+		}
+		
+		FloatElement floatElem = elem.floatCastImplicit();
+		if (floatElem != null) {
+			push(new FloatElement(-floatElem.primitiveFloat()));
+			return TokenResult.PASS;
+		}
+		
+		throw new IllegalArgumentException(String.format("Built-in math \"neg\" requires int or float element as argument!"));
+	}
+	
+	protected TokenResult abs() {
+		@NonNull Element elem = pop();
+		IntElement intElem = elem.intCastImplicit();
+		if (intElem != null) {
+			push(new IntElement(intElem.value.raw.abs()));
+			return TokenResult.PASS;
+		}
+		
+		FloatElement floatElem = elem.floatCastImplicit();
+		if (floatElem != null) {
+			push(new FloatElement(Math.abs(floatElem.primitiveFloat())));
+			return TokenResult.PASS;
+		}
+		
+		throw new IllegalArgumentException(String.format("Built-in math \"abs\" requires int or float element as argument!"));
+	}
+	
+	protected TokenResult sgn() {
+		@NonNull Element elem = pop();
+		IntElement intElem = elem.intCastImplicit();
+		if (intElem != null) {
+			push(new IntElement(intElem.value.raw.signum()));
+			return TokenResult.PASS;
+		}
+		
+		FloatElement floatElem = elem.floatCastImplicit();
+		if (floatElem != null) {
+			push(new FloatElement(Math.signum(floatElem.primitiveFloat())));
+			return TokenResult.PASS;
+		}
+		
+		throw new IllegalArgumentException(String.format("Built-in math \"sgn\" requires int or float element as argument!"));
+	}
+	
+	protected TokenResult floor() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("floor");
+		push(new FloatElement(Math.floor(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult ceil() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("ceil");
+		push(new FloatElement(Math.ceil(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult round() {
+		@NonNull Element elem1 = pop(), elem0 = pop();
+		FloatElement floatElem = elem0.floatCastImplicit();
+		if (floatElem == null) {
+			throw new IllegalArgumentException(String.format("Built-in math \"round\" requires float element as first argument!"));
+		}
+		
+		IntElement intElem = elem1.intCastImplicit();
+		if (intElem == null) {
+			throw new IllegalArgumentException(String.format("Built-in math \"round\" requires int element as second argument!"));
+		}
+		
+		push(new FloatElement(floatElem.bigFloat().setScale(intElem.primitiveInt(), BigDecimal.ROUND_HALF_UP).doubleValue()));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult sin() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("sin");
+		push(new FloatElement(Math.sin(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult cos() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("cos");
+		push(new FloatElement(Math.cos(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult tan() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("tan");
+		push(new FloatElement(Math.tan(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult asin() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("asin");
+		push(new FloatElement(Math.asin(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult acos() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("acos");
+		push(new FloatElement(Math.acos(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult atan() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("atan");
+		push(new FloatElement(Math.atan(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult sinc() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("sinc");
+		double f = floatElem.primitiveFloat();
+		push(new FloatElement(f == 0.0 ? 1.0 : Math.sin(f) / f));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult atan2() {
+		@NonNull Element elem1 = pop(), elem0 = pop();
+		FloatElement floatElem0 = elem0.floatCastImplicit();
+		if (floatElem0 == null) {
+			throw new IllegalArgumentException(String.format("Built-in math \"atan2\" requires float element as first argument!"));
+		}
+		
+		FloatElement floatElem1 = elem1.floatCastImplicit();
+		if (floatElem1 == null) {
+			throw new IllegalArgumentException(String.format("Built-in math \"atan2\" requires float element as second argument!"));
+		}
+		
+		push(new FloatElement(Math.atan2(floatElem0.primitiveFloat(), floatElem1.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult rads() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("rads");
+		push(new FloatElement(Math.toRadians(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult degs() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("degs");
+		push(new FloatElement(Math.toDegrees(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult exp() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("exp");
+		push(new FloatElement(Math.exp(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult log() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("log");
+		push(new FloatElement(Math.log(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult log10() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("log10");
+		push(new FloatElement(Math.log10(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult sqrt() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("sqrt");
+		push(new FloatElement(Math.sqrt(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult cbrt() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("cbrt");
+		push(new FloatElement(Math.cbrt(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult expm1() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("expm1");
+		push(new FloatElement(Math.expm1(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult log1p() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("log1p");
+		push(new FloatElement(Math.log1p(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult sinh() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("sinh");
+		push(new FloatElement(Math.sinh(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult cosh() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("cosh");
+		push(new FloatElement(Math.cosh(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult tanh() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("tanh");
+		push(new FloatElement(Math.tanh(floatElem.primitiveFloat())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult asinh() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("asinh");
+		double f = floatElem.primitiveFloat();
+		push(new FloatElement(Math.log(f + Math.sqrt(f * f + 1.0))));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult acosh() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("acosh");
+		double f = floatElem.primitiveFloat();
+		push(new FloatElement(Math.log(f + Math.sqrt(f * f - 1.0))));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult atanh() {
+		@NonNull FloatElement floatElem = builtInSingleFloat("atanh");
+		double f = floatElem.primitiveFloat();
+		push(new FloatElement(0.5 * Math.log((1.0 + f) / (1.0 - f))));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult min() {
+		@NonNull Element elem1 = pop(), elem0 = pop();
+		IntElement intElem0 = elem0.intCastImplicit(), intElem1 = elem1.intCastImplicit();
+		boolean firstValid = false;
+		if ((firstValid |= intElem0 != null) && intElem1 != null) {
+			push(new IntElement(intElem0.value.raw.min(intElem1.value.raw)));
+			return TokenResult.PASS;
+		}
+		
+		FloatElement floatElem0 = elem0.floatCastImplicit(), floatElem1 = elem1.floatCastImplicit();
+		if ((firstValid |= floatElem0 != null) && floatElem1 != null) {
+			push(new FloatElement(Math.min(floatElem0.primitiveFloat(), floatElem1.primitiveFloat())));
+			return TokenResult.PASS;
+		}
+		
+		throw new IllegalArgumentException(String.format("Built-in math \"min\" requires int or float element as %s argument!", firstValid ? "second" : "first"));
+	}
+	
+	protected TokenResult max() {
+		@NonNull Element elem1 = pop(), elem0 = pop();
+		IntElement intElem0 = elem0.intCastImplicit(), intElem1 = elem1.intCastImplicit();
+		boolean firstValid = false;
+		if ((firstValid |= intElem0 != null) && intElem1 != null) {
+			push(new IntElement(intElem0.value.raw.max(intElem1.value.raw)));
+			return TokenResult.PASS;
+		}
+		
+		FloatElement floatElem0 = elem0.floatCastImplicit(), floatElem1 = elem1.floatCastImplicit();
+		if ((firstValid |= floatElem0 != null) && floatElem1 != null) {
+			push(new FloatElement(Math.max(floatElem0.primitiveFloat(), floatElem1.primitiveFloat())));
+			return TokenResult.PASS;
+		}
+		
+		throw new IllegalArgumentException(String.format("Built-in math \"max\" requires int or float element as %s argument!", firstValid ? "second" : "first"));
+	}
+	
+	protected @NonNull FloatElement builtInSingleFloat(String name) {
+		@NonNull Element elem = pop();
+		FloatElement floatElem = elem.floatCastImplicit();
+		if (floatElem == null) {
+			throw new IllegalArgumentException(String.format("Built-in math \"%s\" requires float element as argument!", name));
+		}
+		return floatElem;
 	}
 }

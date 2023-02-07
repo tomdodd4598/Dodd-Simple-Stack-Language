@@ -10,8 +10,6 @@ import dssl.interpret.element.primitive.StringElement;
 
 public class InstanceElement extends ValueElement implements Scope {
 	
-	public final @NonNull Clazz clazz;
-	
 	protected final Map<@NonNull String, Def> defMap;
 	protected final Map<@NonNull String, Macro> macroMap;
 	protected final Map<@NonNull String, Clazz> clazzMap;
@@ -24,18 +22,12 @@ public class InstanceElement extends ValueElement implements Scope {
 	}
 	
 	protected InstanceElement(@NonNull Clazz clazz, Map<@NonNull String, Def> defMap, Map<@NonNull String, Macro> macroMap, Map<@NonNull String, Clazz> clazzMap, Map<@NonNull String, Magic> magicMap) {
-		super();
-		this.clazz = clazz;
+		super(clazz);
 		this.defMap = defMap;
 		this.macroMap = macroMap;
 		this.clazzMap = clazzMap;
 		this.magicMap = magicMap;
-		scopeIdentifier = clazz.identifier + "@" + Integer.toString(objectHashCode(), 16);
-	}
-	
-	@Override
-	public @NonNull String typeName() {
-		return clazz.identifier;
+		scopeIdentifier = toDebugString();
 	}
 	
 	@Override
@@ -233,15 +225,6 @@ public class InstanceElement extends ValueElement implements Scope {
 	}
 	
 	@Override
-	public TokenResult onNeg(TokenExecutor exec) {
-		TokenResult magic = magicAction(exec, "neg");
-		if (magic != null) {
-			return magic;
-		}
-		return super.onNeg(exec);
-	}
-	
-	@Override
 	public boolean hasDef(@NonNull String identifier) {
 		return defMap.containsKey(identifier);
 	}
@@ -268,9 +251,9 @@ public class InstanceElement extends ValueElement implements Scope {
 	}
 	
 	@Override
-	public void setMacro(@NonNull String identifier, @NonNull BlockElement block) {
+	public void setMacro(@NonNull String identifier, @NonNull Invokable invokable) {
 		checkMacro(identifier);
-		macroMap.put(identifier, new Macro(identifier, block));
+		macroMap.put(identifier, new Macro(identifier, invokable));
 	}
 	
 	@Override
@@ -284,7 +267,7 @@ public class InstanceElement extends ValueElement implements Scope {
 	}
 	
 	@Override
-	public void setClazz(@NonNull String shallow, HierarchicalScope base, List<@NonNull Clazz> supers) {
+	public void setClazz(@NonNull String shallow, HierarchicalScope base, List<dssl.interpret.Clazz> supers) {
 		checkClazz(shallow);
 		clazzMap.put(shallow, new Clazz(scopeIdentifier, shallow, base, supers));
 	}
@@ -300,8 +283,8 @@ public class InstanceElement extends ValueElement implements Scope {
 	}
 	
 	@Override
-	public void setMagic(@NonNull String identifier, @NonNull BlockElement block) {
-		magicMap.put(identifier, new Magic(identifier, block));
+	public void setMagic(@NonNull String identifier, @NonNull Invokable invokable) {
+		magicMap.put(identifier, new Magic(identifier, invokable));
 	}
 	
 	@Override
@@ -330,7 +313,7 @@ public class InstanceElement extends ValueElement implements Scope {
 			if (clazzMagic) {
 				exec.push(this);
 			}
-			return magic.block.executor(exec).iterate();
+			return magic.invokable.invoke(exec);
 		}
 		return null;
 	}
@@ -356,7 +339,7 @@ public class InstanceElement extends ValueElement implements Scope {
 	
 	@Override
 	public @NonNull String toString() {
-		return clazz.identifier + "@" + Integer.toString(objectHashCode(), 16);
+		return toDebugString();
 	}
 	
 	@Override

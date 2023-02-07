@@ -19,7 +19,17 @@ public class Clazz implements HierarchicalScope {
 	protected final Hierarchy<@NonNull String, Clazz> clazzHierarchy;
 	protected final Hierarchy<@NonNull String, Magic> magicHierarchy;
 	
-	public Clazz(String prev, @NonNull String extension, HierarchicalScope base, List<@NonNull Clazz> supers) {
+	public Clazz(@NonNull String identifier) {
+		this.identifier = identifier;
+		shallow = identifier;
+		elem = new ClassElement(this);
+		defHierarchy = new Hierarchy<>();
+		macroHierarchy = new Hierarchy<>();
+		clazzHierarchy = new Hierarchy<>();
+		magicHierarchy = new Hierarchy<>();
+	}
+	
+	public Clazz(String prev, @NonNull String extension, HierarchicalScope base, List<Clazz> supers) {
 		identifier = prev == null ? extension : prev + "." + extension;
 		shallow = extension;
 		elem = new ClassElement(this);

@@ -5,17 +5,17 @@ import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import dssl.Helpers;
 import dssl.interpret.*;
 import dssl.interpret.element.Element;
 import dssl.interpret.value.IntValue;
 
-public class IntElement extends PrimitiveElement<@NonNull BigInteger> {
+public class IntElement extends PrimitiveElement<@NonNull BigInteger, @NonNull IntValue> {
 	
-	public IntElement(@NonNull BigInteger rawValue) {
-		super(new IntValue(rawValue));
+	public IntElement(BigInteger rawValue) {
+		super(BuiltIn.INT_CLAZZ, new IntValue(Helpers.checkNonNull(rawValue)));
 	}
 	
-	@SuppressWarnings("null")
 	public IntElement(long rawValue) {
 		this(BigInteger.valueOf(rawValue));
 	}
@@ -30,20 +30,14 @@ public class IntElement extends PrimitiveElement<@NonNull BigInteger> {
 		return elem.intCastExplicit();
 	}
 	
-	public int primitiveInt() {
-		return value.raw.intValueExact();
-	}
-	
 	@Override
 	public TokenResult onNot(TokenExecutor exec) {
-		throw unaryOpError("not");
+		exec.push(new IntElement(value.raw.not()));
+		return TokenResult.PASS;
 	}
 	
-	@SuppressWarnings("null")
-	@Override
-	public TokenResult onNeg(TokenExecutor exec) {
-		exec.push(new IntElement(value.raw.negate()));
-		return TokenResult.PASS;
+	public int primitiveInt() {
+		return value.raw.intValueExact();
 	}
 	
 	@Override

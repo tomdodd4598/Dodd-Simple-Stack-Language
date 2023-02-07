@@ -9,12 +9,12 @@ public final class TNot extends Token
 {
     public TNot()
     {
-        super.setText("not");
+        super.setText("!");
     }
 
     public TNot(int line, int pos)
     {
-        super.setText("not");
+        super.setText("!");
         setLine(line);
         setPos(pos);
     }

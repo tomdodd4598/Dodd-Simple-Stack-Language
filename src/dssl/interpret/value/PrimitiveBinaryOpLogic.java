@@ -132,7 +132,6 @@ public class PrimitiveBinaryOpLogic {
 		return null;
 	}
 	
-	@SuppressWarnings("null")
 	public static Element onPlus(@NonNull PrimitiveValue<?> value0, @NonNull PrimitiveValue<?> value1) {
 		if (value0 instanceof IntValue) {
 			if (value1 instanceof IntValue) {
@@ -156,7 +155,6 @@ public class PrimitiveBinaryOpLogic {
 		return null;
 	}
 	
-	@SuppressWarnings("null")
 	public static Element onAnd(@NonNull PrimitiveValue<?> value0, @NonNull PrimitiveValue<?> value1) {
 		if (value0 instanceof IntValue && value1 instanceof IntValue) {
 			return new IntElement(((IntValue) value0).raw.and(((IntValue) value1).raw));
@@ -167,7 +165,6 @@ public class PrimitiveBinaryOpLogic {
 		return null;
 	}
 	
-	@SuppressWarnings("null")
 	public static Element onOr(@NonNull PrimitiveValue<?> value0, @NonNull PrimitiveValue<?> value1) {
 		if (value0 instanceof IntValue && value1 instanceof IntValue) {
 			return new IntElement(((IntValue) value0).raw.or(((IntValue) value1).raw));
@@ -178,7 +175,6 @@ public class PrimitiveBinaryOpLogic {
 		return null;
 	}
 	
-	@SuppressWarnings("null")
 	public static Element onXor(@NonNull PrimitiveValue<?> value0, @NonNull PrimitiveValue<?> value1) {
 		if (value0 instanceof IntValue && value1 instanceof IntValue) {
 			return new IntElement(((IntValue) value0).raw.xor(((IntValue) value1).raw));
@@ -189,7 +185,6 @@ public class PrimitiveBinaryOpLogic {
 		return null;
 	}
 	
-	@SuppressWarnings("null")
 	public static Element onMinus(@NonNull PrimitiveValue<?> value0, @NonNull PrimitiveValue<?> value1) {
 		if (value0 instanceof IntValue) {
 			if (value1 instanceof IntValue) {
@@ -214,7 +209,6 @@ public class PrimitiveBinaryOpLogic {
 		return new StringElement(value0.toString() + value1.toString());
 	}
 	
-	@SuppressWarnings("null")
 	public static Element onLeftShift(@NonNull PrimitiveValue<?> value0, @NonNull PrimitiveValue<?> value1) {
 		if (value0 instanceof IntValue && value1 instanceof IntValue) {
 			return new IntElement(((IntValue) value0).raw.shiftLeft(((IntValue) value1).raw.intValue()));
@@ -222,7 +216,6 @@ public class PrimitiveBinaryOpLogic {
 		return null;
 	}
 	
-	@SuppressWarnings("null")
 	public static Element onRightShift(@NonNull PrimitiveValue<?> value0, @NonNull PrimitiveValue<?> value1) {
 		if (value0 instanceof IntValue && value1 instanceof IntValue) {
 			return new IntElement(((IntValue) value0).raw.shiftRight(((IntValue) value1).raw.intValue()));
@@ -230,7 +223,6 @@ public class PrimitiveBinaryOpLogic {
 		return null;
 	}
 	
-	@SuppressWarnings("null")
 	public static Element onMultiply(@NonNull PrimitiveValue<?> value0, @NonNull PrimitiveValue<?> value1) {
 		if (value0 instanceof IntValue) {
 			if (value1 instanceof IntValue) {
@@ -251,7 +243,6 @@ public class PrimitiveBinaryOpLogic {
 		return null;
 	}
 	
-	@SuppressWarnings("null")
 	public static Element onDivide(@NonNull PrimitiveValue<?> value0, @NonNull PrimitiveValue<?> value1) {
 		if (value0 instanceof IntValue) {
 			if (value1 instanceof IntValue) {
@@ -272,7 +263,6 @@ public class PrimitiveBinaryOpLogic {
 		return null;
 	}
 	
-	@SuppressWarnings("null")
 	public static Element onRemainder(@NonNull PrimitiveValue<?> value0, @NonNull PrimitiveValue<?> value1) {
 		if (value0 instanceof IntValue) {
 			if (value1 instanceof IntValue) {
@@ -293,7 +283,6 @@ public class PrimitiveBinaryOpLogic {
 		return null;
 	}
 	
-	@SuppressWarnings("null")
 	public static Element onPower(@NonNull PrimitiveValue<?> value0, @NonNull PrimitiveValue<?> value1) {
 		if (value0 instanceof IntValue) {
 			if (value1 instanceof IntValue) {
@@ -314,7 +303,6 @@ public class PrimitiveBinaryOpLogic {
 		return null;
 	}
 	
-	@SuppressWarnings("null")
 	public static Element onIdivide(@NonNull PrimitiveValue<?> value0, @NonNull PrimitiveValue<?> value1) {
 		if (value0 instanceof IntValue) {
 			if (value1 instanceof IntValue) {
@@ -335,7 +323,6 @@ public class PrimitiveBinaryOpLogic {
 		return null;
 	}
 	
-	@SuppressWarnings("null")
 	public static Element onModulo(@NonNull PrimitiveValue<?> value0, @NonNull PrimitiveValue<?> value1) {
 		if (value0 instanceof IntValue) {
 			if (value1 instanceof IntValue) {

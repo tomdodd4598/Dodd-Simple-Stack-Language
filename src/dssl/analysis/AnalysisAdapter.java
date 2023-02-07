@@ -723,12 +723,6 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTNeg(TNeg node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
     public void caseTIntValue(TIntValue node)
     {
         defaultCase(node);
@@ -778,6 +772,12 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTMember(TMember node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTModule(TModule node)
     {
         defaultCase(node);
     }

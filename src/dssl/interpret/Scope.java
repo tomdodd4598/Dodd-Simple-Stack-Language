@@ -6,7 +6,7 @@ import java.util.function.BiPredicate;
 import org.eclipse.jdt.annotation.*;
 
 import dssl.Helpers.Pair;
-import dssl.interpret.element.*;
+import dssl.interpret.element.Element;
 
 public interface Scope {
 	
@@ -51,19 +51,19 @@ public interface Scope {
 	
 	public Macro getMacro(@NonNull String identifier);
 	
-	public void setMacro(@NonNull String identifier, @NonNull BlockElement block);
+	public void setMacro(@NonNull String identifier, @NonNull Invokable invokable);
 	
 	public boolean hasClazz(@NonNull String shallow);
 	
 	public Clazz getClazz(@NonNull String shallow);
 	
-	public void setClazz(@NonNull String shallow, HierarchicalScope base, List<@NonNull Clazz> supers);
+	public void setClazz(@NonNull String shallow, HierarchicalScope base, List<dssl.interpret.Clazz> supers);
 	
 	public boolean hasMagic(@NonNull String identifier);
 	
 	public Magic getMagic(@NonNull String identifier);
 	
-	public void setMagic(@NonNull String identifier, @NonNull BlockElement block);
+	public void setMagic(@NonNull String identifier, @NonNull Invokable invokable);
 	
 	public default @Nullable TokenResult scopeAction(TokenExecutor exec, @NonNull String identifier) {
 		return exec.scopeAction(() -> getDef(identifier), () -> getMacro(identifier), () -> getClazz(identifier));

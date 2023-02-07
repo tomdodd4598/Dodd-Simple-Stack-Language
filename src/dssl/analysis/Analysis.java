@@ -120,7 +120,6 @@ public interface Analysis extends Switch
     void caseTIdivide(TIdivide node);
     void caseTModulo(TModulo node);
     void caseTNot(TNot node);
-    void caseTNeg(TNeg node);
     void caseTIntValue(TIntValue node);
     void caseTBoolValue(TBoolValue node);
     void caseTFloatValue(TFloatValue node);
@@ -130,6 +129,7 @@ public interface Analysis extends Switch
     void caseTIdentifier(TIdentifier node);
     void caseTLabel(TLabel node);
     void caseTMember(TMember node);
+    void caseTModule(TModule node);
     void caseEOF(EOF node);
     void caseInvalidToken(InvalidToken node);
 }

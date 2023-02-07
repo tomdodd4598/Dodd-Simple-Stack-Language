@@ -76,7 +76,7 @@ public class LabelElement extends Element {
 		return scope.getClazz(shallow);
 	}
 	
-	public void setClazz(HierarchicalScope base, List<@NonNull Clazz> supers) {
+	public void setClazz(HierarchicalScope base, List<dssl.interpret.Clazz> supers) {
 		scope.setClazz(shallow, base, supers);
 	}
 	

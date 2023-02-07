@@ -1,5 +1,6 @@
 package dssl.interpret.element.primitive;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -8,10 +9,10 @@ import dssl.interpret.*;
 import dssl.interpret.element.Element;
 import dssl.interpret.value.FloatValue;
 
-public class FloatElement extends PrimitiveElement<@NonNull Double> {
+public class FloatElement extends PrimitiveElement<@NonNull Double, @NonNull FloatValue> {
 	
 	public FloatElement(@NonNull Double rawValue) {
-		super(new FloatValue(rawValue));
+		super(BuiltIn.FLOAT_CLAZZ, new FloatValue(rawValue));
 	}
 	
 	@Override
@@ -26,13 +27,20 @@ public class FloatElement extends PrimitiveElement<@NonNull Double> {
 	
 	@Override
 	public TokenResult onNot(TokenExecutor exec) {
-		throw unaryOpError("not");
+		throw unaryOpError("!");
+	}
+	
+	public double primitiveFloat() {
+		return value.raw.doubleValue();
+	}
+	
+	public @NonNull BigDecimal bigFloat() {
+		return new BigDecimal(primitiveFloat());
 	}
 	
 	@Override
-	public TokenResult onNeg(TokenExecutor exec) {
-		exec.push(new FloatElement(-value.raw));
-		return TokenResult.PASS;
+	public @NonNull Element clone() {
+		return new FloatElement(primitiveFloat());
 	}
 	
 	@Override
@@ -47,10 +55,5 @@ public class FloatElement extends PrimitiveElement<@NonNull Double> {
 			return value.equals(other.value);
 		}
 		return false;
-	}
-	
-	@Override
-	public @NonNull Element clone() {
-		return new FloatElement(value.raw.doubleValue());
 	}
 }

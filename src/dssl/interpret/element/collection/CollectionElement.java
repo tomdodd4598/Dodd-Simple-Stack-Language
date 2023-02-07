@@ -8,8 +8,8 @@ import dssl.interpret.element.primitive.*;
 
 public abstract class CollectionElement extends ValueElement implements IterableElement {
 	
-	protected CollectionElement() {
-		super();
+	protected CollectionElement(@NonNull Clazz clazz) {
+		super(clazz);
 	}
 	
 	@Override

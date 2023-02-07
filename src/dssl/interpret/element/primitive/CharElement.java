@@ -9,10 +9,10 @@ import dssl.interpret.*;
 import dssl.interpret.element.Element;
 import dssl.interpret.value.CharValue;
 
-public class CharElement extends PrimitiveElement<@NonNull Character> {
+public class CharElement extends PrimitiveElement<@NonNull Character, @NonNull CharValue> {
 	
 	public CharElement(@NonNull Character rawValue) {
-		super(new CharValue(rawValue));
+		super(BuiltIn.CHAR_CLAZZ, new CharValue(rawValue));
 	}
 	
 	@Override
@@ -27,17 +27,16 @@ public class CharElement extends PrimitiveElement<@NonNull Character> {
 	
 	@Override
 	public TokenResult onNot(TokenExecutor exec) {
-		throw unaryOpError("not");
+		throw unaryOpError("!");
 	}
 	
-	@Override
-	public TokenResult onNeg(TokenExecutor exec) {
-		throw unaryOpError("neg");
+	public char primitiveChar() {
+		return value.raw.charValue();
 	}
 	
 	@Override
 	public @NonNull Element clone() {
-		return new CharElement(value.raw.charValue());
+		return new CharElement(primitiveChar());
 	}
 	
 	@Override

@@ -16,6 +16,7 @@ All documentation can be found in the [wiki](https://github.com/tomdodd4598/Dodd
 Planned Features
 ----------------
 
+- Combine TypeElement into ClassElement
 - Various keywords replaced with static or member functions.
 
 Permissions

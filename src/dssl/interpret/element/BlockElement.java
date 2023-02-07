@@ -8,7 +8,7 @@ import dssl.interpret.*;
 import dssl.interpret.element.primitive.StringElement;
 import dssl.node.Token;
 
-public class BlockElement extends Element {
+public class BlockElement extends Element implements Invokable {
 	
 	protected final List<@NonNull Token> tokens;
 	
@@ -48,6 +48,11 @@ public class BlockElement extends Element {
 				return internal.next();
 			}
 		}, exec, true);
+	}
+	
+	@Override
+	public TokenResult invoke(TokenExecutor exec) {
+		return executor(exec).iterate();
 	}
 	
 	@SuppressWarnings("null")

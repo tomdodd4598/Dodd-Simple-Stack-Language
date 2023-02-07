@@ -14,7 +14,7 @@ public class TupleElement extends CollectionElement {
 	public final List<@NonNull Element> value;
 	
 	public TupleElement(Collection<@NonNull Element> elems) {
-		super();
+		super(BuiltIn.TUPLE_CLAZZ);
 		value = Arrays.asList(elems.toArray(new @NonNull Element[elems.size()]));
 	}
 	
@@ -131,12 +131,12 @@ public class TupleElement extends CollectionElement {
 	public TokenResult onGet(TokenExecutor exec, @NonNull Element elem) {
 		IntElement intElem = elem.intCastImplicit();
 		if (intElem == null) {
-			throw new IllegalArgumentException(String.format("Keyword \"get\" requires non-negative int value element as argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"get\" requires non-negative int element as argument!"));
 		}
 		
 		int primitiveInt = intElem.primitiveInt();
 		if (primitiveInt < 0) {
-			throw new IllegalArgumentException(String.format("Keyword \"get\" requires non-negative int value element as argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"get\" requires non-negative int element as argument!"));
 		}
 		
 		exec.push(value.get(primitiveInt));

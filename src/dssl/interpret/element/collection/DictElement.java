@@ -17,7 +17,7 @@ public class DictElement extends ValueElement implements IterableElement {
 	protected Set<@NonNull Element> entries = null;
 	
 	public DictElement(Collection<@NonNull Element> elems) {
-		super();
+		super(BuiltIn.DICT_CLAZZ);
 		int elemCount = elems.size();
 		if ((elemCount & 1) == 1) {
 			throw new IllegalArgumentException(String.format("Dict element construction requires even number of arguments but received %s!", elemCount));
@@ -31,7 +31,7 @@ public class DictElement extends ValueElement implements IterableElement {
 	}
 	
 	public DictElement(Map<@NonNull Element, @NonNull Element> elems) {
-		super();
+		super(BuiltIn.DICT_CLAZZ);
 		value = new HashMap<>(elems);
 	}
 	

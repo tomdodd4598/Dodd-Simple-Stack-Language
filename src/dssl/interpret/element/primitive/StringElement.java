@@ -11,12 +11,12 @@ import dssl.interpret.element.*;
 import dssl.interpret.element.collection.*;
 import dssl.interpret.value.StringValue;
 
-public class StringElement extends PrimitiveElement<@NonNull String> implements IterableElement {
+public class StringElement extends PrimitiveElement<@NonNull String, @NonNull StringValue> implements IterableElement {
 	
 	protected List<@NonNull Element> list = null;
 	
 	public StringElement(@NonNull String rawValue) {
-		super(new StringValue(rawValue));
+		super(BuiltIn.STRING_CLAZZ, new StringValue(rawValue));
 	}
 	
 	@Override
@@ -60,16 +60,6 @@ public class StringElement extends PrimitiveElement<@NonNull String> implements 
 	}
 	
 	@Override
-	public TokenResult onNot(TokenExecutor exec) {
-		throw unaryOpError("not");
-	}
-	
-	@Override
-	public TokenResult onNeg(TokenExecutor exec) {
-		throw unaryOpError("neg");
-	}
-	
-	@Override
 	public int size() {
 		return value.raw.length();
 	}
@@ -82,6 +72,11 @@ public class StringElement extends PrimitiveElement<@NonNull String> implements 
 	@Override
 	public Collection<@NonNull Element> collection() {
 		return list();
+	}
+	
+	@Override
+	public TokenResult onNot(TokenExecutor exec) {
+		throw unaryOpError("!");
 	}
 	
 	@Override
@@ -117,12 +112,12 @@ public class StringElement extends PrimitiveElement<@NonNull String> implements 
 	public TokenResult onGet(TokenExecutor exec, @NonNull Element elem) {
 		IntElement intElem = elem.intCastImplicit();
 		if (intElem == null) {
-			throw new IllegalArgumentException(String.format("Keyword \"get\" requires non-negative int value element as argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"get\" requires non-negative int element as argument!"));
 		}
 		
 		int primitiveInt = intElem.primitiveInt();
 		if (primitiveInt < 0) {
-			throw new IllegalArgumentException(String.format("Keyword \"get\" requires non-negative int value element as argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"get\" requires non-negative int element as argument!"));
 		}
 		
 		exec.push(list().get(primitiveInt));

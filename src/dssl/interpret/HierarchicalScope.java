@@ -5,7 +5,7 @@ import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 
 import dssl.Hierarchy;
-import dssl.interpret.element.*;
+import dssl.interpret.element.Element;
 
 public interface HierarchicalScope extends Scope {
 	
@@ -36,9 +36,9 @@ public interface HierarchicalScope extends Scope {
 	}
 	
 	@Override
-	public default void setMacro(@NonNull String identifier, @NonNull BlockElement block) {
+	public default void setMacro(@NonNull String identifier, @NonNull Invokable invokable) {
 		checkMacro(identifier);
-		getMacroHierarchy().put(identifier, new Macro(identifier, block), true);
+		getMacroHierarchy().put(identifier, new Macro(identifier, invokable), true);
 	}
 	
 	@Override
@@ -52,7 +52,7 @@ public interface HierarchicalScope extends Scope {
 	}
 	
 	@Override
-	public default void setClazz(@NonNull String shallow, HierarchicalScope base, List<@NonNull Clazz> supers) {
+	public default void setClazz(@NonNull String shallow, HierarchicalScope base, List<dssl.interpret.Clazz> supers) {
 		checkClazz(shallow);
 		getClazzHierarchy().put(shallow, new Clazz(getIdentifier(), shallow, base, supers), true);
 	}
@@ -68,8 +68,8 @@ public interface HierarchicalScope extends Scope {
 	}
 	
 	@Override
-	public default void setMagic(@NonNull String identifier, @NonNull BlockElement block) {
-		getMagicHierarchy().put(identifier, new Magic(identifier, block), true);
+	public default void setMagic(@NonNull String identifier, @NonNull Invokable invokable) {
+		getMagicHierarchy().put(identifier, new Magic(identifier, invokable), true);
 	}
 	
 	public String getIdentifier();
@@ -81,4 +81,11 @@ public interface HierarchicalScope extends Scope {
 	public Hierarchy<@NonNull String, Clazz> getClazzHierarchy();
 	
 	public Hierarchy<@NonNull String, Magic> getMagicHierarchy();
+	
+	public default void putAll(@NonNull HierarchicalScope other, boolean shadow) {
+		getDefHierarchy().putAll(other.getDefHierarchy(), shadow);
+		getMacroHierarchy().putAll(other.getMacroHierarchy(), shadow);
+		getClazzHierarchy().putAll(other.getClazzHierarchy(), shadow);
+		getMagicHierarchy().putAll(other.getMagicHierarchy(), shadow);
+	}
 }

@@ -21,7 +21,7 @@ public class NativeImpl implements Native {
 		@NonNull Element elem = exec.pop();
 		StringElement stringElem = elem.stringCastImplicit();
 		if (stringElem == null) {
-			throw new IllegalArgumentException(String.format("Keyword \"native\" requires string value element as last argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"native\" requires string element as last argument!"));
 		}
 		
 		String str = stringElem.toString();

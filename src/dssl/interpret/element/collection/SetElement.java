@@ -13,7 +13,7 @@ public class SetElement extends CollectionElement {
 	public final Set<@NonNull Element> value;
 	
 	public SetElement(Collection<@NonNull Element> elems) {
-		super();
+		super(BuiltIn.SET_CLAZZ);
 		value = new HashSet<>(elems);
 	}
 	

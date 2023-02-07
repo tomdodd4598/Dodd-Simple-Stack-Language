@@ -8,10 +8,10 @@ import dssl.interpret.*;
 import dssl.interpret.element.Element;
 import dssl.interpret.value.BoolValue;
 
-public class BoolElement extends PrimitiveElement<@NonNull Boolean> {
+public class BoolElement extends PrimitiveElement<@NonNull Boolean, @NonNull BoolValue> {
 	
 	public BoolElement(@NonNull Boolean rawValue) {
-		super(new BoolValue(rawValue));
+		super(BuiltIn.BOOL_CLAZZ, new BoolValue(rawValue));
 	}
 	
 	@Override
@@ -24,24 +24,19 @@ public class BoolElement extends PrimitiveElement<@NonNull Boolean> {
 		return elem.boolCastExplicit();
 	}
 	
-	public boolean primitiveBool() {
-		return value.raw;
-	}
-	
 	@Override
 	public TokenResult onNot(TokenExecutor exec) {
-		exec.push(new BoolElement(!value.raw));
+		exec.push(new BoolElement(!primitiveBool()));
 		return TokenResult.PASS;
 	}
 	
-	@Override
-	public TokenResult onNeg(TokenExecutor exec) {
-		throw unaryOpError("neg");
+	public boolean primitiveBool() {
+		return value.raw.booleanValue();
 	}
 	
 	@Override
 	public @NonNull Element clone() {
-		return new BoolElement(value.raw.booleanValue());
+		return new BoolElement(primitiveBool());
 	}
 	
 	@Override

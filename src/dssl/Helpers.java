@@ -66,6 +66,15 @@ public class Helpers {
 		}
 	}
 	
+	public static <T> @NonNull T checkNonNull(T value) {
+		if (value == null) {
+			throw new IllegalArgumentException(String.format("Encountered invalid null value!"));
+		}
+		else {
+			return value;
+		}
+	}
+	
 	public static String lowerCase(String str) {
 		return str.toLowerCase(Locale.ROOT);
 	}
@@ -99,15 +108,14 @@ public class Helpers {
 		unescapeMap.put("\\\\", "\\");
 		unescapeMap.put("\\'", "'");
 		unescapeMap.put("\\\"", "\"");
-		unescapeMap.put("\\`", "`");
 		unescapeMap.put("\\", "");
 		
 		UNESCAPE_TRANSLATOR = new LookupTranslator(unescapeMap);
 	}
 	
-	public static @NonNull String parseString(String str) {
+	public static @NonNull String parseString(String str, int prefixLength, int suffixLength) {
 		boolean raw = str.charAt(0) == 'r';
-		int start = raw ? 2 : 1, end = str.length() - 1;
+		int start = (raw ? 1 : 0) + prefixLength, end = str.length() - suffixLength;
 		String parsed = raw ? str.substring(start, end) : UNESCAPE_TRANSLATOR.translate(CharBuffer.wrap(str, start, end));
 		if (parsed == null) {
 			throw new RuntimeException(String.format("Failed to parse token %s!", str));
@@ -116,7 +124,7 @@ public class Helpers {
 	}
 	
 	public static @NonNull Character parseChar(String str) {
-		String parsed = parseString(str);
+		String parsed = parseString(str, 1, 1);
 		if (parsed.length() != 1) {
 			throw new IllegalArgumentException(String.format("Character value %s is invalid!", str));
 		}
@@ -124,11 +132,11 @@ public class Helpers {
 	}
 	
 	public static @NonNull String parseLineString(String str) {
-		return parseString(str);
+		return parseString(str, 1, 1);
 	}
 	
 	public static @NonNull String parseBlockString(String str) {
-		String[] lines = parseString(str).split("\\r?\\n");
+		String[] lines = parseString(str, 3, 3).split("\\r?\\n");
 		boolean[] blanks = new boolean[lines.length];
 		int commonWhitespace = -1;
 		for (int i = 1; i < lines.length; ++i) {
@@ -189,7 +197,7 @@ public class Helpers {
 		return Collectors.toMap(x -> keyFunction.apply(x.getKey()), x -> valueFunction.apply(x.getValue()), mergeFunction);
 	}
 	
-	public static final Set<String> KEYWORDS;
+	public static final Set<String> KEYWORDS = new HashSet<>();
 	
 	public static final String L_BRACE = "{";
 	public static final String R_BRACE = "}";
@@ -333,8 +341,6 @@ public class Helpers {
 	public static final String NEG = "neg";
 	
 	static {
-		KEYWORDS = new HashSet<>();
-		
 		KEYWORDS.add(L_BRACE);
 		KEYWORDS.add(R_BRACE);
 		
