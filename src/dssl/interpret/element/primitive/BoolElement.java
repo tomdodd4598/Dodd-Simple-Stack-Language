@@ -15,13 +15,8 @@ public class BoolElement extends PrimitiveElement<@NonNull Boolean, @NonNull Boo
 	}
 	
 	@Override
-	public @NonNull String typeName() {
-		return "bool";
-	}
-	
-	@Override
-	public Element castInternal(@NonNull Element elem) {
-		return elem.boolCastExplicit();
+	public BoolElement boolCast(boolean explicit) {
+		return this;
 	}
 	
 	@Override

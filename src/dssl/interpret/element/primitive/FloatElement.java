@@ -16,13 +16,8 @@ public class FloatElement extends PrimitiveElement<@NonNull Double, @NonNull Flo
 	}
 	
 	@Override
-	public @NonNull String typeName() {
-		return "float";
-	}
-	
-	@Override
-	public Element castInternal(@NonNull Element elem) {
-		return elem.floatCastExplicit();
+	public FloatElement floatCast(boolean explicit) {
+		return this;
 	}
 	
 	@Override

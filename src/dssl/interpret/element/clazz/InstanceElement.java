@@ -27,12 +27,12 @@ public class InstanceElement extends ValueElement implements Scope {
 		this.macroMap = macroMap;
 		this.clazzMap = clazzMap;
 		this.magicMap = magicMap;
-		scopeIdentifier = toDebugString();
+		scopeIdentifier = debugString();
 	}
 	
 	@Override
-	public @NonNull StringElement stringCastExplicit() {
-		return new StringElement(toString());
+	public StringElement stringCast(boolean explicit) {
+		return explicit ? new StringElement(toString()) : null;
 	}
 	
 	@Override
@@ -267,7 +267,7 @@ public class InstanceElement extends ValueElement implements Scope {
 	}
 	
 	@Override
-	public void setClazz(@NonNull String shallow, HierarchicalScope base, List<dssl.interpret.Clazz> supers) {
+	public void setClazz(@NonNull String shallow, HierarchicalScope base, ArrayList<Clazz> supers) {
 		checkClazz(shallow);
 		clazzMap.put(shallow, new Clazz(scopeIdentifier, shallow, base, supers));
 	}
@@ -290,13 +290,12 @@ public class InstanceElement extends ValueElement implements Scope {
 	@Override
 	public @Nullable TokenResult scopeAction(TokenExecutor exec, @NonNull String identifier) {
 		TokenResult result = Scope.super.scopeAction(exec, identifier);
-		if (result != null) {
-			return result;
-		}
-		else {
-			exec.push(this);
-			return clazz.scopeAction(exec, identifier);
-		}
+		return result == null ? super.scopeAction(exec, identifier) : result;
+	}
+	
+	@Override
+	public RuntimeException memberAccessError(@NonNull String member) {
+		return new IllegalArgumentException(String.format("Instance member \"%s.%s\" not defined!", clazz.identifier, member));
 	}
 	
 	public @Nullable TokenResult magicAction(TokenExecutor exec, @NonNull String identifier, @NonNull Element... args) {
@@ -307,11 +306,11 @@ public class InstanceElement extends ValueElement implements Scope {
 			clazzMagic = true;
 		}
 		if (magic != null) {
-			for (@NonNull Element arg : args) {
-				exec.push(arg);
-			}
 			if (clazzMagic) {
 				exec.push(this);
+			}
+			for (@NonNull Element arg : args) {
+				exec.push(arg);
 			}
 			return magic.invokable.invoke(exec);
 		}
@@ -339,11 +338,11 @@ public class InstanceElement extends ValueElement implements Scope {
 	
 	@Override
 	public @NonNull String toString() {
-		return toDebugString();
+		return debugString();
 	}
 	
 	@Override
-	public @NonNull String toDebugString() {
+	public @NonNull String debugString() {
 		return clazz.identifier + "@" + Integer.toString(objectHashCode(), 16);
 	}
 }

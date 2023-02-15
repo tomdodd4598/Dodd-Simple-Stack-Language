@@ -5,26 +5,15 @@ import java.util.*;
 import org.eclipse.jdt.annotation.NonNull;
 
 import dssl.interpret.*;
-import dssl.interpret.element.primitive.StringElement;
 import dssl.node.Token;
 
-public class BlockElement extends Element implements Invokable {
+public class BlockElement extends ValueElement implements Invokable {
 	
 	protected final List<@NonNull Token> tokens;
 	
 	public BlockElement(List<@NonNull Token> tokens) {
-		super();
+		super(BuiltIn.BLOCK_CLAZZ);
 		this.tokens = tokens;
-	}
-	
-	@Override
-	public @NonNull String typeName() {
-		return "block";
-	}
-	
-	@Override
-	public @NonNull StringElement stringCastExplicit() {
-		throw castError("string");
 	}
 	
 	public TokenExecutor executor(TokenExecutor exec) {
@@ -85,7 +74,7 @@ public class BlockElement extends Element implements Invokable {
 	}
 	
 	@Override
-	public @NonNull String toDebugString() {
+	public @NonNull String debugString() {
 		return "{...}";
 	}
 }

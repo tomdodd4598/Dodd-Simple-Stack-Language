@@ -153,7 +153,25 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseTNull(TNull node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseTDeref(TDeref node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTType(TType node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTCast(TCast node)
     {
         defaultCase(node);
     }
@@ -172,12 +190,6 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTDup(TDup node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTClone(TClone node)
     {
         defaultCase(node);
     }
@@ -243,210 +255,6 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTInt(TInt node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTBool(TBool node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTFloat(TFloat node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTChar(TChar node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTString(TString node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTRange(TRange node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTList(TList node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTTuple(TTuple node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTSet(TSet node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTDict(TDict node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTNull(TNull node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTHash(THash node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTForeach(TForeach node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTUnpack(TUnpack node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTSize(TSize node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTEmpty(TEmpty node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTContains(TContains node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTAdd(TAdd node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTRemove(TRemove node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTContainsall(TContainsall node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTAddall(TAddall node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTRemoveall(TRemoveall node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTClear(TClear node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTGet(TGet node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTPut(TPut node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTPutall(TPutall node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTContainskey(TContainskey node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTContainsvalue(TContainsvalue node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTContainsentry(TContainsentry node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTKeys(TKeys node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTValues(TValues node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTEntries(TEntries node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTType(TType node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTCast(TCast node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
     public void caseTExec(TExec node)
     {
         defaultCase(node);
@@ -465,19 +273,19 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTRepeat(TRepeat node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
     public void caseTLoop(TLoop node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTQuit(TQuit node)
+    public void caseTRepeat(TRepeat node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTForeach(TForeach node)
     {
         defaultCase(node);
     }
@@ -490,6 +298,12 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTBreak(TBreak node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTQuit(TQuit node)
     {
         defaultCase(node);
     }

@@ -18,78 +18,33 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	}
 	
 	@Override
-	public IntElement intCastImplicit() {
-		BigInteger intValue = value.intValue(false);
+	public IntElement intCast(boolean explicit) {
+		BigInteger intValue = value.intValue(explicit);
 		return intValue == null ? null : new IntElement(intValue);
 	}
 	
 	@Override
-	public @NonNull IntElement intCastExplicit() {
-		BigInteger intValue = value.intValue(true);
-		if (intValue == null) {
-			throw castError("int");
-		}
-		return new IntElement(intValue);
-	}
-	
-	@Override
-	public BoolElement boolCastImplicit() {
-		Boolean boolValue = value.boolValue(false);
+	public BoolElement boolCast(boolean explicit) {
+		Boolean boolValue = value.boolValue(explicit);
 		return boolValue == null ? null : new BoolElement(boolValue);
 	}
 	
 	@Override
-	public @NonNull BoolElement boolCastExplicit() {
-		Boolean boolValue = value.boolValue(true);
-		if (boolValue == null) {
-			throw castError("bool");
-		}
-		return new BoolElement(boolValue);
-	}
-	
-	@Override
-	public FloatElement floatCastImplicit() {
-		Double floatValue = value.floatValue(false);
+	public FloatElement floatCast(boolean explicit) {
+		Double floatValue = value.floatValue(explicit);
 		return floatValue == null ? null : new FloatElement(floatValue);
 	}
 	
 	@Override
-	public @NonNull FloatElement floatCastExplicit() {
-		Double floatValue = value.floatValue(true);
-		if (floatValue == null) {
-			throw castError("float");
-		}
-		return new FloatElement(floatValue);
-	}
-	
-	@Override
-	public CharElement charCastImplicit() {
-		Character charValue = value.charValue(false);
+	public CharElement charCast(boolean explicit) {
+		Character charValue = value.charValue(explicit);
 		return charValue == null ? null : new CharElement(charValue);
 	}
 	
 	@Override
-	public @NonNull CharElement charCastExplicit() {
-		Character charValue = value.charValue(true);
-		if (charValue == null) {
-			throw castError("char");
-		}
-		return new CharElement(charValue);
-	}
-	
-	@Override
-	public StringElement stringCastImplicit() {
-		String stringValue = value.stringValue(false);
+	public StringElement stringCast(boolean explicit) {
+		String stringValue = value.stringValue(explicit);
 		return stringValue == null ? null : new StringElement(stringValue);
-	}
-	
-	@Override
-	public @NonNull StringElement stringCastExplicit() {
-		String stringValue = value.stringValue(true);
-		if (stringValue == null) {
-			throw castError("string");
-		}
-		return new StringElement(stringValue);
 	}
 	
 	@Override
@@ -341,7 +296,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	}
 	
 	@Override
-	public @NonNull String toDebugString() {
+	public @NonNull String debugString() {
 		return value.toString();
 	}
 }

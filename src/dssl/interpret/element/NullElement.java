@@ -5,24 +5,14 @@ import java.util.Objects;
 import org.eclipse.jdt.annotation.NonNull;
 
 import dssl.interpret.*;
-import dssl.interpret.element.primitive.*;
+import dssl.interpret.element.primitive.BoolElement;
 
 public class NullElement extends ValueElement {
 	
 	public static final @NonNull NullElement INSTANCE = new NullElement();
 	
 	private NullElement() {
-		super(new Clazz("null"));
-	}
-	
-	@Override
-	public @NonNull String typeName() {
-		return "null";
-	}
-	
-	@Override
-	public @NonNull StringElement stringCastExplicit() {
-		throw castError("string");
+		super(BuiltIn.NULL_CLAZZ);
 	}
 	
 	@Override
@@ -64,7 +54,7 @@ public class NullElement extends ValueElement {
 	}
 	
 	@Override
-	public @NonNull String toDebugString() {
+	public @NonNull String debugString() {
 		return "null";
 	}
 }

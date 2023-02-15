@@ -16,13 +16,8 @@ public class CharElement extends PrimitiveElement<@NonNull Character, @NonNull C
 	}
 	
 	@Override
-	public @NonNull String typeName() {
-		return "char";
-	}
-	
-	@Override
-	public Element castInternal(@NonNull Element elem) {
-		return elem.charCastExplicit();
+	public CharElement charCast(boolean explicit) {
+		return this;
 	}
 	
 	@Override
@@ -54,7 +49,7 @@ public class CharElement extends PrimitiveElement<@NonNull Character, @NonNull C
 	}
 	
 	@Override
-	public @NonNull String toDebugString() {
+	public @NonNull String debugString() {
 		return "'" + StringEscapeUtils.escapeJava(value.raw.toString()) + "'";
 	}
 }

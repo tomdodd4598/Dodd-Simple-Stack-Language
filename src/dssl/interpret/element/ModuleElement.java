@@ -5,7 +5,6 @@ import java.util.Objects;
 import org.eclipse.jdt.annotation.NonNull;
 
 import dssl.interpret.*;
-import dssl.interpret.element.primitive.StringElement;
 
 public class ModuleElement extends Element {
 	
@@ -24,11 +23,6 @@ public class ModuleElement extends Element {
 	@Override
 	public @NonNull String typeName() {
 		return "module";
-	}
-	
-	@Override
-	public @NonNull StringElement stringCastExplicit() {
-		return new StringElement(identifier);
 	}
 	
 	@Override
@@ -56,7 +50,7 @@ public class ModuleElement extends Element {
 	}
 	
 	@Override
-	public @NonNull String toDebugString() {
+	public @NonNull String debugString() {
 		return "$" + identifier;
 	}
 }

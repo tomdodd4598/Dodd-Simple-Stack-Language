@@ -1,44 +1,43 @@
 package dssl.interpret;
 
-import java.util.List;
-import java.util.function.BiPredicate;
+import java.util.ArrayList;
 
 import org.eclipse.jdt.annotation.*;
 
-import dssl.Helpers.Pair;
 import dssl.interpret.element.Element;
 
-public interface Scope {
+public interface Scope extends ScopeAccessor {
 	
-	static class CheckPair extends Pair<BiPredicate<Scope, @NonNull String>, String> {
-		
-		CheckPair(BiPredicate<Scope, @NonNull String> left, String right) {
-			super(left, right);
-		}
-	}
-	
-	static CheckPair CHECK_PAIR_DEF = new CheckPair(Scope::hasDef, "def");
-	static CheckPair CHECK_PAIR_MACRO = new CheckPair(Scope::hasMacro, "macro");
-	static CheckPair CHECK_PAIR_CLAZZ = new CheckPair(Scope::hasClazz, "class");
-	
-	public default void check(@NonNull String identifier, CheckPair... pairs) {
-		for (CheckPair pair : pairs) {
-			if (pair.left.test(this, identifier)) {
-				throw new IllegalArgumentException(String.format("Identifier \"%s\" already used for %s!", identifier, pair.right));
-			}
-		}
+	@Override
+	public default @Nullable TokenResult scopeAction(TokenExecutor exec, @NonNull String identifier) {
+		return exec.scopeAction(() -> getDef(identifier), () -> getMacro(identifier), () -> getClazz(identifier));
 	}
 	
 	public default void checkDef(@NonNull String identifier) {
-		check(identifier, CHECK_PAIR_MACRO, CHECK_PAIR_CLAZZ);
+		if (hasMacro(identifier)) {
+			throw new IllegalArgumentException(String.format("Identifier \"%s\" already used for macro!", identifier));
+		}
+		else if (hasClazz(identifier)) {
+			throw new IllegalArgumentException(String.format("Identifier \"%s\" already used for class!", identifier));
+		}
 	}
 	
 	public default void checkMacro(@NonNull String identifier) {
-		check(identifier, CHECK_PAIR_DEF, CHECK_PAIR_CLAZZ);
+		if (hasDef(identifier)) {
+			throw new IllegalArgumentException(String.format("Identifier \"%s\" already used for def!", identifier));
+		}
+		else if (hasClazz(identifier)) {
+			throw new IllegalArgumentException(String.format("Identifier \"%s\" already used for class!", identifier));
+		}
 	}
 	
 	public default void checkClazz(@NonNull String shallow) {
-		check(shallow, CHECK_PAIR_DEF, CHECK_PAIR_MACRO);
+		if (hasDef(shallow)) {
+			throw new IllegalArgumentException(String.format("Identifier \"%s\" already used for def!", shallow));
+		}
+		else if (hasMacro(shallow)) {
+			throw new IllegalArgumentException(String.format("Identifier \"%s\" already used for macro!", shallow));
+		}
 	}
 	
 	public boolean hasDef(@NonNull String identifier);
@@ -57,15 +56,11 @@ public interface Scope {
 	
 	public Clazz getClazz(@NonNull String shallow);
 	
-	public void setClazz(@NonNull String shallow, HierarchicalScope base, List<dssl.interpret.Clazz> supers);
+	public void setClazz(@NonNull String shallow, HierarchicalScope base, ArrayList<Clazz> supers);
 	
 	public boolean hasMagic(@NonNull String identifier);
 	
 	public Magic getMagic(@NonNull String identifier);
 	
 	public void setMagic(@NonNull String identifier, @NonNull Invokable invokable);
-	
-	public default @Nullable TokenResult scopeAction(TokenExecutor exec, @NonNull String identifier) {
-		return exec.scopeAction(() -> getDef(identifier), () -> getMacro(identifier), () -> getClazz(identifier));
-	}
 }

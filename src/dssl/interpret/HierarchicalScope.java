@@ -1,6 +1,6 @@
 package dssl.interpret;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import org.eclipse.jdt.annotation.NonNull;
 
@@ -52,7 +52,7 @@ public interface HierarchicalScope extends Scope {
 	}
 	
 	@Override
-	public default void setClazz(@NonNull String shallow, HierarchicalScope base, List<dssl.interpret.Clazz> supers) {
+	public default void setClazz(@NonNull String shallow, HierarchicalScope base, ArrayList<Clazz> supers) {
 		checkClazz(shallow);
 		getClazzHierarchy().put(shallow, new Clazz(getIdentifier(), shallow, base, supers), true);
 	}

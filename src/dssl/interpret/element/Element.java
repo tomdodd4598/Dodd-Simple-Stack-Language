@@ -3,7 +3,7 @@ package dssl.interpret.element;
 import org.eclipse.jdt.annotation.NonNull;
 
 import dssl.interpret.*;
-import dssl.interpret.element.collection.*;
+import dssl.interpret.element.container.*;
 import dssl.interpret.element.primitive.*;
 
 public abstract class Element {
@@ -12,79 +12,44 @@ public abstract class Element {
 	
 	public abstract @NonNull String typeName();
 	
-	/** Cast element to this element's type. */
-	public @NonNull Element cast(@NonNull Element elem) {
-		Element cast = castInternal(elem);
-		if (cast == null) {
-			throw new IllegalArgumentException(String.format("Failed to cast %s \"%s\" to %s!", elem.getClass().getSimpleName(), elem.toString(), typeName()));
-		}
-		return cast;
-	}
-	
-	public Element castInternal(@NonNull Element elem) {
+	public IntElement intCast(boolean explicit) {
 		return null;
 	}
 	
-	protected RuntimeException castError(String type) {
-		return new IllegalArgumentException(String.format("Failed to cast %s \"%s\" to %s!", typeName(), toString(), type));
-	}
-	
-	public IntElement intCastImplicit() {
+	public BoolElement boolCast(boolean explicit) {
 		return null;
 	}
 	
-	public @NonNull IntElement intCastExplicit() {
-		throw castError("int");
-	}
-	
-	public BoolElement boolCastImplicit() {
+	public FloatElement floatCast(boolean explicit) {
 		return null;
 	}
 	
-	public @NonNull BoolElement boolCastExplicit() {
-		throw castError("bool");
-	}
-	
-	public FloatElement floatCastImplicit() {
+	public CharElement charCast(boolean explicit) {
 		return null;
 	}
 	
-	public @NonNull FloatElement floatCastExplicit() {
-		throw castError("float");
-	}
-	
-	public CharElement charCastImplicit() {
+	public StringElement stringCast(boolean explicit) {
 		return null;
 	}
 	
-	public @NonNull CharElement charCastExplicit() {
-		throw castError("char");
-	}
-	
-	public StringElement stringCastImplicit() {
+	public RangeElement rangeCast() {
 		return null;
 	}
 	
-	public abstract @NonNull StringElement stringCastExplicit();
-	
-	public @NonNull RangeElement rangeCastExplicit() {
-		throw castError("range");
+	public ListElement listCast() {
+		return null;
 	}
 	
-	public @NonNull ListElement listCastExplicit() {
-		throw castError("list");
+	public TupleElement tupleCast() {
+		return null;
 	}
 	
-	public @NonNull TupleElement tupleCastExplicit() {
-		throw castError("tuple");
+	public SetElement setCast() {
+		return null;
 	}
 	
-	public @NonNull SetElement setCastExplicit() {
-		throw castError("set");
-	}
-	
-	public @NonNull DictElement dictCastExplicit() {
-		throw castError("dict");
+	public DictElement dictCast() {
+		return null;
 	}
 	
 	protected RuntimeException binaryOpError(String operator, @NonNull Element other) {
@@ -179,64 +144,86 @@ public abstract class Element {
 		throw unaryOpError("!");
 	}
 	
-	protected RuntimeException keywordError(String keyword) {
-		return new IllegalArgumentException(String.format("Action of keyword \"%s\" is undefined for argument type \"%s\"!", keyword, typeName()));
+	protected RuntimeException builtInMethodError(String name) {
+		return new IllegalArgumentException(String.format("Built-in method \"%s\" is undefined for argument type \"%s\"!", name, typeName()));
 	}
 	
-	public TokenResult onUnpack(TokenExecutor exec) {
-		throw keywordError("unpack");
+	public void unpack(TokenExecutor exec) {
+		throw builtInMethodError("unpack");
 	}
 	
-	public TokenResult onSize(TokenExecutor exec) {
-		throw keywordError("size");
+	public int size() {
+		throw builtInMethodError("size");
 	}
 	
-	public TokenResult onEmpty(TokenExecutor exec) {
-		throw keywordError("empty");
+	public boolean isEmpty() {
+		throw builtInMethodError("isEmpty");
 	}
 	
-	public TokenResult onContains(TokenExecutor exec, @NonNull Element elem) {
-		throw keywordError("contains");
+	public boolean contains(@NonNull Element elem) {
+		throw builtInMethodError("contains");
 	}
 	
-	public TokenResult onAdd(TokenExecutor exec, @NonNull Element elem) {
-		throw keywordError("add");
+	public void add(@NonNull Element elem) {
+		throw builtInMethodError("add");
 	}
 	
-	public TokenResult onRemove(TokenExecutor exec, @NonNull Element elem) {
-		throw keywordError("remove");
+	public void remove(@NonNull Element elem) {
+		throw builtInMethodError("remove");
 	}
 	
-	public TokenResult onContainsall(TokenExecutor exec, @NonNull Element elem) {
-		throw keywordError("containsall");
+	public boolean containsAll(@NonNull Element elem) {
+		throw builtInMethodError("containsAll");
 	}
 	
-	public TokenResult onAddall(TokenExecutor exec, @NonNull Element elem) {
-		throw keywordError("addall");
+	public void addAll(@NonNull Element elem) {
+		throw builtInMethodError("addAll");
 	}
 	
-	public TokenResult onRemoveall(TokenExecutor exec, @NonNull Element elem) {
-		throw keywordError("removeall");
+	public void removeAll(@NonNull Element elem) {
+		throw builtInMethodError("removeAll");
 	}
 	
-	public TokenResult onClear(TokenExecutor exec) {
-		throw keywordError("clear");
+	public void clear() {
+		throw builtInMethodError("clear");
 	}
 	
-	public TokenResult onGet(TokenExecutor exec, @NonNull Element elem) {
-		throw keywordError("get");
+	public @NonNull Element get(@NonNull Element elem) {
+		throw builtInMethodError("get");
 	}
 	
-	public TokenResult onPut(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
-		throw keywordError("put");
+	public void put(@NonNull Element elem0, @NonNull Element elem1) {
+		throw builtInMethodError("put");
 	}
 	
-	public TokenResult onPutall(TokenExecutor exec, @NonNull Element elem) {
-		throw keywordError("putall");
+	public void putAll(@NonNull Element elem) {
+		throw builtInMethodError("putAll");
+	}
+	
+	public boolean containsKey(@NonNull Element elem) {
+		throw builtInMethodError("containsKey");
+	}
+	
+	public boolean containsValue(@NonNull Element elem) {
+		throw builtInMethodError("containsValue");
+	}
+	
+	public @NonNull Element keys() {
+		throw builtInMethodError("keys");
+	}
+	
+	public @NonNull Element values() {
+		throw builtInMethodError("values");
 	}
 	
 	@Override
-	public abstract @NonNull Element clone();
+	public @NonNull Element clone() {
+		throw builtInMethodError("clone");
+	}
+	
+	public int hash() {
+		throw builtInMethodError("hash");
+	}
 	
 	@Override
 	public abstract int hashCode();
@@ -251,5 +238,5 @@ public abstract class Element {
 	@Override
 	public abstract @NonNull String toString();
 	
-	public abstract @NonNull String toDebugString();
+	public abstract @NonNull String debugString();
 }

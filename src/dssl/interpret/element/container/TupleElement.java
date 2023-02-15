@@ -1,47 +1,47 @@
-package dssl.interpret.element.primitive;
+package dssl.interpret.element.container;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.eclipse.jdt.annotation.NonNull;
 
+import dssl.Helpers;
 import dssl.interpret.*;
 import dssl.interpret.element.*;
-import dssl.interpret.element.container.*;
-import dssl.interpret.value.StringValue;
+import dssl.interpret.element.primitive.IntElement;
 
-public class StringElement extends PrimitiveElement<@NonNull String, @NonNull StringValue> implements IterableElement<@NonNull Element> {
+public class TupleElement extends ContainerElement implements CollectionElement {
 	
-	protected List<@NonNull Element> list = null;
+	public final List<@NonNull Element> value;
 	
-	public StringElement(@NonNull String rawValue) {
-		super(BuiltIn.STRING_CLAZZ, new StringValue(rawValue));
+	protected TupleElement(TupleElement other) {
+		super(BuiltIn.TUPLE_CLAZZ);
+		value = Helpers.map(other.value, Element::clone);
 	}
 	
-	@Override
-	public StringElement stringCast(boolean explicit) {
-		return this;
+	public TupleElement(Collection<@NonNull Element> elems) {
+		super(BuiltIn.TUPLE_CLAZZ);
+		value = Arrays.asList(elems.toArray(new @NonNull Element[elems.size()]));
 	}
 	
 	@Override
 	public ListElement listCast() {
-		return new ListElement(list());
+		return new ListElement(value);
 	}
 	
 	@Override
 	public TupleElement tupleCast() {
-		return new TupleElement(list());
+		return this;
 	}
 	
 	@Override
 	public SetElement setCast() {
-		return new SetElement(list());
+		return new SetElement(value);
 	}
 	
 	@Override
 	public Iterator<@NonNull Element> iterator() {
-		return list().iterator();
+		return value.iterator();
 	}
 	
 	@SuppressWarnings("null")
@@ -51,35 +51,30 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	}
 	
 	@Override
-	public TokenResult onNot(TokenExecutor exec) {
-		throw unaryOpError("!");
+	public Collection<@NonNull Element> collection() {
+		return value;
 	}
 	
 	@Override
 	public void unpack(TokenExecutor exec) {
-		for (@NonNull Element elem : this) {
+		for (@NonNull Element elem : value) {
 			exec.push(elem);
 		}
 	}
 	
 	@Override
 	public int size() {
-		return value.raw.length();
+		return value.size();
 	}
 	
 	@Override
 	public boolean isEmpty() {
-		return value.raw.isEmpty();
+		return value.isEmpty();
 	}
 	
 	@Override
 	public boolean contains(@NonNull Element elem) {
-		if (elem instanceof CharElement || elem instanceof StringElement) {
-			return value.raw.contains(elem.toString());
-		}
-		else {
-			return false;
-		}
+		return value.contains(elem);
 	}
 	
 	@Override
@@ -87,7 +82,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 		if (!(elem instanceof CollectionElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"containsAll\" requires collection element as argument!"));
 		}
-		return ((CollectionElement) elem).collection().stream().allMatch(this::contains);
+		return value.containsAll(((CollectionElement) elem).collection());
 	}
 	
 	@SuppressWarnings("null")
@@ -103,37 +98,35 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 			throw new IllegalArgumentException(String.format("Built-in method \"get\" requires non-negative int element as argument!"));
 		}
 		
-		return list().get(primitiveInt);
-	}
-	
-	protected List<@NonNull Element> list() {
-		if (list == null) {
-			list = value.raw.chars().mapToObj(x -> new CharElement((char) x)).collect(Collectors.toList());
-		}
-		return list;
+		return value.get(primitiveInt);
 	}
 	
 	@Override
 	public @NonNull Element clone() {
-		return new StringElement(value.raw);
+		return new TupleElement(this);
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash("string", value);
+		return Objects.hash("tuple", value);
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof StringElement) {
-			StringElement other = (StringElement) obj;
+		if (obj instanceof TupleElement) {
+			TupleElement other = (TupleElement) obj;
 			return value.equals(other.value);
 		}
 		return false;
 	}
 	
 	@Override
+	public @NonNull String toString() {
+		return "tuple:" + Helpers.collectString(value, Collectors.joining(", ", "(", ")"));
+	}
+	
+	@Override
 	public @NonNull String debugString() {
-		return "\"" + StringEscapeUtils.escapeJava(value.raw) + "\"";
+		return "tuple:(|" + size() + "|)";
 	}
 }

@@ -1,0 +1,98 @@
+# --------------- #
+# COMPLEX NUMBERS #
+# --------------- #
+
+$math include
+
+/Complex {
+	/init {
+		/this exch def
+		/this .im exch def
+		/this .re exch def
+		this
+	} magic
+	
+	/eq {
+		dup .re /yre exch def .im /yim exch def
+		dup .re /xre exch def .im /xim exch def
+		xre yre == xim yim == &
+	} magic
+	
+	/ne {
+		dup .re /yre exch def .im /yim exch def
+		dup .re /xre exch def .im /xim exch def
+		xre yre != xim yim != |
+	} magic
+	
+	/add {
+		dup .re /yre exch def .im /yim exch def
+		dup .re /xre exch def .im /xim exch def
+		xre yre + xim yim + Complex new
+	} magic
+	
+	/sub {
+		dup .re /yre exch def .im /yim exch def
+		dup .re /xre exch def .im /xim exch def
+		xre yre - xim yim - Complex new
+	} magic
+	
+	/mul {
+		dup .re /yre exch def .im /yim exch def
+		dup .re /xre exch def .im /xim exch def
+		xre yre * xim yim * - xre yim * xim yre * + Complex new
+	} magic
+	
+	/div {
+		dup .re /yre exch def .im /yim exch def
+		dup .re /xre exch def .im /xim exch def
+		/ysq yre yre * yim yim * + def
+		xre yre * xim yim * + ysq / xim yre * xre yim * - ysq / Complex new
+	} magic
+	
+	/pow {
+		dup .re /yre exch def .im /yim exch def
+		dup .abs log /xlnr exch def .arg /xtheta exch def
+		xlnr yre * xtheta yim * - exp xtheta yre * xlnr yim * + Complex .fromPolar
+	} magic
+	
+	/abs {
+		dup .re /re exch def .im /im exch def
+		re re * im im * + sqrt
+	} macro
+	
+	/arg {
+		dup .im exch .re atan2
+	} macro
+	
+	/fromPolar {
+		/theta exch def
+		/r exch def
+		r theta cos * r theta sin * Complex new
+	} macro
+	
+	/toString {
+		/this exch def
+		this .re string cast
+		this .im 0.0 >= { '+' ~ } if
+		this .im string cast ~ 'i' ~
+	} macro
+} class
+
+/a 2.7 3.4 Complex new def
+/b 4.2 -1.9 Complex new def
+
+"a = " a Complex .toString ~ println
+"b = " b Complex .toString ~ println
+
+'\n' print
+
+"abs(a) = " a .abs ~ println
+"arg(b) = " b .arg ~ println
+
+'\n' print
+
+"a+b = " a b + .toString ~ println
+"a-b = " a b - .toString ~ println
+"a*b = " a b * .toString ~ println
+"a/b = " a b / .toString ~ println
+"a**b = " a b ** .toString ~ println

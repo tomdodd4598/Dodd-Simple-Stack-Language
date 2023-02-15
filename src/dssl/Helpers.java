@@ -79,10 +79,6 @@ public class Helpers {
 		return str.toLowerCase(Locale.ROOT);
 	}
 	
-	public static String memberString(String identifier, String member) {
-		return String.format("%s.%s", identifier, member).replaceAll(".", " .");
-	}
-	
 	public static int leadingWhitespaceCount(String str) {
 		int count = 0, len = str.length();
 		for (int i = 0; i < len; ++i) {
@@ -185,15 +181,24 @@ public class Helpers {
 		return BigDecimal.valueOf(d).toBigInteger();
 	}
 	
-	public static <A, B> List<B> map(List<A> list, Function<A, B> function) {
+	public static <T> String collectString(Collection<T> collection, Collector<CharSequence, ?, String> collector) {
+		return collection.stream().map(x -> x == collection ? "(this Collection)" : x.toString()).collect(collector);
+	}
+	
+	public static <T> Stream<T> stream(Iterator<T> iter) {
+		Iterable<T> iterable = () -> iter;
+		return StreamSupport.stream(iterable.spliterator(), false);
+	}
+	
+	public static <A, B> List<B> map(List<A> list, Function<? super A, B> function) {
 		return list.stream().map(function).collect(Collectors.toList());
 	}
 	
-	public static <A, B> Set<B> map(Set<A> set, Function<A, B> function) {
+	public static <A, B> Set<B> map(Set<A> set, Function<? super A, B> function) {
 		return set.stream().map(function).collect(Collectors.toSet());
 	}
 	
-	public static <A, B, C, D> Collector<Entry<A, B>, ?, Map<C, D>> mapCollector(Function<A, C> keyFunction, Function<B, D> valueFunction, BinaryOperator<D> mergeFunction) {
+	public static <A, B, C, D> Collector<Entry<A, B>, ?, Map<C, D>> mapCollector(Function<? super A, C> keyFunction, Function<? super B, D> valueFunction, BinaryOperator<D> mergeFunction) {
 		return Collectors.toMap(x -> keyFunction.apply(x.getKey()), x -> valueFunction.apply(x.getValue()), mergeFunction);
 	}
 	
@@ -217,12 +222,15 @@ public class Helpers {
 	
 	public static final String NEW = "new";
 	
+	public static final String NULL = "null";
 	public static final String DEREF = "deref";
+	
+	public static final String TYPE = "type";
+	public static final String CAST = "cast";
 	
 	public static final String EXCH = "exch";
 	public static final String POP = "pop";
 	public static final String DUP = "dup";
-	public static final String CLONE = "clone";
 	
 	public static final String ROLL = "roll";
 	public static final String RID = "rid";
@@ -237,58 +245,16 @@ public class Helpers {
 	public static final String PRINTLN = "println";
 	public static final String INTERPRET = "interpret";
 	
-	public static final String INT = "int";
-	public static final String BOOL = "bool";
-	public static final String FLOAT = "float";
-	public static final String CHAR = "char";
-	public static final String STRING = "string";
-	
-	public static final String RANGE = "range";
-	public static final String LIST = "list";
-	public static final String TUPLE = "tuple";
-	public static final String SET = "set";
-	public static final String DICT = "dict";
-	
-	public static final String NULL = "null";
-	public static final String HASH = "hash";
-	
-	public static final String FOREACH = "foreach";
-	public static final String UNPACK = "unpack";
-	
-	public static final String SIZE = "size";
-	public static final String EMPTY = "empty";
-	
-	public static final String CONTAINS = "contains";
-	public static final String ADD = "add";
-	public static final String REMOVE = "remove";
-	public static final String CONTAINSALL = "containsall";
-	public static final String ADDALL = "addall";
-	public static final String REMOVEALL = "removeall";
-	public static final String CLEAR = "clear";
-	
-	public static final String GET = "get";
-	public static final String PUT = "put";
-	public static final String PUTALL = "putall";
-	
-	public static final String CONTAINSKEY = "containskey";
-	public static final String CONTAINSVALUE = "containsvalue";
-	public static final String CONTAINSENTRY = "containsentry";
-	public static final String KEYS = "keys";
-	public static final String VALUES = "values";
-	public static final String ENTRIES = "entries";
-	
-	public static final String TYPE = "type";
-	public static final String CAST = "cast";
-	
 	public static final String EXEC = "exec";
 	public static final String IF = "if";
 	public static final String IFELSE = "ifelse";
-	public static final String REPEAT = "repeat";
 	public static final String LOOP = "loop";
+	public static final String REPEAT = "repeat";
+	public static final String FOREACH = "foreach";
 	
-	public static final String QUIT = "quit";
 	public static final String CONTINUE = "continue";
 	public static final String BREAK = "break";
+	public static final String QUIT = "quit";
 	
 	public static final String EQUALS = "=";
 	
@@ -337,8 +303,7 @@ public class Helpers {
 	public static final String IDIVIDE = "//";
 	public static final String MODULO = "%%";
 	
-	public static final String NOT = "not";
-	public static final String NEG = "neg";
+	public static final String NOT = "!";
 	
 	static {
 		KEYWORDS.add(L_BRACE);
@@ -359,12 +324,15 @@ public class Helpers {
 		
 		KEYWORDS.add(NEW);
 		
+		KEYWORDS.add(NULL);
 		KEYWORDS.add(DEREF);
+		
+		KEYWORDS.add(TYPE);
+		KEYWORDS.add(CAST);
 		
 		KEYWORDS.add(EXCH);
 		KEYWORDS.add(POP);
 		KEYWORDS.add(DUP);
-		KEYWORDS.add(CLONE);
 		
 		KEYWORDS.add(ROLL);
 		KEYWORDS.add(RID);
@@ -379,58 +347,16 @@ public class Helpers {
 		KEYWORDS.add(PRINTLN);
 		KEYWORDS.add(INTERPRET);
 		
-		KEYWORDS.add(INT);
-		KEYWORDS.add(BOOL);
-		KEYWORDS.add(FLOAT);
-		KEYWORDS.add(CHAR);
-		KEYWORDS.add(STRING);
-		
-		KEYWORDS.add(RANGE);
-		KEYWORDS.add(LIST);
-		KEYWORDS.add(TUPLE);
-		KEYWORDS.add(SET);
-		KEYWORDS.add(DICT);
-		
-		KEYWORDS.add(NULL);
-		KEYWORDS.add(HASH);
-		
-		KEYWORDS.add(FOREACH);
-		KEYWORDS.add(UNPACK);
-		
-		KEYWORDS.add(SIZE);
-		KEYWORDS.add(EMPTY);
-		
-		KEYWORDS.add(CONTAINS);
-		KEYWORDS.add(ADD);
-		KEYWORDS.add(REMOVE);
-		KEYWORDS.add(CONTAINSALL);
-		KEYWORDS.add(ADDALL);
-		KEYWORDS.add(REMOVEALL);
-		KEYWORDS.add(CLEAR);
-		
-		KEYWORDS.add(GET);
-		KEYWORDS.add(PUT);
-		KEYWORDS.add(PUTALL);
-		
-		KEYWORDS.add(CONTAINSKEY);
-		KEYWORDS.add(CONTAINSVALUE);
-		KEYWORDS.add(CONTAINSENTRY);
-		KEYWORDS.add(KEYS);
-		KEYWORDS.add(VALUES);
-		KEYWORDS.add(ENTRIES);
-		
-		KEYWORDS.add(TYPE);
-		KEYWORDS.add(CAST);
-		
 		KEYWORDS.add(EXEC);
 		KEYWORDS.add(IF);
 		KEYWORDS.add(IFELSE);
-		KEYWORDS.add(REPEAT);
 		KEYWORDS.add(LOOP);
+		KEYWORDS.add(REPEAT);
+		KEYWORDS.add(FOREACH);
 		
-		KEYWORDS.add(QUIT);
 		KEYWORDS.add(CONTINUE);
 		KEYWORDS.add(BREAK);
+		KEYWORDS.add(QUIT);
 		
 		KEYWORDS.add(EQUALS);
 		
@@ -480,7 +406,6 @@ public class Helpers {
 		KEYWORDS.add(MODULO);
 		
 		KEYWORDS.add(NOT);
-		KEYWORDS.add(NEG);
 	}
 	
 	public static class Pair<L, R> {

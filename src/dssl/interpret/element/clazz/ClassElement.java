@@ -2,85 +2,79 @@ package dssl.interpret.element.clazz;
 
 import java.util.Objects;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import dssl.interpret.*;
-import dssl.interpret.element.Element;
+import dssl.interpret.element.*;
 import dssl.interpret.element.primitive.StringElement;
 
-public class ClassElement extends Element {
+public class ClassElement extends ValueElement {
 	
-	public final @NonNull Clazz clazz;
+	public final @NonNull Clazz internal;
 	
-	public ClassElement(@NonNull Clazz clazz) {
-		super();
-		this.clazz = clazz;
+	public ClassElement(@NonNull Clazz internal) {
+		super(BuiltIn.CLASS_CLAZZ);
+		this.internal = internal;
 	}
 	
 	@Override
-	public @NonNull String typeName() {
-		return "class";
-	}
-	
-	@Override
-	public @NonNull StringElement stringCastExplicit() {
-		return new StringElement(toString());
+	public StringElement stringCast(boolean explicit) {
+		return explicit ? new StringElement(toString()) : null;
 	}
 	
 	public Def getDef(@NonNull String identifier) {
-		return clazz.getDef(identifier);
+		return internal.getDef(identifier);
 	}
 	
 	public Macro getMacro(@NonNull String identifier) {
-		return clazz.getMacro(identifier);
+		return internal.getMacro(identifier);
 	}
 	
 	public Clazz getClazz(@NonNull String shallow) {
-		return clazz.getClazz(shallow);
+		return internal.getClazz(shallow);
 	}
 	
 	public Magic getMagic(@NonNull String identifier) {
-		return clazz.getMagic(identifier);
+		return internal.getMagic(identifier);
 	}
 	
-	public TokenResult instantiate(TokenExecutor exec) {
-		InstanceElement instance = new InstanceElement(clazz);
-		TokenResult init = instance.magicAction(exec, "init");
-		if (init == null) {
-			exec.push(instance);
-			return TokenResult.PASS;
-		}
-		else {
-			return init;
-		}
+	@Override
+	public @Nullable TokenResult scopeAction(TokenExecutor exec, @NonNull String identifier) {
+		TokenResult result = internal.scopeAction(exec, identifier);
+		return result == null ? super.scopeAction(exec, identifier) : result;
+	}
+	
+	@Override
+	public RuntimeException memberAccessError(@NonNull String member) {
+		return new IllegalArgumentException(String.format("Class member \"%s.%s\" not defined!", internal.identifier, member));
 	}
 	
 	@Override
 	public @NonNull Element clone() {
-		return new ClassElement(clazz);
+		return new ClassElement(internal);
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash("class", clazz);
+		return Objects.hash("class", internal);
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof ClassElement) {
 			ClassElement other = (ClassElement) obj;
-			return clazz.equals(other.clazz);
+			return internal.equals(other.internal);
 		}
 		return false;
 	}
 	
 	@Override
 	public @NonNull String toString() {
-		return "class:" + clazz.identifier;
+		return "class:" + internal.identifier;
 	}
 	
 	@Override
-	public @NonNull String toDebugString() {
-		return "class:" + clazz.identifier;
+	public @NonNull String debugString() {
+		return "class:" + internal.identifier;
 	}
 }

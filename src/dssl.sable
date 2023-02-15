@@ -53,12 +53,15 @@ Tokens
 	
 	new = 'new';
 	
+	null = 'null';
 	deref = 'deref';
+	
+	type = 'type';
+	cast = 'cast';
 	
 	exch = 'exch';
 	pop = 'pop';
 	dup = 'dup';
-	clone = 'clone';
 	
 	roll = 'roll';
 	rid = 'rid';
@@ -73,58 +76,16 @@ Tokens
 	println = 'println';
 	interpret = 'interpret';
 	
-	int = 'int';
-	bool = 'bool';
-	float = 'float';
-	char = 'char';
-	string = 'string';
-	
-	range = 'range';
-	list = 'list';
-	tuple = 'tuple';
-	set = 'set';
-	dict = 'dict';
-	
-	null = 'null';
-	hash = 'hash';
-	
-	foreach = 'foreach';
-	unpack = 'unpack';
-	
-	size = 'size';
-	empty = 'empty';
-	
-	contains = 'contains';
-	add = 'add';
-	remove = 'remove';
-	containsall = 'containsall';
-	addall = 'addall';
-	removeall = 'removeall';
-	clear = 'clear';
-	
-	get = 'get';
-	put = 'put';
-	putall = 'putall';
-	
-	containskey = 'containskey';
-	containsvalue = 'containsvalue';
-	containsentry = 'containsentry';
-	keys = 'keys';
-	values = 'values';
-	entries = 'entries';
-	
-	type = 'type';
-	cast = 'cast';
-	
 	exec = 'exec';
 	if = 'if';
 	ifelse = 'ifelse';
-	repeat = 'repeat';
 	loop = 'loop';
+	repeat = 'repeat';
+	foreach = 'foreach';
 	
-	quit = 'quit';
 	continue = 'continue';
 	break = 'break';
+	quit = 'quit';
 	
 	equals = '=';
 	

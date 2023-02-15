@@ -10,7 +10,7 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import dssl.interpret.*;
 import dssl.interpret.element.*;
-import dssl.interpret.element.collection.*;
+import dssl.interpret.element.container.*;
 import dssl.interpret.element.primitive.*;
 import sun.reflect.generics.reflectiveObjects.*;
 
@@ -19,7 +19,7 @@ public class NativeImpl implements Native {
 	@Override
 	public TokenResult onNative(TokenExecutor exec) {
 		@NonNull Element elem = exec.pop();
-		StringElement stringElem = elem.stringCastImplicit();
+		StringElement stringElem = elem.stringCast(false);
 		if (stringElem == null) {
 			throw new IllegalArgumentException(String.format("Keyword \"native\" requires string element as last argument!"));
 		}

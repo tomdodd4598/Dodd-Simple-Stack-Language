@@ -16,18 +16,13 @@ public class IntElement extends PrimitiveElement<@NonNull BigInteger, @NonNull I
 		super(BuiltIn.INT_CLAZZ, new IntValue(Helpers.checkNonNull(rawValue)));
 	}
 	
+	@Override
+	public IntElement intCast(boolean explicit) {
+		return this;
+	}
+	
 	public IntElement(long rawValue) {
 		this(BigInteger.valueOf(rawValue));
-	}
-	
-	@Override
-	public @NonNull String typeName() {
-		return "int";
-	}
-	
-	@Override
-	public Element castInternal(@NonNull Element elem) {
-		return elem.intCastExplicit();
 	}
 	
 	@Override

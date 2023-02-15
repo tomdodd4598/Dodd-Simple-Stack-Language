@@ -4,10 +4,8 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import dssl.Helpers;
 import dssl.interpret.*;
 import dssl.interpret.element.clazz.InstanceElement;
-import dssl.interpret.element.primitive.StringElement;
 
 public class LabelElement extends Element {
 	
@@ -41,7 +39,7 @@ public class LabelElement extends Element {
 			identifier = prev.identifier + "." + extension;
 		}
 		else {
-			throw new IllegalArgumentException(String.format("Member \"%s\" not defined!", Helpers.memberString(prev.identifier, extension)));
+			throw new IllegalArgumentException(String.format("Member \"%s.%s\" not defined!", prev.identifier, extension));
 		}
 		shallow = extension;
 	}
@@ -49,11 +47,6 @@ public class LabelElement extends Element {
 	@Override
 	public @NonNull String typeName() {
 		return "label";
-	}
-	
-	@Override
-	public @NonNull StringElement stringCastExplicit() {
-		return new StringElement(identifier);
 	}
 	
 	public Def getDef() {
@@ -76,7 +69,7 @@ public class LabelElement extends Element {
 		return scope.getClazz(shallow);
 	}
 	
-	public void setClazz(HierarchicalScope base, List<dssl.interpret.Clazz> supers) {
+	public void setClazz(HierarchicalScope base, ArrayList<Clazz> supers) {
 		scope.setClazz(shallow, base, supers);
 	}
 	
@@ -117,7 +110,7 @@ public class LabelElement extends Element {
 	}
 	
 	@Override
-	public @NonNull String toDebugString() {
+	public @NonNull String debugString() {
 		return "/" + identifier;
 	}
 }

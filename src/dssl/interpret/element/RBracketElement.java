@@ -1,13 +1,10 @@
-package dssl.interpret.element.bracket;
+package dssl.interpret.element;
 
 import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import dssl.interpret.element.Element;
-import dssl.interpret.element.primitive.StringElement;
-
-public class RBracketElement extends BracketElement {
+public class RBracketElement extends Element {
 	
 	public RBracketElement() {
 		super();
@@ -16,11 +13,6 @@ public class RBracketElement extends BracketElement {
 	@Override
 	public @NonNull String typeName() {
 		return "rbracket";
-	}
-	
-	@Override
-	public @NonNull StringElement stringCastExplicit() {
-		return new StringElement("]");
 	}
 	
 	@Override
@@ -44,7 +36,7 @@ public class RBracketElement extends BracketElement {
 	}
 	
 	@Override
-	public @NonNull String toDebugString() {
+	public @NonNull String debugString() {
 		return "]";
 	}
 }

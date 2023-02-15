@@ -81,66 +81,6 @@ item .printRecursive
 
 '\n' print
 
-# -------------- #
-# COMPLEX NUMBER #
-# -------------- #
-
-/Complex {
-	/init {
-		/this exch def
-		/this .im exch def
-		/this .re exch def
-		this
-	} magic
-	
-	/i 0.0 1.0 Complex new def
-	
-	/binaryDefs "dup .re /xre exch def .im /xim exch def dup .re /yre exch def .im /yim exch def" def
-	
-	/add {
-		Complex .binaryDefs interpret
-		xre yre + xim yim + Complex new
-	} magic
-	
-	/sub {
-		Complex .binaryDefs interpret
-		xre yre - xim yim - Complex new
-	} magic
-	
-	/mul {
-		Complex .binaryDefs interpret
-		xre yre * xim yim * - xre yim * xim yre * + Complex new
-	} magic
-	
-	/div {
-		Complex .binaryDefs interpret
-		/ysq yre yre * yim yim * + def
-		xre yre * xim yim * + ysq / xim yre * xre yim * - ysq / Complex new
-	} magic
-	
-	/toString {
-		/this exch def
-		this .re string
-		this .im 0.0 >= { '+' ~ } if
-		this .im string ~ 'i' ~
-	} macro
-} class
-
-/a 2.3 3.4 Complex new def
-/b 6.2 -1.9 Complex new def
-
-a Complex .toString println
-b .toString println
-
-'\n' print
-
-"a+b = " print a b + .toString println
-"a-b = " print a b - .toString println
-"a*b = " print a b * .toString println
-"a/b = " print a b / .toString println
-
-'\n' print
-
 # ------------------- #
 # DIAMOND INHERITANCE #
 # ------------------- #

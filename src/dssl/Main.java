@@ -75,7 +75,7 @@ public class Main {
 			@Override
 			public TokenResult onInclude(TokenExecutor exec) {
 				@NonNull Element elem = exec.pop();
-				StringElement stringElem = elem.stringCastImplicit();
+				StringElement stringElem = elem.stringCast(false);
 				if (stringElem != null) {
 					try (PushbackReader reader = Helpers.getPushbackReader(new FileReader(stringElem.toString()))) {
 						return new TokenExecutor(new LexerIterator(reader), exec, false).iterate();
@@ -101,7 +101,7 @@ public class Main {
 					throw new IllegalArgumentException(String.format("Keyword \"import\" requires label element as first argument!"));
 				}
 				
-				StringElement stringElem = elem1.stringCastImplicit();
+				StringElement stringElem = elem1.stringCast(false);
 				if (stringElem != null) {
 					try (PushbackReader reader = Helpers.getPushbackReader(new FileReader(stringElem.toString()))) {
 						TokenExecutor otherExec = exec.interpreter.newExecutor(new LexerIterator(reader));

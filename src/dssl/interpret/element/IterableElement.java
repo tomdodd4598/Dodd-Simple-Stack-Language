@@ -1,16 +1,8 @@
 package dssl.interpret.element;
 
-import java.util.Collection;
-import java.util.Iterator;
+import dssl.interpret.TokenExecutor;
 
-import org.eclipse.jdt.annotation.NonNull;
-
-public interface IterableElement extends Iterable<@NonNull Element> {
+public interface IterableElement<T> extends Iterable<T> {
 	
-	public int size();
-	
-	@Override
-	public Iterator<@NonNull Element> iterator();
-	
-	public Collection<@NonNull Element> collection();
+	public void onEach(TokenExecutor exec, Object item);
 }
