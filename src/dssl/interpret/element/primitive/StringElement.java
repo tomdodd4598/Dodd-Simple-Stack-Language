@@ -1,7 +1,6 @@
 package dssl.interpret.element.primitive;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.eclipse.jdt.annotation.NonNull;
@@ -12,8 +11,6 @@ import dssl.interpret.element.container.*;
 import dssl.interpret.value.StringValue;
 
 public class StringElement extends PrimitiveElement<@NonNull String, @NonNull StringValue> implements IterableElement<@NonNull Element> {
-	
-	protected List<@NonNull Element> list = null;
 	
 	public StringElement(@NonNull String rawValue) {
 		super(BuiltIn.STRING_CLAZZ, new StringValue(rawValue));
@@ -26,28 +23,40 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	
 	@Override
 	public ListElement listCast() {
-		return new ListElement(list());
+		return new ListElement(this);
 	}
 	
 	@Override
 	public TupleElement tupleCast() {
-		return new TupleElement(list());
+		return new TupleElement(this);
 	}
 	
 	@Override
 	public SetElement setCast() {
-		return new SetElement(list());
+		return new SetElement(this);
 	}
 	
 	@Override
 	public Iterator<@NonNull Element> iterator() {
-		return list().iterator();
+		return new Iterator<@NonNull Element>() {
+			
+			int index = 0;
+			
+			@Override
+			public boolean hasNext() {
+				return index < value.raw.length();
+			}
+			
+			@Override
+			public @NonNull Element next() {
+				return new CharElement(value.raw.charAt(index++));
+			}
+		};
 	}
 	
-	@SuppressWarnings("null")
 	@Override
-	public void onEach(TokenExecutor exec, Object item) {
-		exec.push((Element) item);
+	public void onEach(TokenExecutor exec, @NonNull Element item) {
+		exec.push(item);
 	}
 	
 	@Override
@@ -90,7 +99,6 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 		return ((CollectionElement) elem).collection().stream().allMatch(this::contains);
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull Element get(@NonNull Element elem) {
 		IntElement intElem = elem.intCast(false);
@@ -103,14 +111,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 			throw new IllegalArgumentException(String.format("Built-in method \"get\" requires non-negative int element as argument!"));
 		}
 		
-		return list().get(primitiveInt);
-	}
-	
-	protected List<@NonNull Element> list() {
-		if (list == null) {
-			list = value.raw.chars().mapToObj(x -> new CharElement((char) x)).collect(Collectors.toList());
-		}
-		return list;
+		return new CharElement(value.raw.charAt(primitiveInt));
 	}
 	
 	@Override

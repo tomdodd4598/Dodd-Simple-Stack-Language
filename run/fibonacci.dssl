@@ -1,26 +1,22 @@
 # ------------------- #
-# RECURSIVE FIBONACCI #
-# ------------------- #
-
-/f 0 def
-/n 0 def
-
-/fib {
-	dup 1 > {
-		dup 1 - fib
-		exch 2 - fib +
-	} if
-} macro
-
-{
-	/n ++
-	n 10 > { break } if
-	/f n fib =
-	f println
-} loop
-
-# ------------------- #
 # ITERATIVE FIBONACCI #
+# ------------------- #
+
+/a 1 def
+/b 0 def
+/c 0 def
+
+10 {
+	/c a =
+	/a b +=
+	/b c = 
+	c println
+} repeat
+
+'\n' print
+
+# ------------------- #
+# RECURSIVE FIBONACCI #
 # ------------------- #
 
 /fib {

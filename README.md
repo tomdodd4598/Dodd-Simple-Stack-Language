@@ -16,7 +16,7 @@ All documentation can be found in the [wiki](https://github.com/tomdodd4598/Dodd
 Planned Features
 ----------------
 
-- All planned features currently implemented!
+All planned features currently implemented!
 
 Permissions
 -----------

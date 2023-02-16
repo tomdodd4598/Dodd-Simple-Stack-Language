@@ -53,23 +53,18 @@ Tokens
 	
 	new = 'new';
 	
-	null = 'null';
 	deref = 'deref';
 	
+	null = 'null';
 	type = 'type';
 	cast = 'cast';
 	
 	exch = 'exch';
+	roll = 'roll';
 	pop = 'pop';
 	dup = 'dup';
 	
-	roll = 'roll';
-	rid = 'rid';
-	copy = 'copy';
-	
-	index = 'index';
-	count = 'count';
-	countto = 'countto';
+	stacksize = 'stacksize';
 	
 	read = 'read';
 	print = 'print';

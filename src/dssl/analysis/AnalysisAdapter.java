@@ -153,13 +153,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTNull(TNull node)
+    public void caseTDeref(TDeref node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTDeref(TDeref node)
+    public void caseTNull(TNull node)
     {
         defaultCase(node);
     }
@@ -183,6 +183,12 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseTRoll(TRoll node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseTPop(TPop node)
     {
         defaultCase(node);
@@ -195,37 +201,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTRoll(TRoll node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTRid(TRid node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTCopy(TCopy node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTIndex(TIndex node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTCount(TCount node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTCountto(TCountto node)
+    public void caseTStacksize(TStacksize node)
     {
         defaultCase(node);
     }

@@ -23,6 +23,12 @@ public class SetElement extends ContainerElement implements CollectionElement {
 		value = new HashSet<>(elems);
 	}
 	
+	public SetElement(Iterable<@NonNull Element> elems) {
+		super(BuiltIn.SET_CLAZZ);
+		value = new HashSet<>();
+		elems.forEach(value::add);
+	}
+	
 	@Override
 	public ListElement listCast() {
 		return new ListElement(value);
@@ -43,10 +49,9 @@ public class SetElement extends ContainerElement implements CollectionElement {
 		return value.iterator();
 	}
 	
-	@SuppressWarnings("null")
 	@Override
-	public void onEach(TokenExecutor exec, Object item) {
-		exec.push((Element) item);
+	public void onEach(TokenExecutor exec, @NonNull Element item) {
+		exec.push(item);
 	}
 	
 	@Override

@@ -6,8 +6,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.util.*;
-import java.util.Map.Entry;
-import java.util.function.*;
+import java.util.function.Function;
 import java.util.stream.*;
 
 import org.apache.commons.lang3.StringUtils;
@@ -198,8 +197,8 @@ public class Helpers {
 		return set.stream().map(function).collect(Collectors.toSet());
 	}
 	
-	public static <A, B, C, D> Collector<Entry<A, B>, ?, Map<C, D>> mapCollector(Function<? super A, C> keyFunction, Function<? super B, D> valueFunction, BinaryOperator<D> mergeFunction) {
-		return Collectors.toMap(x -> keyFunction.apply(x.getKey()), x -> valueFunction.apply(x.getValue()), mergeFunction);
+	public static <A, B, C, D> Map<C, D> map(Map<A, B> map, Function<? super A, C> keyFunction, Function<? super B, D> valueFunction) {
+		return map.entrySet().stream().collect(Collectors.toMap(x -> keyFunction.apply(x.getKey()), x -> valueFunction.apply(x.getValue()), (x, y) -> y));
 	}
 	
 	public static final Set<String> KEYWORDS = new HashSet<>();
@@ -222,23 +221,18 @@ public class Helpers {
 	
 	public static final String NEW = "new";
 	
-	public static final String NULL = "null";
 	public static final String DEREF = "deref";
 	
+	public static final String NULL = "null";
 	public static final String TYPE = "type";
 	public static final String CAST = "cast";
 	
 	public static final String EXCH = "exch";
+	public static final String ROLL = "roll";
 	public static final String POP = "pop";
 	public static final String DUP = "dup";
 	
-	public static final String ROLL = "roll";
-	public static final String RID = "rid";
-	public static final String COPY = "copy";
-	
-	public static final String INDEX = "index";
-	public static final String COUNT = "count";
-	public static final String COUNTTO = "countto";
+	public static final String STACKSIZE = "stacksize";
 	
 	public static final String READ = "read";
 	public static final String PRINT = "print";
@@ -324,23 +318,18 @@ public class Helpers {
 		
 		KEYWORDS.add(NEW);
 		
-		KEYWORDS.add(NULL);
 		KEYWORDS.add(DEREF);
 		
+		KEYWORDS.add(NULL);
 		KEYWORDS.add(TYPE);
 		KEYWORDS.add(CAST);
 		
 		KEYWORDS.add(EXCH);
+		KEYWORDS.add(ROLL);
 		KEYWORDS.add(POP);
 		KEYWORDS.add(DUP);
 		
-		KEYWORDS.add(ROLL);
-		KEYWORDS.add(RID);
-		KEYWORDS.add(COPY);
-		
-		KEYWORDS.add(INDEX);
-		KEYWORDS.add(COUNT);
-		KEYWORDS.add(COUNTTO);
+		KEYWORDS.add(STACKSIZE);
 		
 		KEYWORDS.add(READ);
 		KEYWORDS.add(PRINT);

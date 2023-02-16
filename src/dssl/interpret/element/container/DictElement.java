@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import dssl.Helpers;
 import dssl.interpret.*;
 import dssl.interpret.element.*;
 
@@ -12,13 +13,9 @@ public class DictElement extends ContainerElement implements IterableElement<Ent
 	
 	public final Map<@NonNull Element, @NonNull Element> value;
 	
-	@SuppressWarnings("null")
 	protected DictElement(DictElement other) {
 		super(BuiltIn.DICT_CLAZZ);
-		value = new HashMap<>();
-		for (Entry<@NonNull Element, @NonNull Element> entry : other.value.entrySet()) {
-			value.put(entry.getKey().clone(), entry.getValue().clone());
-		}
+		value = Helpers.map(other.value, Element::clone, Element::clone);
 	}
 	
 	public DictElement(Collection<@NonNull Element> elems) {
@@ -51,9 +48,9 @@ public class DictElement extends ContainerElement implements IterableElement<Ent
 	}
 	
 	@Override
-	public void onEach(TokenExecutor exec, Object item) {
-		exec.push(((Entry<@NonNull Element, @NonNull Element>) item).getKey());
-		exec.push(((Entry<@NonNull Element, @NonNull Element>) item).getValue());
+	public void onEach(TokenExecutor exec, Entry<@NonNull Element, @NonNull Element> item) {
+		exec.push(item.getKey());
+		exec.push(item.getValue());
 	}
 	
 	@Override

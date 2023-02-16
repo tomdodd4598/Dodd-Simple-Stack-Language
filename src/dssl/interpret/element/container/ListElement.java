@@ -23,6 +23,12 @@ public class ListElement extends ContainerElement implements CollectionElement {
 		value = new ArrayList<>(elems);
 	}
 	
+	public ListElement(Iterable<@NonNull Element> elems) {
+		super(BuiltIn.LIST_CLAZZ);
+		value = new ArrayList<>();
+		elems.forEach(value::add);
+	}
+	
 	@Override
 	public ListElement listCast() {
 		return this;
@@ -43,10 +49,9 @@ public class ListElement extends ContainerElement implements CollectionElement {
 		return value.iterator();
 	}
 	
-	@SuppressWarnings("null")
 	@Override
-	public void onEach(TokenExecutor exec, Object item) {
-		exec.push((Element) item);
+	public void onEach(TokenExecutor exec, @NonNull Element item) {
+		exec.push(item);
 	}
 	
 	@Override

@@ -21,7 +21,13 @@ public class TupleElement extends ContainerElement implements CollectionElement 
 	
 	public TupleElement(Collection<@NonNull Element> elems) {
 		super(BuiltIn.TUPLE_CLAZZ);
-		value = Arrays.asList(elems.toArray(new @NonNull Element[elems.size()]));
+		value = new ArrayList<>(elems);
+	}
+	
+	public TupleElement(Iterable<@NonNull Element> elems) {
+		super(BuiltIn.TUPLE_CLAZZ);
+		value = new ArrayList<>();
+		elems.forEach(value::add);
 	}
 	
 	@Override
@@ -44,10 +50,9 @@ public class TupleElement extends ContainerElement implements CollectionElement 
 		return value.iterator();
 	}
 	
-	@SuppressWarnings("null")
 	@Override
-	public void onEach(TokenExecutor exec, Object item) {
-		exec.push((Element) item);
+	public void onEach(TokenExecutor exec, @NonNull Element item) {
+		exec.push(item);
 	}
 	
 	@Override

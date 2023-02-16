@@ -12,7 +12,7 @@ public class Interpreter {
 	protected final TokenExecutor root;
 	protected boolean halt = false;
 	
-	protected final Deque<@NonNull Element> elemStack = new ArrayDeque<>();
+	protected final Deque<@NonNull Element> stack = new ArrayDeque<>();
 	protected final List<String> printList = new ArrayList<>();
 	
 	protected final IO io;

@@ -109,13 +109,17 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		return this == interpreter.root;
 	}
 	
+	protected Deque<@NonNull Element> stack() {
+		return interpreter.stack;
+	}
+	
 	public void push(@NonNull Element elem) {
-		interpreter.elemStack.push(elem);
+		stack().push(elem);
 	}
 	
 	@SuppressWarnings("unused")
 	public @NonNull Element peek() {
-		@SuppressWarnings("null") Element peek = interpreter.elemStack.peek();
+		@SuppressWarnings("null") Element peek = stack().peek();
 		if (peek == null) {
 			throw new NoSuchElementException();
 		}
@@ -125,7 +129,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	@SuppressWarnings("unused")
 	public @NonNull Element[] peek(int count) {
 		@NonNull Element[] elems = new @NonNull Element[count];
-		Iterator<@NonNull Element> iter = interpreter.elemStack.iterator();
+		Iterator<@NonNull Element> iter = stack().iterator();
 		int i = 0;
 		while (i < count) {
 			@SuppressWarnings("null") Element next = iter.next();
@@ -142,7 +146,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	@SuppressWarnings("unused")
 	public @NonNull Element peekAt(int index) {
 		@NonNull Element elem;
-		Iterator<@NonNull Element> iter = interpreter.elemStack.iterator();
+		Iterator<@NonNull Element> iter = stack().iterator();
 		int i = 0;
 		do {
 			@SuppressWarnings("null") Element next = iter.next();
@@ -159,24 +163,24 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	@SuppressWarnings("null")
 	public @NonNull Element pop() {
-		return interpreter.elemStack.pop();
+		return stack().pop();
 	}
 	
 	@SuppressWarnings("null")
 	public @NonNull Element[] pop(int count) {
 		@NonNull Element[] elems = new @NonNull Element[count];
 		for (int i = 0; i < count; ++i) {
-			elems[count - i - 1] = interpreter.elemStack.pop();
+			elems[count - i - 1] = stack().pop();
 		}
 		return elems;
 	}
 	
 	public int elemStackSize() {
-		return interpreter.elemStack.size();
+		return stack().size();
 	}
 	
 	protected String elemStackDebugString() {
-		return StreamSupport.stream(Spliterators.spliterator(interpreter.elemStack.descendingIterator(), elemStackSize(), Spliterator.ORDERED), false).map(Element::debugString).collect(Helpers.SPACE_JOIN_COLLECTOR);
+		return StreamSupport.stream(Spliterators.spliterator(stack().descendingIterator(), elemStackSize(), Spliterator.ORDERED), false).map(Element::debugString).collect(Helpers.SPACE_JOIN_COLLECTOR);
 	}
 	
 	@FunctionalInterface
@@ -187,14 +191,14 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected static class TokenFunctionMap {
 		
-		protected final Map<Class<? extends Token>, ExecutorTokenFunction> internalMap = new HashMap<>();
+		protected final Map<Class<? extends Token>, ExecutorTokenFunction> internal = new HashMap<>();
 		
 		protected <T extends Token> void put(Class<T> clazz, ExecutorTokenFunction function) {
-			internalMap.put(clazz, function);
+			internal.put(clazz, function);
 		}
 		
 		protected <T extends Token> ExecutorTokenFunction get(Class<T> clazz) {
-			return (ExecutorTokenFunction) internalMap.get(clazz);
+			return internal.get(clazz);
 		}
 		
 		protected <T extends Token> TokenResult apply(TokenExecutor exec, @NonNull T token) {
@@ -233,23 +237,18 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		
 		TOKEN_FUNCTION_MAP.put(TNew.class, TokenExecutor::onNew);
 		
-		TOKEN_FUNCTION_MAP.put(TNull.class, TokenExecutor::onNull);
 		TOKEN_FUNCTION_MAP.put(TDeref.class, TokenExecutor::onDeref);
 		
+		TOKEN_FUNCTION_MAP.put(TNull.class, TokenExecutor::onNull);
 		TOKEN_FUNCTION_MAP.put(TType.class, TokenExecutor::onType);
 		TOKEN_FUNCTION_MAP.put(TCast.class, TokenExecutor::onCast);
 		
 		TOKEN_FUNCTION_MAP.put(TExch.class, TokenExecutor::onExch);
+		TOKEN_FUNCTION_MAP.put(TRoll.class, TokenExecutor::onRoll);
 		TOKEN_FUNCTION_MAP.put(TPop.class, TokenExecutor::onPop);
 		TOKEN_FUNCTION_MAP.put(TDup.class, TokenExecutor::onDup);
 		
-		TOKEN_FUNCTION_MAP.put(TRoll.class, TokenExecutor::onRoll);
-		TOKEN_FUNCTION_MAP.put(TRid.class, TokenExecutor::onRid);
-		TOKEN_FUNCTION_MAP.put(TCopy.class, TokenExecutor::onCopy);
-		
-		TOKEN_FUNCTION_MAP.put(TIndex.class, TokenExecutor::onIndex);
-		TOKEN_FUNCTION_MAP.put(TCount.class, TokenExecutor::onCount);
-		TOKEN_FUNCTION_MAP.put(TCountto.class, TokenExecutor::onCountto);
+		TOKEN_FUNCTION_MAP.put(TStacksize.class, TokenExecutor::onStacksize);
 		
 		TOKEN_FUNCTION_MAP.put(TRead.class, TokenExecutor::onRead);
 		TOKEN_FUNCTION_MAP.put(TPrint.class, TokenExecutor::onPrint);
@@ -442,11 +441,6 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		return ((ClassElement) elem).internal.instantiate(this);
 	}
 	
-	protected TokenResult onNull(@NonNull Token token) {
-		push(NullElement.INSTANCE);
-		return TokenResult.PASS;
-	}
-	
 	protected TokenResult onDeref(@NonNull Token token) {
 		@NonNull Element elem = pop();
 		if (!(elem instanceof LabelElement)) {
@@ -459,6 +453,11 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Variable, macro or class \"%s\" not defined!", label.identifier));
 		}
 		return result;
+	}
+	
+	protected TokenResult onNull(@NonNull Token token) {
+		push(NullElement.INSTANCE);
+		return TokenResult.PASS;
 	}
 	
 	protected TokenResult onType(@NonNull Token token) {
@@ -490,16 +489,6 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		return TokenResult.PASS;
 	}
 	
-	protected TokenResult onPop(@NonNull Token token) {
-		pop();
-		return TokenResult.PASS;
-	}
-	
-	protected TokenResult onDup(@NonNull Token token) {
-		push(peek());
-		return TokenResult.PASS;
-	}
-	
 	protected TokenResult onRoll(@NonNull Token token) {
 		@NonNull Element elem1 = pop(), elem0 = pop();
 		IntElement intElem0 = elem0.intCast(false);
@@ -525,69 +514,18 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		return TokenResult.PASS;
 	}
 	
-	protected TokenResult onRid(@NonNull Token token) {
-		@NonNull Element elem = pop();
-		IntElement intElem = elem.intCast(false);
-		if (intElem == null) {
-			throw new IllegalArgumentException(String.format("Keyword \"rid\" requires non-negative int element as argument!"));
-		}
-		
-		int primitiveInt = intElem.primitiveInt();
-		if (primitiveInt < 0) {
-			throw new IllegalArgumentException(String.format("Keyword \"rid\" requires non-negative int element as argument!"));
-		}
-		
-		for (int i = 0; i < primitiveInt; ++i) {
-			pop();
-		}
+	protected TokenResult onPop(@NonNull Token token) {
+		pop();
 		return TokenResult.PASS;
 	}
 	
-	protected TokenResult onCopy(@NonNull Token token) {
-		@NonNull Element elem = pop();
-		IntElement intElem = elem.intCast(false);
-		if (intElem == null) {
-			throw new IllegalArgumentException(String.format("Keyword \"copy\" requires non-negative int element as argument!"));
-		}
-		
-		int primitiveInt = intElem.primitiveInt();
-		if (primitiveInt < 0) {
-			throw new IllegalArgumentException(String.format("Keyword \"copy\" requires non-negative int element as argument!"));
-		}
-		
-		for (@NonNull Element e : peek(primitiveInt)) {
-			push(e);
-		}
+	protected TokenResult onDup(@NonNull Token token) {
+		push(peek());
 		return TokenResult.PASS;
 	}
 	
-	protected TokenResult onIndex(@NonNull Token token) {
-		@NonNull Element elem = pop();
-		IntElement intElem = elem.intCast(false);
-		if (intElem == null) {
-			throw new IllegalArgumentException(String.format("Keyword \"index\" requires non-negative int element as argument!"));
-		}
-		
-		int primitiveInt = intElem.primitiveInt();
-		if (primitiveInt < 0) {
-			throw new IllegalArgumentException(String.format("Keyword \"index\" requires non-negative int element as argument!"));
-		}
-		
-		push(peekAt(primitiveInt));
-		return TokenResult.PASS;
-	}
-	
-	protected TokenResult onCount(@NonNull Token token) {
+	protected TokenResult onStacksize(@NonNull Token token) {
 		push(new IntElement(elemStackSize()));
-		return TokenResult.PASS;
-	}
-	
-	protected TokenResult onCountto(@NonNull Token token) {
-		@NonNull Element elem = pop();
-		if (!(elem instanceof LabelElement)) {
-			throw new IllegalArgumentException(String.format("Keyword \"countto\" requires label element as argument!"));
-		}
-		push(new IntElement(countElemsToLabel((LabelElement) elem)));
 		return TokenResult.PASS;
 	}
 	
@@ -727,10 +665,13 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		if (!(elem1 instanceof BlockElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"foreach\" requires block element as second argument!"));
 		}
-		
-		loop: for (Object item : (IterableElement<?>) elem0) {
-			((IterableElement<?>) elem0).onEach(this, item);
-			TokenResult invokeResult = ((BlockElement) elem1).invoke(this);
+		return loopForeach((IterableElement<?>) elem0, (BlockElement) elem1);
+	}
+	
+	protected <T> TokenResult loopForeach(IterableElement<T> elem0, BlockElement elem1) {
+		loop: for (T item : elem0) {
+			elem0.onEach(this, item);
+			TokenResult invokeResult = elem1.invoke(this);
 			switch (invokeResult) {
 				case CONTINUE:
 					continue;
@@ -1072,7 +1013,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	protected int countElemsToLabel(LabelElement label) {
-		Iterator<@NonNull Element> iter = interpreter.elemStack.iterator();
+		Iterator<@NonNull Element> iter = stack().iterator();
 		int count = 0;
 		
 		while (iter.hasNext()) {
@@ -1090,7 +1031,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	protected List<@NonNull Element> getElemsToLBracket() {
 		List<@NonNull Element> list = new ArrayList<>();
 		
-		while (!interpreter.elemStack.isEmpty()) {
+		while (!stack().isEmpty()) {
 			@NonNull Element elem = pop();
 			if (elem instanceof LBracketElement) {
 				Collections.reverse(list);

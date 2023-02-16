@@ -373,7 +373,7 @@ public class NativeImpl implements Native {
 	
 	static Object map_nativize(@NonNull Element elem, Type keyType, Type valueType) {
 		Tracker tracker = new Tracker();
-		Map<?, ?> obj = ((DictElement) elem).value.entrySet().stream().collect(Helpers.mapCollector(x -> tracked_nativize(x, keyType, tracker), x -> tracked_nativize(x, valueType, tracker), (x, y) -> y));
+		Map<?, ?> obj = Helpers.map(((DictElement) elem).value, x -> tracked_nativize(x, keyType, tracker), x -> tracked_nativize(x, valueType, tracker));
 		return tracker.flag ? null : obj;
 	}
 	
@@ -438,7 +438,7 @@ public class NativeImpl implements Native {
 			return new SetElement(Helpers.map((Set<?>) obj, NativeImpl::convert));
 		}
 		else if (obj instanceof Map) {
-			return new DictElement(((Map<?, ?>) obj).entrySet().stream().collect(Helpers.mapCollector(NativeImpl::convert, NativeImpl::convert, (x, y) -> y)));
+			return new DictElement(Helpers.map((Map<?, ?>) obj, NativeImpl::convert, NativeImpl::convert));
 		}
 		else {
 			return new NativeElement(obj);

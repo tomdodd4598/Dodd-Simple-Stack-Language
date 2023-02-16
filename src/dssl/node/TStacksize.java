@@ -5,16 +5,16 @@ package dssl.node;
 import dssl.analysis.*;
 
 @SuppressWarnings("nls")
-public final class TCopy extends Token
+public final class TStacksize extends Token
 {
-    public TCopy()
+    public TStacksize()
     {
-        super.setText("copy");
+        super.setText("stacksize");
     }
 
-    public TCopy(int line, int pos)
+    public TStacksize(int line, int pos)
     {
-        super.setText("copy");
+        super.setText("stacksize");
         setLine(line);
         setPos(pos);
     }
@@ -22,18 +22,18 @@ public final class TCopy extends Token
     @Override
     public Object clone()
     {
-      return new TCopy(getLine(), getPos());
+      return new TStacksize(getLine(), getPos());
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseTCopy(this);
+        ((Analysis) sw).caseTStacksize(this);
     }
 
     @Override
     public void setText(@SuppressWarnings("unused") String text)
     {
-        throw new RuntimeException("Cannot change TCopy text.");
+        throw new RuntimeException("Cannot change TStacksize text.");
     }
 }

@@ -2,8 +2,6 @@ package dssl.interpret.element.container;
 
 import java.math.BigInteger;
 import java.util.*;
-import java.util.function.*;
-import java.util.stream.*;
 
 import org.eclipse.jdt.annotation.NonNull;
 
@@ -14,9 +12,7 @@ import dssl.interpret.element.primitive.IntElement;
 public class RangeElement extends ContainerElement implements IterableElement<@NonNull Element> {
 	
 	protected final @NonNull BigInteger start, stop, step;
-	protected final int size;
-	protected final Supplier<Stream<@NonNull Element>> supplier;
-	protected List<@NonNull Element> list = null;
+	protected final long size;
 	
 	protected RangeElement(RangeElement other) {
 		super(BuiltIn.RANGE_CLAZZ);
@@ -24,7 +20,6 @@ public class RangeElement extends ContainerElement implements IterableElement<@N
 		stop = other.stop;
 		step = other.step;
 		size = other.size;
-		supplier = other.supplier;
 	}
 	
 	@SuppressWarnings("null")
@@ -78,37 +73,7 @@ public class RangeElement extends ContainerElement implements IterableElement<@N
 		this.stop = stop;
 		this.step = step;
 		
-		size = diff.divide(step).intValueExact();
-		
-		supplier = () -> StreamSupport.stream(new Spliterator<@NonNull Element>() {
-			
-			int index = 0;
-			
-			@Override
-			public boolean tryAdvance(Consumer<? super @NonNull Element> action) {
-				if (index < size) {
-					action.accept(new IntElement(start.add(step.multiply(BigInteger.valueOf(index++)))));
-					return true;
-				}
-				return false;
-			}
-			
-			@Override
-			public Spliterator<@NonNull Element> trySplit() {
-				return null;
-			}
-			
-			@Override
-			public long estimateSize() {
-				return size - index;
-			}
-			
-			@Override
-			public int characteristics() {
-				return Spliterator.ORDERED | Spliterator.SIZED | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.DISTINCT;
-			}
-			
-		}, false);
+		size = diff.divide(step).longValueExact();
 	}
 	
 	@Override
@@ -118,28 +83,40 @@ public class RangeElement extends ContainerElement implements IterableElement<@N
 	
 	@Override
 	public ListElement listCast() {
-		return new ListElement(list());
+		return new ListElement(this);
 	}
 	
 	@Override
 	public TupleElement tupleCast() {
-		return new TupleElement(list());
+		return new TupleElement(this);
 	}
 	
 	@Override
 	public SetElement setCast() {
-		return new SetElement(list());
+		return new SetElement(this);
 	}
 	
 	@Override
 	public Iterator<@NonNull Element> iterator() {
-		return supplier.get().iterator();
+		return new Iterator<@NonNull Element>() {
+			
+			long index = 0;
+			
+			@Override
+			public boolean hasNext() {
+				return index < size;
+			}
+			
+			@Override
+			public @NonNull Element next() {
+				return new IntElement(start.add(step.multiply(BigInteger.valueOf(index++))));
+			}
+		};
 	}
 	
-	@SuppressWarnings("null")
 	@Override
-	public void onEach(TokenExecutor exec, Object item) {
-		exec.push((Element) item);
+	public void onEach(TokenExecutor exec, @NonNull Element item) {
+		exec.push(item);
 	}
 	
 	@Override
@@ -151,7 +128,12 @@ public class RangeElement extends ContainerElement implements IterableElement<@N
 	
 	@Override
 	public int size() {
-		return size;
+		if (size >= Integer.MIN_VALUE && size <= Integer.MAX_VALUE) {
+			return (int) size;
+		}
+		else {
+			throw new ArithmeticException(String.format("Range size %s out of int range!", size));
+		}
 	}
 	
 	@Override
@@ -161,7 +143,16 @@ public class RangeElement extends ContainerElement implements IterableElement<@N
 	
 	@Override
 	public boolean contains(@NonNull Element elem) {
-		return list().contains(elem);
+		IntElement intElem = elem.intCast(false);
+		if (intElem == null) {
+			return false;
+		}
+		
+		@NonNull BigInteger intValue = intElem.value.raw;
+		if (intValue.compareTo(start) < 0 || intValue.compareTo(stop) >= 0) {
+			return false;
+		}
+		return intValue.subtract(start).mod(step).equals(BigInteger.ZERO);
 	}
 	
 	@Override
@@ -169,10 +160,9 @@ public class RangeElement extends ContainerElement implements IterableElement<@N
 		if (!(elem instanceof CollectionElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"containsAll\" requires collection element as argument!"));
 		}
-		return list().containsAll(((CollectionElement) elem).collection());
+		return ((CollectionElement) elem).collection().stream().allMatch(this::contains);
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull Element get(@NonNull Element elem) {
 		IntElement intElem = elem.intCast(false);
@@ -185,15 +175,11 @@ public class RangeElement extends ContainerElement implements IterableElement<@N
 			throw new IllegalArgumentException(String.format("Built-in method \"get\" requires non-negative int element as argument!"));
 		}
 		
-		return list().get(primitiveInt);
-	}
-	
-	protected List<@NonNull Element> list() {
-		if (list == null) {
-			list = new ArrayList<>();
-			supplier.get().collect(Collectors.toList());
+		if (primitiveInt >= size) {
+			throw new IndexOutOfBoundsException(String.format("Built-in method \"get\" (index: %s, size: %s)", primitiveInt, size));
 		}
-		return list;
+		
+		return new IntElement(start.add(step.multiply(BigInteger.valueOf(primitiveInt))));
 	}
 	
 	@Override
