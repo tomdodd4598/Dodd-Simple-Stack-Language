@@ -19,10 +19,14 @@ public interface HierarchicalScope extends Scope {
 		return getDefHierarchy().get(identifier);
 	}
 	
+	public default void setDef(@NonNull String identifier, @NonNull Def def, boolean shadow) {
+		checkDef(identifier);
+		getDefHierarchy().put(identifier, def, shadow);
+	}
+	
 	@Override
 	public default void setDef(@NonNull String identifier, @NonNull Element value, boolean shadow) {
-		checkDef(identifier);
-		getDefHierarchy().put(identifier, new Def(identifier, value), shadow);
+		setDef(identifier, new Def(identifier, value), shadow);
 	}
 	
 	@Override
@@ -35,10 +39,14 @@ public interface HierarchicalScope extends Scope {
 		return getMacroHierarchy().get(identifier);
 	}
 	
+	public default void setMacro(@NonNull String identifier, @NonNull Macro macro, boolean shadow) {
+		checkMacro(identifier);
+		getMacroHierarchy().put(identifier, macro, shadow);
+	}
+	
 	@Override
 	public default void setMacro(@NonNull String identifier, @NonNull Invokable invokable) {
-		checkMacro(identifier);
-		getMacroHierarchy().put(identifier, new Macro(identifier, invokable), true);
+		setMacro(identifier, new Macro(identifier, invokable), true);
 	}
 	
 	@Override
@@ -51,10 +59,14 @@ public interface HierarchicalScope extends Scope {
 		return getClazzHierarchy().get(shallow);
 	}
 	
+	public default void setClazz(@NonNull String shallow, @NonNull Clazz clazz, boolean shadow) {
+		checkClazz(shallow);
+		getClazzHierarchy().put(shallow, clazz, shadow);
+	}
+	
 	@Override
 	public default void setClazz(@NonNull String shallow, HierarchicalScope base, ArrayList<Clazz> supers) {
-		checkClazz(shallow);
-		getClazzHierarchy().put(shallow, new Clazz(getIdentifier(), shallow, base, supers), true);
+		setClazz(shallow, new Clazz(getIdentifier(), shallow, base, supers), true);
 	}
 	
 	@Override
@@ -67,9 +79,13 @@ public interface HierarchicalScope extends Scope {
 		return getMagicHierarchy().get(identifier);
 	}
 	
+	public default void setMagic(@NonNull String identifier, @NonNull Magic magic, boolean shadow) {
+		getMagicHierarchy().put(identifier, magic, shadow);
+	}
+	
 	@Override
 	public default void setMagic(@NonNull String identifier, @NonNull Invokable invokable) {
-		getMagicHierarchy().put(identifier, new Magic(identifier, invokable), true);
+		setMagic(identifier, new Magic(identifier, invokable), true);
 	}
 	
 	public String getIdentifier();
@@ -82,10 +98,10 @@ public interface HierarchicalScope extends Scope {
 	
 	public Hierarchy<@NonNull String, Magic> getMagicHierarchy();
 	
-	public default void putAll(@NonNull HierarchicalScope other, boolean shadow) {
-		getDefHierarchy().putAll(other.getDefHierarchy(), shadow);
-		getMacroHierarchy().putAll(other.getMacroHierarchy(), shadow);
-		getClazzHierarchy().putAll(other.getClazzHierarchy(), shadow);
-		getMagicHierarchy().putAll(other.getMagicHierarchy(), shadow);
+	public default void putAll(@NonNull HierarchicalScope from, boolean shadow, boolean shallow) {
+		from.getDefHierarchy().forEach((k, v) -> setDef(k, v, shadow), shallow);
+		from.getMacroHierarchy().forEach((k, v) -> setMacro(k, v, shadow), shallow);
+		from.getClazzHierarchy().forEach((k, v) -> setClazz(k, v, shadow), shallow);
+		from.getMagicHierarchy().forEach((k, v) -> setMagic(k, v, shadow), shallow);
 	}
 }

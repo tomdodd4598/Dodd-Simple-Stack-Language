@@ -2,6 +2,7 @@ package dssl;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.BiConsumer;
 
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -40,12 +41,14 @@ public class Hierarchy<K, V> {
 		return prev;
 	}
 	
-	public void putAll(Hierarchy<K, V> other, boolean shadow) {
-		for (Entry<K, V> entry : other.internal.entrySet()) {
-			put(entry.getKey(), entry.getValue(), shadow);
+	public void forEach(BiConsumer<K, V> consumer, boolean shallow) {
+		for (Entry<K, V> entry : internal.entrySet()) {
+			consumer.accept(entry.getKey(), entry.getValue());
 		}
-		for (Hierarchy<K, V> parent : other.parents) {
-			putAll(parent, shadow);
+		if (!shallow) {
+			for (Hierarchy<K, V> parent : parents) {
+				parent.forEach(consumer, false);
+			}
 		}
 	}
 	

@@ -16,14 +16,17 @@ Helpers
 	
 	apostrophe = 39;
 	quote = 34;
-	multi_quote = quote quote quote;
+	tick = 96;
 	not_eol = [all - [cr + lf]];
 	escape_char = '\' not_eol;
+	multi_tick = tick tick tick;
 	
 	c_char = [all - [apostrophe + ['\' + [lf + cr]]]] | escape_char;
 	c_char_sequence = c_char+;
 	s_char = [all - [quote + ['\' + [lf + cr]]]] | escape_char;
 	s_char_sequence = s_char*;
+	b_char = [all - [tick + '\']] | escape_char;
+	b_char_sequence = b_char*;
 	
 	not_star = [all - '*'];
 	not_star_slash = [not_star - '/'];
@@ -137,7 +140,7 @@ Tokens
 	char_value = apostrophe c_char apostrophe;
 	
 	line_string_value = 'r'? quote s_char_sequence quote;
-	block_string_value = 'r'? multi_quote whitespace* eol s_char_sequence multi_quote;
+	block_string_value = 'r'? multi_tick whitespace* eol b_char_sequence multi_tick;
 	
 	identifier = name;
 	label = '/' name;

@@ -103,6 +103,7 @@ public class Helpers {
 		unescapeMap.put("\\\\", "\\");
 		unescapeMap.put("\\'", "'");
 		unescapeMap.put("\\\"", "\"");
+		unescapeMap.put("\\`", "`");
 		unescapeMap.put("\\", "");
 		
 		UNESCAPE_TRANSLATOR = new LookupTranslator(unescapeMap);

@@ -86,7 +86,7 @@ public class Main {
 					}
 				}
 				else if (elem instanceof ModuleElement) {
-					exec.putAll(((ModuleElement) elem).clazz, true);
+					exec.putAll(((ModuleElement) elem).clazz, true, true);
 					return TokenResult.PASS;
 				}
 				else {
@@ -101,11 +101,12 @@ public class Main {
 					throw new IllegalArgumentException(String.format("Keyword \"import\" requires label element as first argument!"));
 				}
 				
+				LabelElement label = (LabelElement) elem0;
 				StringElement stringElem = elem1.stringCast(false);
 				if (stringElem != null) {
 					try (PushbackReader reader = Helpers.getPushbackReader(new FileReader(stringElem.toString()))) {
 						TokenExecutor otherExec = exec.interpreter.newExecutor(new LexerIterator(reader));
-						((LabelElement) elem0).setClazz(otherExec, new ArrayList<>());
+						label.setClazz(otherExec, new ArrayList<>());
 						return otherExec.iterate();
 					}
 					catch (Exception e) {
@@ -114,7 +115,7 @@ public class Main {
 					}
 				}
 				else if (elem1 instanceof ModuleElement) {
-					((LabelElement) elem0).setClazz(((ModuleElement) elem1).clazz, new ArrayList<>());
+					label.setClazz(((ModuleElement) elem1).clazz, new ArrayList<>());
 					return TokenResult.PASS;
 				}
 				else {
