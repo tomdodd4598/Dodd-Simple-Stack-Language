@@ -15,7 +15,7 @@ public class BoolElement extends PrimitiveElement<@NonNull Boolean, @NonNull Boo
 	}
 	
 	@Override
-	public BoolElement boolCast(boolean explicit) {
+	public @NonNull BoolElement boolCast(TokenExecutor exec) {
 		return this;
 	}
 	
@@ -36,7 +36,7 @@ public class BoolElement extends PrimitiveElement<@NonNull Boolean, @NonNull Boo
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash("bool", value);
+		return Objects.hash(BuiltIn.BOOL, value);
 	}
 	
 	@Override

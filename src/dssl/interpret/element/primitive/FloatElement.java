@@ -16,7 +16,7 @@ public class FloatElement extends PrimitiveElement<@NonNull Double, @NonNull Flo
 	}
 	
 	@Override
-	public FloatElement floatCast(boolean explicit) {
+	public @NonNull FloatElement floatCast(TokenExecutor exec) {
 		return this;
 	}
 	
@@ -40,7 +40,7 @@ public class FloatElement extends PrimitiveElement<@NonNull Double, @NonNull Flo
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash("float", value);
+		return Objects.hash(BuiltIn.FLOAT, value);
 	}
 	
 	@Override

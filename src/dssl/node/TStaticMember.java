@@ -5,14 +5,14 @@ package dssl.node;
 import dssl.analysis.*;
 
 @SuppressWarnings("nls")
-public final class TMember extends Token
+public final class TStaticMember extends Token
 {
-    public TMember(String text)
+    public TStaticMember(String text)
     {
         setText(text);
     }
 
-    public TMember(String text, int line, int pos)
+    public TStaticMember(String text, int line, int pos)
     {
         setText(text);
         setLine(line);
@@ -22,12 +22,12 @@ public final class TMember extends Token
     @Override
     public Object clone()
     {
-      return new TMember(getText(), getLine(), getPos());
+      return new TStaticMember(getText(), getLine(), getPos());
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseTMember(this);
+        ((Analysis) sw).caseTStaticMember(this);
     }
 }

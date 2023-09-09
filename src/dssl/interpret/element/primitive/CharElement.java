@@ -16,7 +16,7 @@ public class CharElement extends PrimitiveElement<@NonNull Character, @NonNull C
 	}
 	
 	@Override
-	public CharElement charCast(boolean explicit) {
+	public @NonNull CharElement charCast(TokenExecutor exec) {
 		return this;
 	}
 	
@@ -30,13 +30,18 @@ public class CharElement extends PrimitiveElement<@NonNull Character, @NonNull C
 	}
 	
 	@Override
+	public @NonNull String debug(TokenExecutor exec) {
+		return "'" + StringEscapeUtils.escapeJava(value.raw.toString()) + "'";
+	}
+	
+	@Override
 	public @NonNull Element clone() {
 		return new CharElement(primitiveChar());
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash("char", value);
+		return Objects.hash(BuiltIn.CHAR, value);
 	}
 	
 	@Override
@@ -46,10 +51,5 @@ public class CharElement extends PrimitiveElement<@NonNull Character, @NonNull C
 			return value.equals(other.value);
 		}
 		return false;
-	}
-	
-	@Override
-	public @NonNull String debugString() {
-		return "'" + StringEscapeUtils.escapeJava(value.raw.toString()) + "'";
 	}
 }

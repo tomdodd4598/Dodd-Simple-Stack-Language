@@ -1,0 +1,22 @@
+# ----------- #
+# TWIN PRIMES #
+# ----------- #
+
+$math include
+
+# Check divisors up to sqrt(n)
+/isPrime {
+	/n exch def
+	n 2 < { false } { { n exch % 0 == } ( 2 n isqrt 1 + ) .iter .filter .count 0 == } ifelse
+} macro
+
+/primes {
+	/n exch def
+	{ isPrime } ( 1 1 n + ) .iter .filter
+} macro
+
+# Print primes up to 100
+100 primes .collectList println
+
+# Print twin primes up to 100
+{ dup .snd exch .fst - 2 == } 1 100 primes .skip 100 primes .zip .filter .collectList println

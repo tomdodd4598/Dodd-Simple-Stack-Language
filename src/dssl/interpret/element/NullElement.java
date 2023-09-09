@@ -7,7 +7,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import dssl.interpret.*;
 import dssl.interpret.element.primitive.BoolElement;
 
-public class NullElement extends ValueElement {
+public class NullElement extends Element {
 	
 	public static final @NonNull NullElement INSTANCE = new NullElement();
 	
@@ -17,20 +17,14 @@ public class NullElement extends ValueElement {
 	
 	@Override
 	public TokenResult onEqualTo(TokenExecutor exec, @NonNull Element other) {
-		if (other instanceof ValueElement) {
-			exec.push(new BoolElement(INSTANCE.equals(other)));
-			return TokenResult.PASS;
-		}
-		throw binaryOpError("==", other);
+		exec.push(new BoolElement(INSTANCE.equals(other)));
+		return TokenResult.PASS;
 	}
 	
 	@Override
 	public TokenResult onNotEqualTo(TokenExecutor exec, @NonNull Element other) {
-		if (other instanceof ValueElement) {
-			exec.push(new BoolElement(!INSTANCE.equals(other)));
-			return TokenResult.PASS;
-		}
-		throw binaryOpError("!=", other);
+		exec.push(new BoolElement(!INSTANCE.equals(other)));
+		return TokenResult.PASS;
 	}
 	
 	@Override
@@ -40,7 +34,7 @@ public class NullElement extends ValueElement {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash("null");
+		return Objects.hash(BuiltIn.NULL);
 	}
 	
 	@Override
@@ -50,11 +44,6 @@ public class NullElement extends ValueElement {
 	
 	@Override
 	public @NonNull String toString() {
-		return "null";
-	}
-	
-	@Override
-	public @NonNull String debugString() {
 		return "null";
 	}
 }

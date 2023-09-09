@@ -7,9 +7,8 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.eclipse.jdt.annotation.NonNull;
 
 import dssl.interpret.BuiltIn;
-import dssl.interpret.element.primitive.StringElement;
 
-public class NativeElement extends ValueElement {
+public class NativeElement extends Element {
 	
 	public final Object value;
 	
@@ -19,23 +18,18 @@ public class NativeElement extends ValueElement {
 	}
 	
 	@Override
-	public StringElement stringCast(boolean explicit) {
-		return explicit ? new StringElement(toString()) : null;
-	}
-	
-	@Override
 	public @NonNull Element clone() {
 		if (value instanceof Serializable) {
 			return new NativeElement(SerializationUtils.clone((Serializable) value));
 		}
 		else {
-			throw new IllegalArgumentException("Non-serializable native element can not be cloned!");
+			throw new IllegalArgumentException(String.format("Non-serializable %s element can not be cloned!", BuiltIn.NATIVE));
 		}
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash("native", value);
+		return Objects.hash(BuiltIn.NATIVE, value);
 	}
 	
 	@Override
@@ -50,12 +44,6 @@ public class NativeElement extends ValueElement {
 	@SuppressWarnings("null")
 	@Override
 	public @NonNull String toString() {
-		return value.toString();
-	}
-	
-	@SuppressWarnings("null")
-	@Override
-	public @NonNull String debugString() {
-		return value.toString();
+		return String.valueOf(value);
 	}
 }

@@ -3,7 +3,9 @@ package dssl.interpret.value;
 import java.math.BigInteger;
 import java.util.Objects;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
+
+import dssl.interpret.BuiltIn;
 
 public class BoolValue extends PrimitiveValue<@NonNull Boolean> {
 	
@@ -12,27 +14,27 @@ public class BoolValue extends PrimitiveValue<@NonNull Boolean> {
 	}
 	
 	@Override
-	public BigInteger intValue(boolean explicit) {
+	public @Nullable BigInteger intValue(boolean explicit) {
 		return explicit ? (raw ? BigInteger.ONE : BigInteger.ZERO) : null;
 	}
 	
 	@Override
-	public Boolean boolValue(boolean explicit) {
+	public @Nullable Boolean boolValue(boolean explicit) {
 		return raw;
 	}
 	
 	@Override
-	public Double floatValue(boolean explicit) {
+	public @Nullable Double floatValue(boolean explicit) {
 		return null;
 	}
 	
 	@Override
-	public Character charValue(boolean explicit) {
+	public @Nullable Character charValue(boolean explicit) {
 		return null;
 	}
 	
 	@Override
-	public String stringValue(boolean explicit) {
+	public @Nullable String stringValue(boolean explicit) {
 		return explicit ? raw.toString() : null;
 	}
 	
@@ -43,7 +45,7 @@ public class BoolValue extends PrimitiveValue<@NonNull Boolean> {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash("bool", raw);
+		return Objects.hash(BuiltIn.BOOL, raw);
 	}
 	
 	@Override

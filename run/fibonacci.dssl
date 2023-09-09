@@ -26,6 +26,6 @@
 	} if
 } macro
 
-[ 1 11 ] range new {
+( 1 11 ) {
 	fib println
 } foreach

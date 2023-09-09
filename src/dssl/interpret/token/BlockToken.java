@@ -13,7 +13,6 @@ public class BlockToken extends Token {
 	
 	public BlockToken(List<@NonNull Token> tokens) {
 		this.tokens = tokens;
-		setText(tokens.stream().map(Token::getText).collect(Helpers.SPACE_JOIN_COLLECTOR));
 		if (!tokens.isEmpty()) {
 			@SuppressWarnings("null") Token first = tokens.get(0);
 			setLine(first.getLine());
@@ -36,5 +35,10 @@ public class BlockToken extends Token {
 			tokensClone.add((@NonNull Token) token.clone());
 		}
 		return new BlockToken(tokensClone);
+	}
+	
+	@Override
+	public @NonNull String toString() {
+		return Helpers.tokenListToString(tokens);
 	}
 }

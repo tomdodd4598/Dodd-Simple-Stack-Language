@@ -1,6 +1,7 @@
 package dssl.interpret;
 
 public enum TokenResult {
+	
 	PASS("pass"),
 	CONTINUE("continue"),
 	BREAK("break"),

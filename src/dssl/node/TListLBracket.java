@@ -5,14 +5,14 @@ package dssl.node;
 import dssl.analysis.*;
 
 @SuppressWarnings("nls")
-public final class TLBracket extends Token
+public final class TListLBracket extends Token
 {
-    public TLBracket()
+    public TListLBracket()
     {
         super.setText("[");
     }
 
-    public TLBracket(int line, int pos)
+    public TListLBracket(int line, int pos)
     {
         super.setText("[");
         setLine(line);
@@ -22,18 +22,18 @@ public final class TLBracket extends Token
     @Override
     public Object clone()
     {
-      return new TLBracket(getLine(), getPos());
+      return new TListLBracket(getLine(), getPos());
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseTLBracket(this);
+        ((Analysis) sw).caseTListLBracket(this);
     }
 
     @Override
     public void setText(@SuppressWarnings("unused") String text)
     {
-        throw new RuntimeException("Cannot change TLBracket text.");
+        throw new RuntimeException("Cannot change TListLBracket text.");
     }
 }

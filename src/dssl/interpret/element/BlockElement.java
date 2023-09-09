@@ -4,10 +4,11 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import dssl.Helpers;
 import dssl.interpret.*;
 import dssl.node.Token;
 
-public class BlockElement extends ValueElement implements Invokable {
+public class BlockElement extends Element implements Invokable {
 	
 	protected final List<@NonNull Token> tokens;
 	
@@ -56,7 +57,7 @@ public class BlockElement extends ValueElement implements Invokable {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash("block", tokens);
+		return Objects.hash(BuiltIn.BLOCK, tokens);
 	}
 	
 	@Override
@@ -70,11 +71,6 @@ public class BlockElement extends ValueElement implements Invokable {
 	
 	@Override
 	public @NonNull String toString() {
-		return "block:" + tokens.toString();
-	}
-	
-	@Override
-	public @NonNull String debugString() {
-		return "{...}";
+		return Helpers.tokenListToString(tokens);
 	}
 }

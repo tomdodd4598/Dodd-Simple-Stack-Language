@@ -52,26 +52,30 @@ public class Hierarchy<K, V> {
 		}
 	}
 	
-	public @Nullable V get(K key) {
+	public @Nullable V get(K key, boolean shallow) {
 		if (internal.containsKey(key)) {
 			return internal.get(key);
 		}
-		for (Hierarchy<K, V> parent : parents) {
-			V value = parent.get(key);
-			if (value != null) {
-				return value;
+		if (!shallow) {
+			for (Hierarchy<K, V> parent : parents) {
+				V value = parent.get(key, false);
+				if (value != null) {
+					return value;
+				}
 			}
 		}
 		return null;
 	}
 	
-	public boolean containsKey(K key) {
+	public boolean containsKey(K key, boolean shallow) {
 		if (internal.containsKey(key)) {
 			return true;
 		}
-		for (Hierarchy<K, V> parent : parents) {
-			if (parent.containsKey(key)) {
-				return true;
+		if (!shallow) {
+			for (Hierarchy<K, V> parent : parents) {
+				if (parent.containsKey(key, false)) {
+					return true;
+				}
 			}
 		}
 		return false;

@@ -124,3 +124,17 @@ satoshi .talk
 satoshi .work
 satoshi .mine
 satoshi .code
+
+'\n' print
+
+/instance {
+	/clazz exch def
+	/value exch def
+	value " is " ~ value clazz is ! { "not " ~ } if "an instance of " ~ clazz ~ println
+} macro
+
+satoshi Satoshi instance
+satoshi Miner instance
+satoshi Programmer instance
+satoshi Worker instance
+satoshi Person instance

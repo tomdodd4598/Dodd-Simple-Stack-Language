@@ -17,7 +17,7 @@ public class IntElement extends PrimitiveElement<@NonNull BigInteger, @NonNull I
 	}
 	
 	@Override
-	public IntElement intCast(boolean explicit) {
+	public @NonNull IntElement intCast(TokenExecutor exec) {
 		return this;
 	}
 	
@@ -42,7 +42,7 @@ public class IntElement extends PrimitiveElement<@NonNull BigInteger, @NonNull I
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash("int", value);
+		return Objects.hash(BuiltIn.INT, value);
 	}
 	
 	@Override

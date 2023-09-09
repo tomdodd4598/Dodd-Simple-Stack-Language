@@ -51,8 +51,15 @@ $math include
 	
 	/pow {
 		dup .re /yre exch def .im /yim exch def
-		dup .abs log /xlnr exch def .arg /xtheta exch def
-		xlnr yre * xtheta yim * - exp xtheta yre * xlnr yim * + Complex .fromPolar
+		dup .abs ln /xlnr exch def .arg /xtheta exch def
+		xlnr yre * xtheta yim * - exp xtheta yre * xlnr yim * + Complex ::fromPolar
+	} magic
+	
+	/str {
+		/this exch def
+		this .re
+		this .im 0.0 >= { '+' ~ } if
+		this .im ~ 'i' ~
 	} magic
 	
 	/abs {
@@ -69,20 +76,13 @@ $math include
 		/r exch def
 		r theta cos * r theta sin * Complex new
 	} macro
-	
-	/toString {
-		/this exch def
-		this .re string cast
-		this .im 0.0 >= { '+' ~ } if
-		this .im string cast ~ 'i' ~
-	} macro
 } class
 
 /a 2.7 3.4 Complex new def
 /b 4.2 -1.9 Complex new def
 
-"a = " a Complex .toString ~ println
-"b = " b Complex .toString ~ println
+"a = " a ~ println
+"b = " b ~ println
 
 '\n' print
 
@@ -91,8 +91,8 @@ $math include
 
 '\n' print
 
-"a+b = " a b + .toString ~ println
-"a-b = " a b - .toString ~ println
-"a*b = " a b * .toString ~ println
-"a/b = " a b / .toString ~ println
-"a**b = " a b ** .toString ~ println
+"a+b = " a b + ~ println
+"a-b = " a b - ~ println
+"a*b = " a b * ~ println
+"a/b = " a b / ~ println
+"a**b = " a b ** ~ println

@@ -2,7 +2,7 @@ package dssl.interpret.value;
 
 import java.math.BigInteger;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 public abstract class PrimitiveValue<@NonNull T> {
 	
@@ -12,15 +12,15 @@ public abstract class PrimitiveValue<@NonNull T> {
 		this.raw = raw;
 	}
 	
-	public abstract BigInteger intValue(boolean explicit);
+	public abstract @Nullable BigInteger intValue(boolean explicit);
 	
-	public abstract Boolean boolValue(boolean explicit);
+	public abstract @Nullable Boolean boolValue(boolean explicit);
 	
-	public abstract Double floatValue(boolean explicit);
+	public abstract @Nullable Double floatValue(boolean explicit);
 	
-	public abstract Character charValue(boolean explicit);
+	public abstract @Nullable Character charValue(boolean explicit);
 	
-	public abstract String stringValue(boolean explicit);
+	public abstract @Nullable String stringValue(boolean explicit);
 	
 	@Override
 	public abstract PrimitiveValue<@NonNull T> clone();

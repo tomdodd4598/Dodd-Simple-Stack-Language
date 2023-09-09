@@ -2,13 +2,13 @@ package dssl.interpret.element.primitive;
 
 import java.math.BigInteger;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import dssl.interpret.*;
-import dssl.interpret.element.*;
+import dssl.interpret.element.Element;
 import dssl.interpret.value.*;
 
-public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @NonNull PrimitiveValue<@NonNull RAW>> extends ValueElement {
+public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @NonNull PrimitiveValue<@NonNull RAW>> extends Element {
 	
 	public final @NonNull VALUE value;
 	
@@ -18,33 +18,63 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	}
 	
 	@Override
-	public IntElement intCast(boolean explicit) {
-		BigInteger intValue = value.intValue(explicit);
+	public @Nullable IntElement asInt(TokenExecutor exec) {
+		BigInteger intValue = value.intValue(false);
 		return intValue == null ? null : new IntElement(intValue);
 	}
 	
 	@Override
-	public BoolElement boolCast(boolean explicit) {
-		Boolean boolValue = value.boolValue(explicit);
+	public @Nullable BoolElement asBool(TokenExecutor exec) {
+		Boolean boolValue = value.boolValue(false);
 		return boolValue == null ? null : new BoolElement(boolValue);
 	}
 	
 	@Override
-	public FloatElement floatCast(boolean explicit) {
-		Double floatValue = value.floatValue(explicit);
+	public @Nullable FloatElement asFloat(TokenExecutor exec) {
+		Double floatValue = value.floatValue(false);
 		return floatValue == null ? null : new FloatElement(floatValue);
 	}
 	
 	@Override
-	public CharElement charCast(boolean explicit) {
-		Character charValue = value.charValue(explicit);
+	public @Nullable CharElement asChar(TokenExecutor exec) {
+		Character charValue = value.charValue(false);
 		return charValue == null ? null : new CharElement(charValue);
 	}
 	
 	@Override
-	public StringElement stringCast(boolean explicit) {
-		String stringValue = value.stringValue(explicit);
+	public @Nullable StringElement asString(TokenExecutor exec) {
+		String stringValue = value.stringValue(false);
 		return stringValue == null ? null : new StringElement(stringValue);
+	}
+	
+	@Override
+	public @NonNull IntElement intCast(TokenExecutor exec) {
+		BigInteger intValue = value.intValue(true);
+		return intValue == null ? super.intCast(exec) : new IntElement(intValue);
+	}
+	
+	@Override
+	public @NonNull BoolElement boolCast(TokenExecutor exec) {
+		Boolean boolValue = value.boolValue(true);
+		return boolValue == null ? super.boolCast(exec) : new BoolElement(boolValue);
+	}
+	
+	@Override
+	public @NonNull FloatElement floatCast(TokenExecutor exec) {
+		Double floatValue = value.floatValue(true);
+		return floatValue == null ? super.floatCast(exec) : new FloatElement(floatValue);
+	}
+	
+	@Override
+	public @NonNull CharElement charCast(TokenExecutor exec) {
+		Character charValue = value.charValue(true);
+		return charValue == null ? super.charCast(exec) : new CharElement(charValue);
+	}
+	
+	@Override
+	public @NonNull StringElement stringCast(TokenExecutor exec) {
+		String stringValue = value.stringValue(true);
+		return stringValue == null ? super.stringCast(exec) : new StringElement(stringValue);
 	}
 	
 	@Override
@@ -291,12 +321,12 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	public abstract TokenResult onNot(TokenExecutor exec);
 	
 	@Override
-	public @NonNull String toString() {
-		return value.toString();
+	public Object formatted(TokenExecutor exec) {
+		return value.raw;
 	}
 	
 	@Override
-	public @NonNull String debugString() {
+	public @NonNull String toString() {
 		return value.toString();
 	}
 }

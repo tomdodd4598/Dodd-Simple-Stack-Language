@@ -93,13 +93,49 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTLBracket(TLBracket node)
+    public void caseTDictLBracket(TDictLBracket node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTRBracket(TRBracket node)
+    public void caseTDictRBracket(TDictRBracket node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTSetLBracket(TSetLBracket node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTSetRBracket(TSetRBracket node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTListLBracket(TListLBracket node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTListRBracket(TListRBracket node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTRangeLBracket(TRangeLBracket node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTRangeRBracket(TRangeRBracket node)
     {
         defaultCase(node);
     }
@@ -124,6 +160,12 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTDef(TDef node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTConst(TConst node)
     {
         defaultCase(node);
     }
@@ -172,6 +214,12 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTCast(TCast node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTIs(TIs node)
     {
         defaultCase(node);
     }
@@ -537,13 +585,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTLineStringValue(TLineStringValue node)
+    public void caseTBlockStringValue(TBlockStringValue node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTBlockStringValue(TBlockStringValue node)
+    public void caseTLineStringValue(TLineStringValue node)
     {
         defaultCase(node);
     }
@@ -561,7 +609,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTMember(TMember node)
+    public void caseTInstanceMember(TInstanceMember node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTStaticMember(TStaticMember node)
     {
         defaultCase(node);
     }

@@ -3,7 +3,9 @@ package dssl.interpret.value;
 import java.math.BigInteger;
 import java.util.Objects;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
+
+import dssl.interpret.BuiltIn;
 
 public class StringValue extends PrimitiveValue<@NonNull String> {
 	
@@ -12,7 +14,7 @@ public class StringValue extends PrimitiveValue<@NonNull String> {
 	}
 	
 	@Override
-	public BigInteger intValue(boolean explicit) {
+	public @Nullable BigInteger intValue(boolean explicit) {
 		if (explicit) {
 			BigInteger intValue = null;
 			try {
@@ -25,12 +27,12 @@ public class StringValue extends PrimitiveValue<@NonNull String> {
 	}
 	
 	@Override
-	public Boolean boolValue(boolean explicit) {
+	public @Nullable Boolean boolValue(boolean explicit) {
 		return explicit ? (raw.equals("true") ? Boolean.TRUE : (raw.equals("false") ? Boolean.FALSE : null)) : null;
 	}
 	
 	@Override
-	public Double floatValue(boolean explicit) {
+	public @Nullable Double floatValue(boolean explicit) {
 		if (explicit) {
 			Double floatValue = null;
 			try {
@@ -43,12 +45,12 @@ public class StringValue extends PrimitiveValue<@NonNull String> {
 	}
 	
 	@Override
-	public Character charValue(boolean explicit) {
+	public @Nullable Character charValue(boolean explicit) {
 		return explicit ? (raw.length() == 1 ? raw.charAt(0) : null) : null;
 	}
 	
 	@Override
-	public String stringValue(boolean explicit) {
+	public @Nullable String stringValue(boolean explicit) {
 		return raw;
 	}
 	
@@ -59,7 +61,7 @@ public class StringValue extends PrimitiveValue<@NonNull String> {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash("string", raw);
+		return Objects.hash(BuiltIn.STRING, raw);
 	}
 	
 	@Override

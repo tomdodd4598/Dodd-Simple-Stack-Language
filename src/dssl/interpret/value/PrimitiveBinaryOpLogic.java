@@ -206,7 +206,7 @@ public class PrimitiveBinaryOpLogic {
 	}
 	
 	public static Element onConcat(@NonNull PrimitiveValue<?> value0, @NonNull PrimitiveValue<?> value1) {
-		return new StringElement(value0.toString() + value1.toString());
+		return new StringElement(value0.stringValue(true) + value1.stringValue(true));
 	}
 	
 	public static Element onLeftShift(@NonNull PrimitiveValue<?> value0, @NonNull PrimitiveValue<?> value1) {

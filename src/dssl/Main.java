@@ -9,6 +9,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import dssl.interpret.*;
 import dssl.interpret.element.*;
 import dssl.interpret.element.primitive.StringElement;
+import dssl.interpret.element.ref.LabelElement;
 import dssl.lexer.Lexer;
 import dssl.node.*;
 
@@ -16,11 +17,11 @@ public class Main {
 	
 	static class Input {
 		
-		final List<String> args;
-		final Set<String> options;
+		final List<@NonNull String> args;
+		final Set<@NonNull String> options;
 		
-		Input(String[] args) {
-			Map<Boolean, List<String>> map = Arrays.asList(args).stream().collect(Collectors.partitioningBy(x -> x.charAt(0) == '-'));
+		Input(@NonNull String[] args) {
+			Map<Boolean, List<@NonNull String>> map = Arrays.stream(args).collect(Collectors.partitioningBy(x -> x.charAt(0) == '-'));
 			this.args = map.get(false);
 			this.options = map.get(true).stream().map(x -> Helpers.lowerCase(x).substring(1)).collect(Collectors.toSet());
 		}
@@ -28,7 +29,7 @@ public class Main {
 	
 	static final BufferedReader READER = new BufferedReader(new InputStreamReader(System.in));
 	
-	public static void main(String[] args) {
+	public static void main(@NonNull String[] args) {
 		Input input = new Input(args);
 		
 		final boolean console = input.args.isEmpty();
@@ -75,7 +76,7 @@ public class Main {
 			@Override
 			public TokenResult onInclude(TokenExecutor exec) {
 				@NonNull Element elem = exec.pop();
-				StringElement stringElem = elem.stringCast(false);
+				StringElement stringElem = elem.asString(exec);
 				if (stringElem != null) {
 					try (PushbackReader reader = Helpers.getPushbackReader(new FileReader(stringElem.toString()))) {
 						return new TokenExecutor(new LexerIterator(reader), exec, false).iterate();
@@ -86,11 +87,11 @@ public class Main {
 					}
 				}
 				else if (elem instanceof ModuleElement) {
-					exec.putAll(((ModuleElement) elem).clazz, true, true);
+					exec.putAll(((ModuleElement) elem).internal, true, true);
 					return TokenResult.PASS;
 				}
 				else {
-					throw new IllegalArgumentException(String.format("Keyword \"include\" requires string or module element as argument!"));
+					throw new IllegalArgumentException(String.format("Keyword \"include\" requires %s or %s element as argument!", BuiltIn.STRING, BuiltIn.MODULE));
 				}
 			}
 			
@@ -98,15 +99,15 @@ public class Main {
 			public TokenResult onImport(TokenExecutor exec) {
 				@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
 				if (!(elem0 instanceof LabelElement)) {
-					throw new IllegalArgumentException(String.format("Keyword \"import\" requires label element as first argument!"));
+					throw new IllegalArgumentException(String.format("Keyword \"import\" requires %s element as first argument!", BuiltIn.LABEL));
 				}
 				
 				LabelElement label = (LabelElement) elem0;
-				StringElement stringElem = elem1.stringCast(false);
+				StringElement stringElem = elem1.asString(exec);
 				if (stringElem != null) {
 					try (PushbackReader reader = Helpers.getPushbackReader(new FileReader(stringElem.toString()))) {
 						TokenExecutor otherExec = exec.interpreter.newExecutor(new LexerIterator(reader));
-						label.setClazz(otherExec, new ArrayList<>());
+						label.setClazz(ClazzType.INTERNAL, otherExec, new ArrayList<>());
 						return otherExec.iterate();
 					}
 					catch (Exception e) {
@@ -115,11 +116,11 @@ public class Main {
 					}
 				}
 				else if (elem1 instanceof ModuleElement) {
-					label.setClazz(((ModuleElement) elem1).clazz, new ArrayList<>());
+					label.setClazz(ClazzType.INTERNAL, ((ModuleElement) elem1).internal, new ArrayList<>());
 					return TokenResult.PASS;
 				}
 				else {
-					throw new IllegalArgumentException(String.format("Keyword \"import\" requires string or module element as second argument!"));
+					throw new IllegalArgumentException(String.format("Keyword \"import\" requires %s or %s element as second argument!", BuiltIn.STRING, BuiltIn.MODULE));
 				}
 			}
 		};

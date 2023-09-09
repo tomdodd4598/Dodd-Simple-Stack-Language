@@ -1,14 +1,14 @@
 package dssl.interpret.element.clazz;
 
-import java.util.Objects;
+import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
+import dssl.*;
 import dssl.interpret.*;
 import dssl.interpret.element.*;
-import dssl.interpret.element.primitive.StringElement;
 
-public class ClassElement extends ValueElement {
+public class ClassElement extends Element {
 	
 	public final @NonNull Clazz internal;
 	
@@ -18,35 +18,38 @@ public class ClassElement extends ValueElement {
 	}
 	
 	@Override
-	public StringElement stringCast(boolean explicit) {
-		return explicit ? new StringElement(toString()) : null;
-	}
-	
-	public Def getDef(@NonNull String identifier) {
-		return internal.getDef(identifier);
-	}
-	
-	public Macro getMacro(@NonNull String identifier) {
-		return internal.getMacro(identifier);
-	}
-	
-	public Clazz getClazz(@NonNull String shallow) {
-		return internal.getClazz(shallow);
-	}
-	
-	public Magic getMagic(@NonNull String identifier) {
-		return internal.getMagic(identifier);
+	public @Nullable Scope getMemberLabelScope(@NonNull MemberAccessType access) {
+		return access.equals(MemberAccessType.INSTANCE) ? clazz : internal;
 	}
 	
 	@Override
-	public @Nullable TokenResult scopeAction(TokenExecutor exec, @NonNull String identifier) {
-		TokenResult result = internal.scopeAction(exec, identifier);
-		return result == null ? super.scopeAction(exec, identifier) : result;
+	public @Nullable TokenResult memberAccess(TokenExecutor exec, @NonNull String member, @NonNull MemberAccessType access) {
+		if (access.equals(MemberAccessType.INSTANCE)) {
+			exec.push(this);
+			return clazz.scopeAction(exec, member);
+		}
+		else {
+			return internal.scopeAction(exec, member);
+		}
 	}
 	
 	@Override
-	public RuntimeException memberAccessError(@NonNull String member) {
-		return new IllegalArgumentException(String.format("Class member \"%s.%s\" not defined!", internal.identifier, member));
+	public String scopeAccessIdentifier(@NonNull MemberAccessType access) {
+		return access.equals(MemberAccessType.INSTANCE) ? clazz.fullIdentifier : internal.fullIdentifier;
+	}
+	
+	protected static <T extends ScopeVariable> void addToScopeMap(Hierarchy<@NonNull String, T> hierarchy, Map<@NonNull Element, @NonNull Element> target) {
+		hierarchy.forEach(Helpers.scopeMapConsumer(target), false);
+	}
+	
+	@Override
+	public @NonNull Element scope(TokenExecutor exec) {
+		Map<@NonNull Element, @NonNull Element> map = new HashMap<>();
+		addToScopeMap(internal.getDefHierarchy(), map);
+		addToScopeMap(internal.getConstHierarchy(), map);
+		addToScopeMap(internal.getMacroHierarchy(), map);
+		addToScopeMap(internal.getClazzHierarchy(), map);
+		return new DictElement(map, false);
 	}
 	
 	@Override
@@ -56,7 +59,7 @@ public class ClassElement extends ValueElement {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash("class", internal);
+		return Objects.hash(BuiltIn.CLASS, internal);
 	}
 	
 	@Override
@@ -70,11 +73,6 @@ public class ClassElement extends ValueElement {
 	
 	@Override
 	public @NonNull String toString() {
-		return "class:" + internal.identifier;
-	}
-	
-	@Override
-	public @NonNull String debugString() {
-		return "class:" + internal.identifier;
+		return internal.fullIdentifier;
 	}
 }

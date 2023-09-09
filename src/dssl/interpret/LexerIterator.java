@@ -2,6 +2,8 @@ package dssl.interpret;
 
 import java.io.PushbackReader;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import dssl.Helpers;
 import dssl.lexer.Lexer;
 import dssl.node.*;
@@ -10,7 +12,7 @@ public class LexerIterator extends TokenIterator {
 	
 	protected final Lexer lexer;
 	
-	public LexerIterator(String str) {
+	public LexerIterator(@NonNull String str) {
 		this(Helpers.stringLexer(str));
 	}
 	

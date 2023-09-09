@@ -30,8 +30,8 @@ public class TokenCollector extends TokenReader {
 				return TokenResult.BREAK;
 			}
 			else {
-				List<@NonNull Token> list = listStack.pop();
-				listStack.peek().add(new BlockToken(list));
+				BlockToken block = new BlockToken(listStack.pop());
+				listStack.peek().add(block);
 			}
 		}
 		else {

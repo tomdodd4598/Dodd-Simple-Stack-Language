@@ -5,16 +5,16 @@ package dssl.node;
 import dssl.analysis.*;
 
 @SuppressWarnings("nls")
-public final class TRBracket extends Token
+public final class TIs extends Token
 {
-    public TRBracket()
+    public TIs()
     {
-        super.setText("]");
+        super.setText("is");
     }
 
-    public TRBracket(int line, int pos)
+    public TIs(int line, int pos)
     {
-        super.setText("]");
+        super.setText("is");
         setLine(line);
         setPos(pos);
     }
@@ -22,18 +22,18 @@ public final class TRBracket extends Token
     @Override
     public Object clone()
     {
-      return new TRBracket(getLine(), getPos());
+      return new TIs(getLine(), getPos());
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseTRBracket(this);
+        ((Analysis) sw).caseTIs(this);
     }
 
     @Override
     public void setText(@SuppressWarnings("unused") String text)
     {
-        throw new RuntimeException("Cannot change TRBracket text.");
+        throw new RuntimeException("Cannot change TIs text.");
     }
 }

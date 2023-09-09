@@ -10,7 +10,6 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import dssl.interpret.*;
 import dssl.interpret.element.*;
-import dssl.interpret.element.container.*;
 import dssl.interpret.element.primitive.*;
 import sun.reflect.generics.reflectiveObjects.*;
 
@@ -19,9 +18,9 @@ public class NativeImpl implements Native {
 	@Override
 	public TokenResult onNative(TokenExecutor exec) {
 		@NonNull Element elem = exec.pop();
-		StringElement stringElem = elem.stringCast(false);
+		StringElement stringElem = elem.asString(exec);
 		if (stringElem == null) {
-			throw new IllegalArgumentException(String.format("Keyword \"native\" requires string element as last argument!"));
+			throw new IllegalArgumentException(String.format("Keyword \"native\" requires %s element as last argument!", BuiltIn.STRING));
 		}
 		
 		String str = stringElem.toString();
@@ -95,7 +94,7 @@ public class NativeImpl implements Native {
 			try {
 				int params = executable.getParameterCount();
 				int count = params + (isInst ? 1 : 0);
-				if (count > exec.elemStackSize()) {
+				if (count > exec.stackSize()) {
 					continue;
 				}
 				Object instance = isInst ? nativize(exec.peek(), clazz) : null;
@@ -237,23 +236,25 @@ public class NativeImpl implements Native {
 					return val;
 				}
 			}
-			else if (elem instanceof ListElement && List.class.isAssignableFrom(clazz)) {
-				return list_nativize(elem, Object.class);
-			}
-			else if (elem instanceof TupleElement && clazz.isArray()) {
-				return tuple_nativize(elem, clazz.getComponentType());
+			else if (elem instanceof ListElement) {
+				if (List.class.isAssignableFrom(clazz)) {
+					return listNativize(elem, Object.class);
+				}
+				else if (clazz.isArray()) {
+					return arrayNativize(elem, clazz.getComponentType());
+				}
 			}
 			else if (elem instanceof SetElement && Set.class.isAssignableFrom(clazz)) {
-				return set_nativize(elem, Object.class);
+				return setNativize(elem, Object.class);
 			}
 			else if (elem instanceof DictElement && Map.class.isAssignableFrom(clazz)) {
-				return map_nativize(elem, Object.class, Object.class);
+				return mapNativize(elem, Object.class, Object.class);
 			}
 		}
 		else if (type instanceof GenericArrayTypeImpl) {
-			if (elem instanceof TupleElement) {
+			if (elem instanceof ListElement) {
 				Type t = ((GenericArrayTypeImpl) type).getGenericComponentType();
-				return tuple_nativize(elem, t instanceof ParameterizedTypeImpl ? ((ParameterizedTypeImpl) t).getRawType() : Object.class);
+				return arrayNativize(elem, t instanceof ParameterizedTypeImpl ? ((ParameterizedTypeImpl) t).getRawType() : Object.class);
 			}
 		}
 		else if (type instanceof ParameterizedTypeImpl) {
@@ -286,18 +287,18 @@ public class NativeImpl implements Native {
 	}
 	
 	static <T extends Collection<Object>> T collection_nativize(Collection<@NonNull Element> collection, Type type, Tracker tracker, Collector<Object, ?, T> collector) {
-		return collection.stream().map(x -> tracked_nativize(x, type, tracker)).collect(collector);
+		return collection.stream().map(x -> trackedNativize(x, type, tracker)).collect(collector);
 	}
 	
-	static Object list_nativize(@NonNull Element elem, Type type) {
+	static Object listNativize(@NonNull Element elem, Type type) {
 		Tracker tracker = new Tracker();
 		List<?> obj = collection_nativize(((ListElement) elem).value, type, tracker, Collectors.toList());
 		return tracker.flag ? null : obj;
 	}
 	
-	static Object tuple_nativize(@NonNull Element elem, Type type) {
+	static Object arrayNativize(@NonNull Element elem, Type type) {
 		Tracker tracker = new Tracker();
-		List<?> obj = collection_nativize(((TupleElement) elem).value, type, tracker, Collectors.toList());
+		List<?> obj = collection_nativize(((ListElement) elem).value, type, tracker, Collectors.toList());
 		if (tracker.flag) {
 			return null;
 		}
@@ -365,15 +366,15 @@ public class NativeImpl implements Native {
 		}
 	}
 	
-	static Object set_nativize(@NonNull Element elem, Type type) {
+	static Object setNativize(@NonNull Element elem, Type type) {
 		Tracker tracker = new Tracker();
 		Set<?> obj = collection_nativize(((SetElement) elem).value, type, tracker, Collectors.toSet());
 		return tracker.flag ? null : obj;
 	}
 	
-	static Object map_nativize(@NonNull Element elem, Type keyType, Type valueType) {
+	static Object mapNativize(@NonNull Element elem, Type keyType, Type valueType) {
 		Tracker tracker = new Tracker();
-		Map<?, ?> obj = Helpers.map(((DictElement) elem).value, x -> tracked_nativize(x, keyType, tracker), x -> tracked_nativize(x, valueType, tracker));
+		Map<?, ?> obj = Helpers.map(((DictElement) elem).value, x -> trackedNativize(x, keyType, tracker), x -> trackedNativize(x, valueType, tracker));
 		return tracker.flag ? null : obj;
 	}
 	
@@ -390,7 +391,7 @@ public class NativeImpl implements Native {
 		return result;
 	}
 	
-	static Object tracked_nativize(@NonNull Element elem, Type type, Tracker tracker) {
+	static Object trackedNativize(@NonNull Element elem, Type type, Tracker tracker) {
 		return tracked(elem, y -> nativize(y, type), tracker);
 	}
 	
@@ -432,13 +433,13 @@ public class NativeImpl implements Native {
 			return new ListElement(Helpers.map((List<?>) obj, NativeImpl::convert));
 		}
 		else if (obj.getClass().isArray()) {
-			return new TupleElement(IntStream.range(0, Array.getLength(obj)).boxed().map(x -> Array.get(obj, x)).map(NativeImpl::convert).collect(Collectors.toList()));
+			return new ListElement(IntStream.range(0, Array.getLength(obj)).boxed().map(x -> Array.get(obj, x)).map(NativeImpl::convert).collect(Collectors.toList()));
 		}
 		else if (obj instanceof Set) {
 			return new SetElement(Helpers.map((Set<?>) obj, NativeImpl::convert));
 		}
 		else if (obj instanceof Map) {
-			return new DictElement(Helpers.map((Map<?, ?>) obj, NativeImpl::convert, NativeImpl::convert));
+			return new DictElement(Helpers.map((Map<?, ?>) obj, NativeImpl::convert, NativeImpl::convert), false);
 		}
 		else {
 			return new NativeElement(obj);

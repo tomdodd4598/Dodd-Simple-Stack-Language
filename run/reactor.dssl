@@ -9,15 +9,15 @@
 /fuelPower 168 def
 
 /reactor [
-	[ "DWDWD" "GMQMG" "DWDWD" "GMGMG" "DWDWD" ] tuple new
-	[ "QMQMQ" "MCMCM" "QMGMQ" "MCMCM" "QMQMQ" ] tuple new
-	[ "DWDQD" "QMGMW" "DGPGD" "WMGMQ" "DQDWD" ] tuple new
-	[ "QMQMQ" "MCMCM" "QMGMQ" "MCMCM" "QMQMQ" ] tuple new
-	[ "DWDWD" "GMGMG" "DWDWD" "GMQMG" "DWDWD" ] tuple new
-] tuple new def
+	[ "DWDWD" "GMQMG" "DWDWD" "GMGMG" "DWDWD" ]
+	[ "QMQMQ" "MCMCM" "QMGMQ" "MCMCM" "QMQMQ" ]
+	[ "DWDQD" "QMGMW" "DGPGD" "WMGMQ" "DQDWD" ]
+	[ "QMQMQ" "MCMCM" "QMGMQ" "MCMCM" "QMQMQ" ]
+	[ "DWDWD" "GMGMG" "DWDWD" "GMQMG" "DWDWD" ]
+] def
 
-/width 0 0 reactor .get .get .size def
-/height 0 reactor .get .size def
+/width reactor .fst .fst .size def
+/height reactor .fst .size def
 /depth reactor .size def
 
 # x y z -> block
@@ -31,11 +31,11 @@
 	/y 0 def
 	/z 0 def
 	/f exch def
-	[ width ] range new {
+	( width ) {
 		/x exch =
-		[ height ] range new {
+		( height ) {
 			/y exch =
-			[ depth ] range new {
+			( depth ) {
 				/z exch =
 				x y z getBlock x y z f exec
 			} foreach
@@ -91,11 +91,11 @@
 	/x 0 def
 	/y 0 def
 	/z 0 def
-	[ x1 x2 1 + ] range new {
+	( x1 x2 1 + ) {
 		/x exch =
-		[ y1 y2 1 + ] range new {
+		( y1 y2 1 + ) {
 			/y exch =
-			[ z1 z2 1 + ] range new {
+			( z1 z2 1 + ) {
 				/z exch =
 				x y z getBlock x y z f exec
 			} foreach
@@ -103,7 +103,7 @@
 	} foreach
 } macro
 
-/coolingDict [
+/coolingDict [|
 	'W' 60.0	# water
 	'R' 90.0	# redstone
 	'Q' 90.0	# quartz
@@ -119,7 +119,7 @@
 	'P' 80.0	# copper
 	'T' 120.0	# tin
 	'N' 110.0	# magnesium
-] dict new def
+|] def
 
 # x y z dx dy dz -> moderators cell
 # returns 2 ints: first is number of moderators, second is 1 if cell found, otherwise 0 (internally returns an extra -1 for end of line or positive number for current distance)
@@ -176,7 +176,7 @@
 	num
 } macro
 
-/validDict [
+/validDict [|
 	'C' { true } 														# cell
 	'M' { 'C' x y z numAdjacent 1 >= }									# moderator
 	'W' { 'C' x y z numAdjacent 1 >= 'M' x y z numAdjacent 1 >= | }		# water
@@ -194,7 +194,7 @@
 	'P' { 'G' x y z numAdjacent 1 >= }									# copper
 	'T' { 'L' x y z numAxes 1 >= }										# tin
 	'N' { 'M' x y z numAdjacent 1 >= x y z numCasing 1 >= & }			# magnesium
-] dict new def
+|] def
 
 /isValid {
 	/z exch def

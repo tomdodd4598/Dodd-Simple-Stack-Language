@@ -16,16 +16,15 @@ Helpers
 	
 	apostrophe = 39;
 	quote = 34;
-	tick = 96;
+	multi_quote = quote quote quote;
 	not_eol = [all - [cr + lf]];
 	escape_char = '\' not_eol;
-	multi_tick = tick tick tick;
 	
 	c_char = [all - [apostrophe + ['\' + [lf + cr]]]] | escape_char;
 	c_char_sequence = c_char+;
 	s_char = [all - [quote + ['\' + [lf + cr]]]] | escape_char;
 	s_char_sequence = s_char*;
-	b_char = [all - [tick + '\']] | escape_char;
+	b_char = [all - [quote + '\']] | escape_char;
 	b_char_sequence = b_char*;
 	
 	not_star = [all - '*'];
@@ -41,8 +40,17 @@ Tokens
 	l_brace = '{';
 	r_brace = '}';
 	
-	l_bracket = '[';
-	r_bracket = ']';
+	dict_l_bracket = '[|';
+	dict_r_bracket = '|]';
+	
+	set_l_bracket = '(|';
+	set_r_bracket = '|)';
+	
+	list_l_bracket = '[';
+	list_r_bracket = ']';
+	
+	range_l_bracket = '(';
+	range_r_bracket = ')';
 	
 	include = 'include';
 	import = 'import';
@@ -50,6 +58,7 @@ Tokens
 	native = 'native';
 	
 	def = 'def';
+	const = 'const';
 	macro = 'macro';
 	class = 'class';
 	magic = 'magic';
@@ -61,6 +70,7 @@ Tokens
 	null = 'null';
 	type = 'type';
 	cast = 'cast';
+	is = 'is';
 	
 	exch = 'exch';
 	roll = 'roll';
@@ -139,10 +149,11 @@ Tokens
 	float_value = sign? (digit+ '.' digit* | '.' digit+);
 	char_value = apostrophe c_char apostrophe;
 	
+	block_string_value = 'r'? multi_quote whitespace* eol b_char_sequence multi_quote;
 	line_string_value = 'r'? quote s_char_sequence quote;
-	block_string_value = 'r'? multi_tick whitespace* eol b_char_sequence multi_tick;
 	
 	identifier = name;
 	label = '/' name;
-	member = '.' name;
+	instance_member = '.' name;
+	static_member = '::' name;
 	module = '$' name;

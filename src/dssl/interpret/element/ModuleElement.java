@@ -9,20 +9,21 @@ import dssl.interpret.*;
 public class ModuleElement extends Element {
 	
 	public final @NonNull String identifier;
-	public final @NonNull Clazz clazz;
+	public final @NonNull Clazz internal;
 	
 	public ModuleElement(@NonNull String identifier) {
+		super(BuiltIn.MODULE_CLAZZ);
 		this.identifier = identifier;
-		Clazz clazz = BuiltIn.MODULE_MAP.get(identifier);
-		if (clazz == null) {
+		Clazz internal = BuiltIn.MODULE_MAP.get(identifier);
+		if (internal == null) {
 			throw new IllegalArgumentException(String.format("Core module \"%s\" not found!", identifier));
 		}
-		this.clazz = clazz;
+		this.internal = internal;
 	}
 	
 	@Override
-	public @NonNull String typeName() {
-		return "module";
+	public @NonNull String debug(TokenExecutor exec) {
+		return "$" + identifier;
 	}
 	
 	@Override
@@ -32,7 +33,7 @@ public class ModuleElement extends Element {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash("module", identifier);
+		return Objects.hash(BuiltIn.MODULE, identifier);
 	}
 	
 	@Override
@@ -46,11 +47,6 @@ public class ModuleElement extends Element {
 	
 	@Override
 	public @NonNull String toString() {
-		return "module:" + identifier;
-	}
-	
-	@Override
-	public @NonNull String debugString() {
 		return "$" + identifier;
 	}
 }

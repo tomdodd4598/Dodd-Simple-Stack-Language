@@ -1,41 +1,33 @@
-package dssl.interpret.element.container;
+package dssl.interpret.element;
 
 import java.math.BigInteger;
-import java.util.*;
+import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNull;
 
 import dssl.interpret.*;
-import dssl.interpret.element.*;
+import dssl.interpret.element.iter.IterElement;
 import dssl.interpret.element.primitive.IntElement;
 
-public class RangeElement extends ContainerElement implements IterableElement<@NonNull Element> {
+public class RangeElement extends Element implements IterableElement {
 	
 	protected final @NonNull BigInteger start, stop, step;
 	protected final long size;
 	
-	protected RangeElement(RangeElement other) {
-		super(BuiltIn.RANGE_CLAZZ);
-		start = other.start;
-		stop = other.stop;
-		step = other.step;
-		size = other.size;
-	}
-	
 	@SuppressWarnings("null")
-	public RangeElement(Collection<@NonNull Element> elems) {
+	public RangeElement(TokenExecutor exec, Reverse<@NonNull Element> elems) {
 		super(BuiltIn.RANGE_CLAZZ);
 		int elemCount = elems.size();
 		if (elemCount < 1 || elemCount > 3) {
-			throw new IllegalArgumentException(String.format("Range element construction requires between one and three arguments but received %s!", elemCount));
+			throw new IllegalArgumentException(String.format("Constructor for type \"%s\" requires one to three %s elements as arguments but received %s!", BuiltIn.RANGE, BuiltIn.INT, elemCount));
 		}
 		
 		int index = 0;
 		@NonNull BigInteger[] args = new @NonNull BigInteger[3];
 		for (@NonNull Element elem : elems) {
-			IntElement intElem = elem.intCast(false);
+			IntElement intElem = elem.asInt(exec);
 			if (intElem == null) {
-				throw new IllegalArgumentException(String.format("Range element construction requires int elements as arguments!"));
+				throw new IllegalArgumentException(String.format("Constructor for type \"%s\" requires one to three %s elements as arguments!", BuiltIn.RANGE, BuiltIn.INT));
 			}
 			
 			args[index] = intElem.value.raw;
@@ -76,74 +68,70 @@ public class RangeElement extends ContainerElement implements IterableElement<@N
 		size = diff.divide(step).longValueExact();
 	}
 	
+	public RangeElement(@NonNull BigInteger start, @NonNull BigInteger stop, @NonNull BigInteger step, long size) {
+		super(BuiltIn.RANGE_CLAZZ);
+		this.start = start;
+		this.stop = stop;
+		this.step = step;
+		this.size = size;
+	}
+	
 	@Override
-	public RangeElement rangeCast() {
+	public @NonNull RangeElement rangeCast(TokenExecutor exec) {
 		return this;
 	}
 	
 	@Override
-	public ListElement listCast() {
-		return new ListElement(this);
+	public @NonNull ListElement listCast(TokenExecutor exec) {
+		return new ListElement(internal(exec));
 	}
 	
 	@Override
-	public TupleElement tupleCast() {
-		return new TupleElement(this);
+	public @NonNull SetElement setCast(TokenExecutor exec) {
+		return new SetElement(internal(exec));
 	}
 	
 	@Override
-	public SetElement setCast() {
-		return new SetElement(this);
-	}
-	
-	@Override
-	public Iterator<@NonNull Element> iterator() {
-		return new Iterator<@NonNull Element>() {
+	public @NonNull IterElement iterator(TokenExecutor exec) {
+		return new IterElement() {
 			
 			long index = 0;
 			
 			@Override
-			public boolean hasNext() {
+			public boolean hasNext(TokenExecutor exec) {
 				return index < size;
 			}
 			
 			@Override
-			public @NonNull Element next() {
+			public @NonNull Element next(TokenExecutor exec) {
 				return new IntElement(start.add(step.multiply(BigInteger.valueOf(index++))));
 			}
 		};
 	}
 	
 	@Override
-	public void onEach(TokenExecutor exec, @NonNull Element item) {
-		exec.push(item);
-	}
-	
-	@Override
-	public void unpack(TokenExecutor exec) {
-		for (@NonNull Element elem : this) {
-			exec.push(elem);
-		}
-	}
-	
-	@Override
-	public int size() {
-		if (size >= Integer.MIN_VALUE && size <= Integer.MAX_VALUE) {
+	public int size(TokenExecutor exec) {
+		if (size <= Integer.MAX_VALUE) {
 			return (int) size;
 		}
 		else {
-			throw new ArithmeticException(String.format("Range size %s out of int range!", size));
+			throw new ArithmeticException(String.format("Range size %s larger than %s!", size, Integer.MAX_VALUE));
 		}
 	}
 	
 	@Override
-	public boolean isEmpty() {
+	public boolean isEmpty(TokenExecutor exec) {
 		return size == 0;
 	}
 	
 	@Override
-	public boolean contains(@NonNull Element elem) {
-		IntElement intElem = elem.intCast(false);
+	public @NonNull Element iter(TokenExecutor exec) {
+		return iterator(exec);
+	}
+	
+	@Override
+	public boolean contains(TokenExecutor exec, @NonNull Element elem) {
+		IntElement intElem = elem.asInt(exec);
 		if (intElem == null) {
 			return false;
 		}
@@ -156,40 +144,40 @@ public class RangeElement extends ContainerElement implements IterableElement<@N
 	}
 	
 	@Override
-	public boolean containsAll(@NonNull Element elem) {
-		if (!(elem instanceof CollectionElement)) {
-			throw new IllegalArgumentException(String.format("Built-in method \"containsAll\" requires collection element as argument!"));
+	public boolean containsAll(TokenExecutor exec, @NonNull Element elem) {
+		if (!(elem instanceof IterableElement)) {
+			throw new IllegalArgumentException(String.format("Built-in method \"containsAll\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
-		return ((CollectionElement) elem).collection().stream().allMatch(this::contains);
+		for (@NonNull Element e : ((IterableElement) elem).internal(exec)) {
+			if (!contains(exec, e)) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	@Override
-	public @NonNull Element get(@NonNull Element elem) {
-		IntElement intElem = elem.intCast(false);
-		if (intElem == null) {
-			throw new IllegalArgumentException(String.format("Built-in method \"get\" requires non-negative int element as argument!"));
-		}
-		
-		int primitiveInt = intElem.primitiveInt();
-		if (primitiveInt < 0) {
-			throw new IllegalArgumentException(String.format("Built-in method \"get\" requires non-negative int element as argument!"));
-		}
-		
+	public @NonNull Element get(TokenExecutor exec, @NonNull Element elem) {
+		int primitiveInt = methodIndex(exec, elem, "get");
 		if (primitiveInt >= size) {
 			throw new IndexOutOfBoundsException(String.format("Built-in method \"get\" (index: %s, size: %s)", primitiveInt, size));
 		}
-		
 		return new IntElement(start.add(step.multiply(BigInteger.valueOf(primitiveInt))));
 	}
 	
 	@Override
+	public @NonNull String debug(TokenExecutor exec) {
+		return "( ... )";
+	}
+	
+	@Override
 	public @NonNull Element clone() {
-		return new RangeElement(this);
+		return new RangeElement(start, stop, step, size);
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash("range", start, stop, step);
+		return Objects.hash(BuiltIn.RANGE, start, stop, step);
 	}
 	
 	@Override
@@ -204,12 +192,6 @@ public class RangeElement extends ContainerElement implements IterableElement<@N
 	@SuppressWarnings("null")
 	@Override
 	public @NonNull String toString() {
-		return String.format("range:(%s, %s, %s)", start, stop, step);
-	}
-	
-	@SuppressWarnings("null")
-	@Override
-	public @NonNull String debugString() {
-		return String.format("range:(%s, %s, %s)", start, stop, step);
+		return String.format("( %s %s %s )", start, stop, step);
 	}
 }

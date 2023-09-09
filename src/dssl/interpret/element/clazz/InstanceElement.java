@@ -4,13 +4,15 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
+import dssl.Helpers;
 import dssl.interpret.*;
 import dssl.interpret.element.*;
 import dssl.interpret.element.primitive.StringElement;
 
-public class InstanceElement extends ValueElement implements Scope {
+public class InstanceElement extends Element implements Scope {
 	
 	protected final Map<@NonNull String, Def> defMap;
+	protected final Map<@NonNull String, Const> constMap;
 	protected final Map<@NonNull String, Macro> macroMap;
 	protected final Map<@NonNull String, Clazz> clazzMap;
 	protected final Map<@NonNull String, Magic> magicMap;
@@ -18,21 +20,26 @@ public class InstanceElement extends ValueElement implements Scope {
 	public final @NonNull String scopeIdentifier;
 	
 	public InstanceElement(@NonNull Clazz clazz) {
-		this(clazz, new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
+		this(clazz, new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
 	}
 	
-	protected InstanceElement(@NonNull Clazz clazz, Map<@NonNull String, Def> defMap, Map<@NonNull String, Macro> macroMap, Map<@NonNull String, Clazz> clazzMap, Map<@NonNull String, Magic> magicMap) {
+	protected InstanceElement(@NonNull Clazz clazz, Map<@NonNull String, Def> defMap, Map<@NonNull String, Const> constMap, Map<@NonNull String, Macro> macroMap, Map<@NonNull String, Clazz> clazzMap, Map<@NonNull String, Magic> magicMap) {
 		super(clazz);
 		this.defMap = defMap;
+		this.constMap = constMap;
 		this.macroMap = macroMap;
 		this.clazzMap = clazzMap;
 		this.magicMap = magicMap;
-		scopeIdentifier = debugString();
+		scopeIdentifier = toString();
 	}
 	
 	@Override
-	public StringElement stringCast(boolean explicit) {
-		return explicit ? new StringElement(toString()) : null;
+	public @NonNull StringElement stringCast(TokenExecutor exec) {
+		TokenResult magic = magicAction(exec, "str");
+		if (magic != null) {
+			return exec.pop().stringCast(exec);
+		}
+		return super.stringCast(exec);
 	}
 	
 	@Override
@@ -225,7 +232,16 @@ public class InstanceElement extends ValueElement implements Scope {
 	}
 	
 	@Override
-	public boolean hasDef(@NonNull String identifier) {
+	public @NonNull String debug(TokenExecutor exec) {
+		TokenResult magic = magicAction(exec, "debug");
+		if (magic != null) {
+			return exec.pop().debug(exec);
+		}
+		return super.debug(exec);
+	}
+	
+	@Override
+	public boolean hasDef(@NonNull String identifier, boolean shallow) {
 		return defMap.containsKey(identifier);
 	}
 	
@@ -236,12 +252,30 @@ public class InstanceElement extends ValueElement implements Scope {
 	
 	@Override
 	public void setDef(@NonNull String identifier, @NonNull Element value, boolean shadow) {
-		checkDef(identifier);
+		if (shadow) {
+			checkCollision(identifier);
+		}
 		defMap.put(identifier, new Def(identifier, value));
 	}
 	
 	@Override
-	public boolean hasMacro(@NonNull String identifier) {
+	public boolean hasConst(@NonNull String identifier, boolean shallow) {
+		return constMap.containsKey(identifier);
+	}
+	
+	@Override
+	public Const getConst(@NonNull String identifier) {
+		return constMap.get(identifier);
+	}
+	
+	@Override
+	public void setConst(@NonNull String identifier, @NonNull Element value) {
+		checkCollision(identifier);
+		constMap.put(identifier, new Const(identifier, value));
+	}
+	
+	@Override
+	public boolean hasMacro(@NonNull String identifier, boolean shallow) {
 		return macroMap.containsKey(identifier);
 	}
 	
@@ -252,28 +286,28 @@ public class InstanceElement extends ValueElement implements Scope {
 	
 	@Override
 	public void setMacro(@NonNull String identifier, @NonNull Invokable invokable) {
-		checkMacro(identifier);
+		checkCollision(identifier);
 		macroMap.put(identifier, new Macro(identifier, invokable));
 	}
 	
 	@Override
-	public boolean hasClazz(@NonNull String shallow) {
-		return clazzMap.containsKey(shallow);
+	public boolean hasClazz(@NonNull String shallowIdentifier, boolean shallow) {
+		return clazzMap.containsKey(shallowIdentifier);
 	}
 	
 	@Override
-	public Clazz getClazz(@NonNull String shallow) {
-		return clazzMap.get(shallow);
+	public Clazz getClazz(@NonNull String shallowIdentifier) {
+		return clazzMap.get(shallowIdentifier);
 	}
 	
 	@Override
-	public void setClazz(@NonNull String shallow, HierarchicalScope base, ArrayList<Clazz> supers) {
-		checkClazz(shallow);
-		clazzMap.put(shallow, new Clazz(scopeIdentifier, shallow, base, supers));
+	public void setClazz(@NonNull String shallowIdentifier, @NonNull ClazzType type, HierarchicalScope base, ArrayList<Clazz> supers) {
+		checkCollision(shallowIdentifier);
+		clazzMap.put(shallowIdentifier, new Clazz(scopeIdentifier, shallowIdentifier, type, base, supers));
 	}
 	
 	@Override
-	public boolean hasMagic(@NonNull String identifier) {
+	public boolean hasMagic(@NonNull String identifier, boolean shallow) {
 		return magicMap.containsKey(identifier);
 	}
 	
@@ -285,17 +319,6 @@ public class InstanceElement extends ValueElement implements Scope {
 	@Override
 	public void setMagic(@NonNull String identifier, @NonNull Invokable invokable) {
 		magicMap.put(identifier, new Magic(identifier, invokable));
-	}
-	
-	@Override
-	public @Nullable TokenResult scopeAction(TokenExecutor exec, @NonNull String identifier) {
-		TokenResult result = Scope.super.scopeAction(exec, identifier);
-		return result == null ? super.scopeAction(exec, identifier) : result;
-	}
-	
-	@Override
-	public RuntimeException memberAccessError(@NonNull String member) {
-		return new IllegalArgumentException(String.format("Instance member \"%s.%s\" not defined!", clazz.identifier, member));
 	}
 	
 	public @Nullable TokenResult magicAction(TokenExecutor exec, @NonNull String identifier, @NonNull Element... args) {
@@ -318,31 +341,71 @@ public class InstanceElement extends ValueElement implements Scope {
 	}
 	
 	@Override
+	public @Nullable Scope getMemberLabelScope(@NonNull MemberAccessType access) {
+		return this;
+	}
+	
+	@Override
+	public @NonNull MemberAccessType getMemberLabelModifiedAccess(@NonNull MemberAccessType access) {
+		return MemberAccessType.STATIC;
+	}
+	
+	@Override
+	public @Nullable TokenResult memberAccess(TokenExecutor exec, @NonNull String member, @NonNull MemberAccessType access) {
+		TokenResult result = scopeAction(exec, member);
+		if (result == null && access.equals(MemberAccessType.INSTANCE)) {
+			exec.push(this);
+			return clazz.scopeAction(exec, member);
+		}
+		else {
+			return result;
+		}
+	}
+	
+	@Override
+	public String scopeAccessIdentifier(@NonNull MemberAccessType access) {
+		return access.equals(MemberAccessType.INSTANCE) ? clazz.fullIdentifier : scopeIdentifier;
+	}
+	
+	protected static <T extends ScopeVariable> void addToScopeMap(Map<@NonNull String, T> map, Map<@NonNull Element, @NonNull Element> target) {
+		map.forEach(Helpers.scopeMapConsumer(target));
+	}
+	
+	@Override
+	public @NonNull Element scope(TokenExecutor exec) {
+		Map<@NonNull Element, @NonNull Element> map = new HashMap<>();
+		addToScopeMap(defMap, map);
+		addToScopeMap(constMap, map);
+		addToScopeMap(macroMap, map);
+		addToScopeMap(clazzMap, map);
+		return new DictElement(map, false);
+	}
+	
+	@Override
+	public Object formatted(TokenExecutor exec) {
+		TokenResult magic = magicAction(exec, "str");
+		if (magic != null) {
+			return exec.pop().stringCast(exec);
+		}
+		return super.formatted(exec);
+	}
+	
+	@Override
 	public @NonNull Element clone() {
-		return new InstanceElement(clazz, new HashMap<>(defMap), new HashMap<>(macroMap), new HashMap<>(clazzMap), new HashMap<>(magicMap));
+		return new InstanceElement(clazz, new HashMap<>(defMap), new HashMap<>(constMap), new HashMap<>(macroMap), new HashMap<>(clazzMap), new HashMap<>(magicMap));
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash("instance", clazz, defMap, clazzMap, magicMap);
+		return Objects.hash("instance", clazz, defMap, constMap, clazzMap, magicMap);
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof InstanceElement) {
 			InstanceElement other = (InstanceElement) obj;
-			return clazz.equals(other.clazz) && defMap.equals(other.defMap) && clazzMap.equals(other.clazzMap) && magicMap.equals(other.magicMap);
+			return clazz.equals(other.clazz) && defMap.equals(other.defMap) && constMap.equals(other.constMap) && clazzMap.equals(other.clazzMap) && magicMap.equals(other.magicMap);
 		}
 		return false;
-	}
-	
-	@Override
-	public @NonNull String toString() {
-		return debugString();
-	}
-	
-	@Override
-	public @NonNull String debugString() {
-		return clazz.identifier + "@" + Integer.toString(objectHashCode(), 16);
 	}
 }
