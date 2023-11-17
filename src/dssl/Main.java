@@ -78,8 +78,8 @@ public class Main {
 				@NonNull Element elem = exec.pop();
 				StringElement stringElem = elem.asString(exec);
 				if (stringElem != null) {
-					try (PushbackReader reader = Helpers.getPushbackReader(new FileReader(stringElem.toString()))) {
-						return new TokenExecutor(new LexerIterator(reader), exec, false).iterate();
+					try (FileReader fileReader = new FileReader(stringElem.toString()); PushbackReader pushbackReader = Helpers.getPushbackReader(fileReader)) {
+						return new TokenExecutor(new LexerIterator(pushbackReader), exec, false).iterate();
 					}
 					catch (Exception e) {
 						e.printStackTrace();
@@ -105,8 +105,8 @@ public class Main {
 				LabelElement label = (LabelElement) elem0;
 				StringElement stringElem = elem1.asString(exec);
 				if (stringElem != null) {
-					try (PushbackReader reader = Helpers.getPushbackReader(new FileReader(stringElem.toString()))) {
-						TokenExecutor otherExec = exec.interpreter.newExecutor(new LexerIterator(reader));
+					try (FileReader fileReader = new FileReader(stringElem.toString()); PushbackReader pushbackReader = Helpers.getPushbackReader(fileReader)) {
+						TokenExecutor otherExec = exec.interpreter.newExecutor(new LexerIterator(pushbackReader));
 						label.setClazz(ClazzType.INTERNAL, otherExec, new ArrayList<>());
 						return otherExec.iterate();
 					}
