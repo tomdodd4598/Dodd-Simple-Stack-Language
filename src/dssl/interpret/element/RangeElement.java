@@ -83,12 +83,12 @@ public class RangeElement extends Element implements IterableElement {
 	
 	@Override
 	public @NonNull ListElement listCast(TokenExecutor exec) {
-		return new ListElement(internal(exec));
+		return new ListElement(internalIterable(exec));
 	}
 	
 	@Override
 	public @NonNull SetElement setCast(TokenExecutor exec) {
-		return new SetElement(internal(exec));
+		return new SetElement(internalIterable(exec));
 	}
 	
 	@Override
@@ -107,6 +107,14 @@ public class RangeElement extends Element implements IterableElement {
 				return new IntElement(start.add(step.multiply(BigInteger.valueOf(index++))));
 			}
 		};
+	}
+	
+	@Override
+	public void unpack(TokenExecutor exec) {
+		long index = 0;
+		while (index < size) {
+			exec.push(new IntElement(start.add(step.multiply(BigInteger.valueOf(index++)))));
+		}
 	}
 	
 	@Override
@@ -148,7 +156,7 @@ public class RangeElement extends Element implements IterableElement {
 		if (!(elem instanceof IterableElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"containsAll\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
-		for (@NonNull Element e : ((IterableElement) elem).internal(exec)) {
+		for (@NonNull Element e : ((IterableElement) elem).internalIterable(exec)) {
 			if (!contains(exec, e)) {
 				return false;
 			}
@@ -167,7 +175,7 @@ public class RangeElement extends Element implements IterableElement {
 	
 	@Override
 	public @NonNull String debug(TokenExecutor exec) {
-		return "( ... )";
+		return "(...)";
 	}
 	
 	@Override
@@ -192,6 +200,6 @@ public class RangeElement extends Element implements IterableElement {
 	@SuppressWarnings("null")
 	@Override
 	public @NonNull String toString() {
-		return String.format("( %s %s %s )", start, stop, step);
+		return String.format("(%s, %s, %s)", start, stop, step);
 	}
 }

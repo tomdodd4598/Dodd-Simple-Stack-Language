@@ -178,6 +178,11 @@ public class BuiltIn {
 	
 	static {
 		for (Clazz clazz : Arrays.asList(STRING_CLAZZ, RANGE_CLAZZ, LIST_CLAZZ, SET_CLAZZ, DICT_CLAZZ)) {
+			clazz.setMacro("unpack", x -> {
+				x.pop().unpack(x);
+				return TokenResult.PASS;
+			});
+			
 			clazz.setMacro("size", x -> {
 				x.push(new IntElement(x.pop().size(x)));
 				return TokenResult.PASS;
@@ -363,6 +368,11 @@ public class BuiltIn {
 				x.push(x.pop().values(x));
 				return TokenResult.PASS;
 			});
+			
+			clazz.setMacro("items", x -> {
+				x.push(x.pop().items(x));
+				return TokenResult.PASS;
+			});
 		}
 		
 		for (Clazz clazz : Arrays.asList(ITER_CLAZZ)) {
@@ -510,12 +520,17 @@ public class BuiltIn {
 		
 		for (Clazz clazz : Arrays.asList(OBJECT_CLAZZ)) {
 			clazz.setMacro("clone", x -> {
-				x.push(x.pop().clone());
+				x.push(x.pop().clone(x));
 				return TokenResult.PASS;
 			});
 			
 			clazz.setMacro("hash", x -> {
 				x.push(new IntElement(x.pop().hash(x)));
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("toString", x -> {
+				x.push(x.pop().stringCast(x));
 				return TokenResult.PASS;
 			});
 		}

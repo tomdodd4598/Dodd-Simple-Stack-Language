@@ -719,7 +719,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		}
 		
 		BlockElement block = (BlockElement) elem1;
-		loop: for (@NonNull Element e : ((IterableElement) elem0).internal(this)) {
+		loop: for (@NonNull Element e : ((IterableElement) elem0).internalIterable(this)) {
 			push(e);
 			TokenResult invokeResult = block.invoke(this);
 			switch (invokeResult) {
@@ -1034,14 +1034,29 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	protected void assign(@NonNull Element elem1, @NonNull Element elem0, @NonNull AssignmentType type) {
-		if (elem1 instanceof IterableElement && elem0 instanceof IterableElement) {
-			IterElement iter1 = ((IterableElement) elem1).iterator(this), iter0 = ((IterableElement) elem0).iterator(this);
+		IterElement iter1 = null;
+		if (elem1 instanceof IterElement) {
+			iter1 = (IterElement) elem1;
+		}
+		else if (elem1 instanceof IterableElement) {
+			iter1 = ((IterableElement) elem1).iterator(this);
+		}
+		
+		IterElement iter0 = null;
+		if (elem0 instanceof IterElement) {
+			iter0 = (IterElement) elem0;
+		}
+		else if (elem0 instanceof IterableElement) {
+			iter0 = ((IterableElement) elem0).iterator(this);
+		}
+		
+		if (iter1 != null && iter0 != null) {
 			while (iter1.hasNext(this) && iter0.hasNext(this)) {
 				assign(iter1.next(this), iter0.next(this), type);
 			}
 			
-			if (iter1.hasNext(this) || iter0.hasNext(this)) {
-				throw new IllegalArgumentException(String.format("%s for %s elements requires iterators of equal length!", type.labelErrorPrefix(), BuiltIn.ITERABLE));
+			if (iter0.hasNext(this)) {
+				throw new IllegalArgumentException(String.format("%s for %s elements requires length of second iterator to be greater than or equal to length of first iterator!", type.labelErrorPrefix(), BuiltIn.ITERABLE));
 			}
 		}
 		else {

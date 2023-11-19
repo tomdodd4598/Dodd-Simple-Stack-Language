@@ -18,7 +18,7 @@ public abstract class IterElement extends Element {
 	
 	public abstract @NonNull Element next(TokenExecutor exec);
 	
-	public Iterator<@NonNull Element> internal(TokenExecutor exec) {
+	public Iterator<@NonNull Element> internalIterator(TokenExecutor exec) {
 		return new Iterator<@NonNull Element>() {
 			
 			@Override
@@ -36,7 +36,7 @@ public abstract class IterElement extends Element {
 	@SuppressWarnings("null")
 	@Override
 	public @NonNull Element collectString(TokenExecutor exec) {
-		Iterator<@NonNull Element> iter = internal(exec);
+		Iterator<@NonNull Element> iter = internalIterator(exec);
 		StringBuilder sb = new StringBuilder();
 		while (iter.hasNext()) {
 			@NonNull Element elem = iter.next();
@@ -50,17 +50,17 @@ public abstract class IterElement extends Element {
 	
 	@Override
 	public @NonNull Element collectList(TokenExecutor exec) {
-		return new ListElement(() -> internal(exec));
+		return new ListElement(() -> internalIterator(exec));
 	}
 	
 	@Override
 	public @NonNull Element collectSet(TokenExecutor exec) {
-		return new SetElement(() -> internal(exec));
+		return new SetElement(() -> internalIterator(exec));
 	}
 	
 	@Override
 	public @NonNull Element collectDict(TokenExecutor exec) {
-		Iterator<@NonNull Element> iter = internal(exec);
+		Iterator<@NonNull Element> iter = internalIterator(exec);
 		Map<@NonNull Element, @NonNull Element> map = new HashMap<>();
 		while (iter.hasNext()) {
 			@SuppressWarnings("null") @NonNull Element elem = iter.next();
@@ -171,7 +171,7 @@ public abstract class IterElement extends Element {
 	
 	@Override
 	public int count(TokenExecutor exec) {
-		Iterator<@NonNull Element> iter = internal(exec);
+		Iterator<@NonNull Element> iter = internalIterator(exec);
 		int count = 0;
 		while (iter.hasNext()) {
 			iter.next();
@@ -187,7 +187,7 @@ public abstract class IterElement extends Element {
 		}
 		
 		BlockElement block = (BlockElement) elem;
-		internal(exec).forEachRemaining(x -> {
+		internalIterator(exec).forEachRemaining(x -> {
 			exec.push(x);
 			block.invoke(exec);
 		});
@@ -195,7 +195,7 @@ public abstract class IterElement extends Element {
 	
 	@Override
 	public void into(TokenExecutor exec, @NonNull Element elem) {
-		internal(exec).forEachRemaining(x -> elem.add(exec, x));
+		internalIterator(exec).forEachRemaining(x -> elem.add(exec, x));
 	}
 	
 	@Override
@@ -204,7 +204,7 @@ public abstract class IterElement extends Element {
 			throw new IllegalArgumentException(String.format("Built-in method \"fold\" requires %s element as second argument!", BuiltIn.BLOCK));
 		}
 		
-		Iterator<@NonNull Element> iter = internal(exec);
+		Iterator<@NonNull Element> iter = internalIterator(exec);
 		BlockElement block = (BlockElement) elem1;
 		while (iter.hasNext()) {
 			exec.push(elem0);
@@ -217,7 +217,7 @@ public abstract class IterElement extends Element {
 	
 	@Override
 	public boolean all(TokenExecutor exec) {
-		Iterator<@NonNull Element> iter = internal(exec);
+		Iterator<@NonNull Element> iter = internalIterator(exec);
 		while (iter.hasNext()) {
 			@SuppressWarnings("null") BoolElement elem = iter.next().asBool(exec);
 			if (elem == null) {
@@ -232,7 +232,7 @@ public abstract class IterElement extends Element {
 	
 	@Override
 	public boolean any(TokenExecutor exec) {
-		Iterator<@NonNull Element> iter = internal(exec);
+		Iterator<@NonNull Element> iter = internalIterator(exec);
 		while (iter.hasNext()) {
 			@SuppressWarnings("null") BoolElement elem = iter.next().asBool(exec);
 			if (elem == null) {
@@ -248,7 +248,7 @@ public abstract class IterElement extends Element {
 	@Override
 	public @NonNull Element min(TokenExecutor exec) {
 		@NonNull Element curr = NullElement.INSTANCE;
-		Iterator<@NonNull Element> iter = internal(exec);
+		Iterator<@NonNull Element> iter = internalIterator(exec);
 		while (iter.hasNext()) {
 			@SuppressWarnings("null") @NonNull Element elem = iter.next();
 			if (curr.equals(NullElement.INSTANCE) || elem.compareTo(exec, curr) < 0) {
@@ -261,7 +261,7 @@ public abstract class IterElement extends Element {
 	@Override
 	public @NonNull Element max(TokenExecutor exec) {
 		@NonNull Element curr = NullElement.INSTANCE;
-		Iterator<@NonNull Element> iter = internal(exec);
+		Iterator<@NonNull Element> iter = internalIterator(exec);
 		while (iter.hasNext()) {
 			@SuppressWarnings("null") @NonNull Element elem = iter.next();
 			if (curr.equals(NullElement.INSTANCE) || elem.compareTo(exec, curr) > 0) {
@@ -274,7 +274,7 @@ public abstract class IterElement extends Element {
 	@Override
 	public @NonNull Element sum(TokenExecutor exec) {
 		@NonNull Element curr = new IntElement(0);
-		Iterator<@NonNull Element> iter = internal(exec);
+		Iterator<@NonNull Element> iter = internalIterator(exec);
 		while (iter.hasNext()) {
 			curr.onPlus(exec, iter.next());
 			curr = exec.pop();
@@ -285,7 +285,7 @@ public abstract class IterElement extends Element {
 	@Override
 	public @NonNull Element product(TokenExecutor exec) {
 		@NonNull Element curr = new IntElement(1);
-		Iterator<@NonNull Element> iter = internal(exec);
+		Iterator<@NonNull Element> iter = internalIterator(exec);
 		while (iter.hasNext()) {
 			curr.onMultiply(exec, iter.next());
 			curr = exec.pop();

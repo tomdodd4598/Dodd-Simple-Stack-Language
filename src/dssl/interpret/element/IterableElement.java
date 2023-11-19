@@ -12,11 +12,11 @@ public interface IterableElement {
 	
 	public @NonNull IterElement iterator(TokenExecutor exec);
 	
-	public default Iterable<@NonNull Element> internal(TokenExecutor exec) {
-		return () -> iterator(exec).internal(exec);
+	public default Iterable<@NonNull Element> internalIterable(TokenExecutor exec) {
+		return () -> iterator(exec).internalIterator(exec);
 	}
 	
 	public default Stream<@NonNull Element> stream(TokenExecutor exec) {
-		return Helpers.stream(internal(exec));
+		return Helpers.stream(internalIterable(exec));
 	}
 }

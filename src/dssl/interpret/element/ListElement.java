@@ -27,10 +27,9 @@ public class ListElement extends Element implements IterableElement {
 		}
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull StringElement stringCast(TokenExecutor exec) {
-		return new StringElement(value.stream().map(x -> x.innerString(exec, this)).collect(Collectors.joining(" ", "[ ", " ]")));
+		return new StringElement(toString(exec));
 	}
 	
 	@Override
@@ -60,6 +59,13 @@ public class ListElement extends Element implements IterableElement {
 				return internal.next();
 			}
 		};
+	}
+	
+	@Override
+	public void unpack(TokenExecutor exec) {
+		for (@NonNull Element elem : value) {
+			exec.push(elem);
+		}
 	}
 	
 	@Override
@@ -97,7 +103,7 @@ public class ListElement extends Element implements IterableElement {
 		if (!(elem instanceof IterableElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"containsAll\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
-		for (@NonNull Element e : ((IterableElement) elem).internal(exec)) {
+		for (@NonNull Element e : ((IterableElement) elem).internalIterable(exec)) {
 			if (!contains(exec, e)) {
 				return false;
 			}
@@ -110,7 +116,7 @@ public class ListElement extends Element implements IterableElement {
 		if (!(elem instanceof IterableElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"addAll\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
-		for (@NonNull Element e : ((IterableElement) elem).internal(exec)) {
+		for (@NonNull Element e : ((IterableElement) elem).internalIterable(exec)) {
 			value.add(e);
 		}
 	}
@@ -120,7 +126,7 @@ public class ListElement extends Element implements IterableElement {
 		if (!(elem instanceof IterableElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"removeAll\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
-		for (@NonNull Element e : ((IterableElement) elem).internal(exec)) {
+		for (@NonNull Element e : ((IterableElement) elem).internalIterable(exec)) {
 			value.remove(e);
 		}
 	}
@@ -196,7 +202,7 @@ public class ListElement extends Element implements IterableElement {
 	
 	@Override
 	public @NonNull String debug(TokenExecutor exec) {
-		return "[ ... ]";
+		return "[...]";
 	}
 	
 	@Override
@@ -217,9 +223,13 @@ public class ListElement extends Element implements IterableElement {
 		return false;
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull String toString() {
-		return value.stream().map(x -> x.innerString(null, this)).collect(Collectors.joining(" ", "[ ", " ]"));
+		return toString(null);
+	}
+	
+	@SuppressWarnings("null")
+	public @NonNull String toString(TokenExecutor exec) {
+		return value.stream().map(x -> x.innerString(exec, this)).collect(Collectors.joining(", ", "[", "]"));
 	}
 }

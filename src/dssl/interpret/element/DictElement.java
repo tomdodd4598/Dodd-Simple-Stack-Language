@@ -34,11 +34,9 @@ public class DictElement extends Element implements IterableElement {
 		value = copy ? new HashMap<>(map) : map;
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull StringElement stringCast(TokenExecutor exec) {
-		Function<@NonNull Element, @NonNull String> f = x -> x.innerString(exec, this);
-		return new StringElement(value.entrySet().stream().map(x -> f.apply(x.getKey()) + ":" + f.apply(x.getValue())).collect(Collectors.joining(" ", "[| ", " |]")));
+		return new StringElement(toString(exec));
 	}
 	
 	@Override
@@ -66,6 +64,13 @@ public class DictElement extends Element implements IterableElement {
 	}
 	
 	@Override
+	public void unpack(TokenExecutor exec) {
+		for (Entry<@NonNull Element, @NonNull Element> entry : value.entrySet()) {
+			exec.push(new ListElement(entry.getKey(), entry.getValue()));
+		}
+	}
+	
+	@Override
 	public int size(TokenExecutor exec) {
 		return value.size();
 	}
@@ -90,7 +95,7 @@ public class DictElement extends Element implements IterableElement {
 		if (!(elem instanceof IterableElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"removeAll\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
-		for (@NonNull Element e : ((IterableElement) elem).internal(exec)) {
+		for (@NonNull Element e : ((IterableElement) elem).internalIterable(exec)) {
 			value.remove(e);
 		}
 	}
@@ -140,8 +145,13 @@ public class DictElement extends Element implements IterableElement {
 	}
 	
 	@Override
+	public @NonNull Element items(TokenExecutor exec) {
+		return new SetElement(internalIterable(exec));
+	}
+	
+	@Override
 	public @NonNull String debug(TokenExecutor exec) {
-		return "[| ... |]";
+		return "[|...|]";
 	}
 	
 	@Override
@@ -162,10 +172,14 @@ public class DictElement extends Element implements IterableElement {
 		return false;
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull String toString() {
-		Function<@NonNull Element, @NonNull String> f = x -> x.innerString(null, this);
-		return value.entrySet().stream().map(x -> f.apply(x.getKey()) + ":" + f.apply(x.getValue())).collect(Collectors.joining(" ", "[| ", " |]"));
+		return toString(null);
+	}
+	
+	@SuppressWarnings("null")
+	public @NonNull String toString(TokenExecutor exec) {
+		Function<@NonNull Element, @NonNull String> f = x -> x.innerString(exec, this);
+		return value.entrySet().stream().map(x -> f.apply(x.getKey()) + ":" + f.apply(x.getValue())).collect(Collectors.joining(", ", "[|", "|]"));
 	}
 }

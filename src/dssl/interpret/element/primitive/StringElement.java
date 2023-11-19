@@ -24,12 +24,12 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	
 	@Override
 	public @NonNull ListElement listCast(TokenExecutor exec) {
-		return new ListElement(internal(exec));
+		return new ListElement(internalIterable(exec));
 	}
 	
 	@Override
 	public @NonNull SetElement setCast(TokenExecutor exec) {
-		return new SetElement(internal(exec));
+		return new SetElement(internalIterable(exec));
 	}
 	
 	@Override
@@ -63,6 +63,14 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	}
 	
 	@Override
+	public void unpack(TokenExecutor exec) {
+		int length = value.raw.length();
+		for (int i = 0; i < length; ++i) {
+			exec.push(new CharElement(value.raw.charAt(i)));
+		}
+	}
+	
+	@Override
 	public int size(TokenExecutor exec) {
 		return value.raw.length();
 	}
@@ -90,7 +98,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 		if (!(elem instanceof IterableElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"containsAll\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
-		for (@NonNull Element e : ((IterableElement) elem).internal(exec)) {
+		for (@NonNull Element e : ((IterableElement) elem).internalIterable(exec)) {
 			if (!contains(exec, e)) {
 				return false;
 			}

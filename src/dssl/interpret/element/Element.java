@@ -180,6 +180,10 @@ public abstract class Element {
 		return new IllegalArgumentException(String.format("Built-in method \"%s\" is undefined for argument type \"%s\"!", name, typeName()));
 	}
 	
+	public void unpack(TokenExecutor exec) {
+		throw builtInMethodError("unpack");
+	}
+	
 	public int size(TokenExecutor exec) {
 		throw builtInMethodError("size");
 	}
@@ -310,6 +314,10 @@ public abstract class Element {
 	
 	public @NonNull Element values(TokenExecutor exec) {
 		throw builtInMethodError("values");
+	}
+	
+	public @NonNull Element items(TokenExecutor exec) {
+		throw builtInMethodError("items");
 	}
 	
 	public @NonNull Element collectString(TokenExecutor exec) {
