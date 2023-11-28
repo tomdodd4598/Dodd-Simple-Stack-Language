@@ -40,17 +40,17 @@ Tokens
 	l_brace = '{';
 	r_brace = '}';
 	
-	dict_l_bracket = '[|';
-	dict_r_bracket = '|]';
-	
-	set_l_bracket = '(|';
-	set_r_bracket = '|)';
+	range_l_bracket = '(';
+	range_r_bracket = ')';
 	
 	list_l_bracket = '[';
 	list_r_bracket = ']';
 	
-	range_l_bracket = '(';
-	range_r_bracket = ')';
+	set_l_bracket = '(|';
+	set_r_bracket = '|)';
+	
+	dict_l_bracket = '[|';
+	dict_r_bracket = '|]';
 	
 	include = 'include';
 	import = 'import';

@@ -1,6 +1,6 @@
 package dssl.interpret;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import dssl.interpret.element.Element;
 
@@ -17,12 +17,12 @@ public enum MemberAccessType {
 		this.separator = separator;
 	}
 	
-	public @NonNull String nextIdentifier(@NonNull String prevIdentifier, @NonNull String extension) {
-		return prevIdentifier + separator + extension;
+	public @NonNull String nextIdentifier(@Nullable String prevIdentifier, @NonNull String extension) {
+		return prevIdentifier == null ? extension : prevIdentifier + separator + extension;
 	}
 	
 	public @NonNull String nextIdentifier(@NonNull Element elem, @NonNull String extension) {
-		return elem.scopeAccessIdentifier(this) + separator + extension;
+		return nextIdentifier(elem.scopeAccessIdentifier(this), extension);
 	}
 	
 	@Override

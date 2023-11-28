@@ -87,7 +87,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	@Override
-	public String getIdentifier() {
+	public @Nullable String getIdentifier() {
 		return null;
 	}
 	

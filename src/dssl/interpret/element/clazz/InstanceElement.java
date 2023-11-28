@@ -241,6 +241,11 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
+	public @Nullable String getIdentifier() {
+		return scopeIdentifier;
+	}
+	
+	@Override
 	public boolean hasDef(@NonNull String identifier, boolean shallow) {
 		return defMap.containsKey(identifier);
 	}

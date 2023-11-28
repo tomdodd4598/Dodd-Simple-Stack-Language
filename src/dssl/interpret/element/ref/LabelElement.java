@@ -15,7 +15,7 @@ public class LabelElement extends Element implements RefElement {
 	protected final @NonNull String shallowIdentifier;
 	
 	public LabelElement(@NonNull Scope scope, @NonNull String identifier) {
-		this(scope, identifier, identifier);
+		this(scope, MemberAccessType.STATIC.nextIdentifier(scope.getIdentifier(), identifier), identifier);
 	}
 	
 	protected LabelElement(@NonNull Scope scope, @NonNull String fullIdentifier, @NonNull String shallowIdentifier) {

@@ -110,8 +110,6 @@ public interface HierarchicalScope extends Scope {
 		setMagic(identifier, new Magic(identifier, invokable), true);
 	}
 	
-	public String getIdentifier();
-	
 	public Hierarchy<@NonNull String, Def> getDefHierarchy();
 	
 	public Hierarchy<@NonNull String, Const> getConstHierarchy();

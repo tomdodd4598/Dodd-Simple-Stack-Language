@@ -33,7 +33,7 @@ public class Clazz implements HierarchicalScope, ScopeVariable {
 	}
 	
 	public Clazz(String prev, @NonNull String extension, @NonNull ClazzType type, HierarchicalScope base, ArrayList<Clazz> supers) {
-		fullIdentifier = prev == null ? extension : MemberAccessType.STATIC.nextIdentifier(prev, extension);
+		fullIdentifier = MemberAccessType.STATIC.nextIdentifier(prev, extension);
 		shallowIdentifier = extension;
 		this.type = type;
 		
@@ -71,7 +71,7 @@ public class Clazz implements HierarchicalScope, ScopeVariable {
 	}
 	
 	@Override
-	public String getIdentifier() {
+	public @Nullable String getIdentifier() {
 		return fullIdentifier;
 	}
 	

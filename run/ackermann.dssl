@@ -1,0 +1,13 @@
+/ackermann {
+    /n exch def
+    /m exch def
+    m 0 == { n 1 + } { m 1 - n 0 == { 1 } { m n 1 - ackermann } ifelse ackermann } ifelse
+} macro
+
+( 4 ) {
+    /m exch def
+    ( 7 ) {
+	    m exch ackermann " " ~ print
+	} foreach
+	"" println
+} foreach

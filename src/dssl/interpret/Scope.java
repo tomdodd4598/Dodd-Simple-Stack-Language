@@ -8,6 +8,8 @@ import dssl.interpret.element.Element;
 
 public interface Scope {
 	
+	public @Nullable String getIdentifier();
+	
 	public default @Nullable TokenResult scopeAction(TokenExecutor exec, @NonNull String identifier) {
 		return exec.scopeAction(() -> getDef(identifier), () -> getConst(identifier), () -> getMacro(identifier), () -> getClazz(identifier));
 	}
