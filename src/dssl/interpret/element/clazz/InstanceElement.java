@@ -4,7 +4,6 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
-import dssl.Helpers;
 import dssl.interpret.*;
 import dssl.interpret.element.*;
 import dssl.interpret.element.primitive.StringElement;
@@ -372,8 +371,10 @@ public class InstanceElement extends Element implements Scope {
 		return access.equals(MemberAccessType.INSTANCE) ? clazz.fullIdentifier : scopeIdentifier;
 	}
 	
-	protected static <T extends ScopeVariable> void addToScopeMap(Map<@NonNull String, T> map, Map<@NonNull Element, @NonNull Element> target) {
-		map.forEach(Helpers.scopeMapConsumer(target));
+	protected <T> void addToScopeMap(Map<@NonNull String, T> source, Map<@NonNull Element, @NonNull Element> target) {
+		for (String key : source.keySet()) {
+			target.put(new StringElement(key), new LabelElement(this, key));
+		}
 	}
 	
 	@Override

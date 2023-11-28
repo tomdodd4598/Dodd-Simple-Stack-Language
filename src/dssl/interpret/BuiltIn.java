@@ -15,7 +15,16 @@ public class BuiltIn {
 	public static final String SCOPE = "Scope";
 	public static final String CLASS = "Class";
 	
+	public static final String LABEL = "Label";
+	
 	public static final String ITERABLE = "Iterable";
+	
+	public static final String BLOCK = "Block";
+	public static final String BRACKET = "Bracket";
+	public static final String NATIVE = "Native";
+	public static final String NULL = "Null";
+	public static final String MODULE = "Module";
+	public static final String ITER = "Iter";
 	
 	public static final String INT = "Int";
 	public static final String BOOL = "Bool";
@@ -28,16 +37,6 @@ public class BuiltIn {
 	public static final String SET = "Set";
 	public static final String DICT = "Dict";
 	
-	public static final String REF = "Ref";
-	public static final String LABEL = "Label";
-	
-	public static final String BLOCK = "Block";
-	public static final String BRACKET = "Bracket";
-	public static final String NATIVE = "Native";
-	public static final String NULL = "Null";
-	public static final String MODULE = "Module";
-	public static final String ITER = "Iter";
-	
 	public static final Map<@NonNull String, Clazz> CLAZZ_MAP = new HashMap<>();
 	public static final Map<@NonNull String, Clazz> MODULE_MAP = new HashMap<>();
 	
@@ -46,10 +45,9 @@ public class BuiltIn {
 	public static final @NonNull Clazz SCOPE_CLAZZ = clazz(new Clazz(SCOPE, ClazzType.INTERNAL));
 	public static final @NonNull Clazz CLASS_CLAZZ = clazz(new Clazz(CLASS, ClazzType.INTERNAL, SCOPE_CLAZZ));
 	
-	public static final @NonNull Clazz ITERABLE_CLAZZ = clazz(new Clazz(ITERABLE, ClazzType.INTERNAL));
+	public static final @NonNull Clazz LABEL_CLAZZ = clazz(new Clazz(LABEL, ClazzType.INTERNAL));
 	
-	public static final @NonNull Clazz REF_CLAZZ = clazz(new Clazz(REF, ClazzType.INTERNAL));
-	public static final @NonNull Clazz LABEL_CLAZZ = clazz(new Clazz(LABEL, ClazzType.INTERNAL, REF_CLAZZ));
+	public static final @NonNull Clazz ITERABLE_CLAZZ = clazz(new Clazz(ITERABLE, ClazzType.INTERNAL));
 	
 	public static final @NonNull Clazz BLOCK_CLAZZ = clazz(new Clazz(BLOCK, ClazzType.INTERNAL));
 	public static final @NonNull Clazz BRACKET_CLAZZ = clazz(new Clazz(BRACKET, ClazzType.INTERNAL));

@@ -6,16 +6,13 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.util.*;
-import java.util.function.*;
+import java.util.function.Function;
 import java.util.stream.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.translate.*;
 import org.eclipse.jdt.annotation.NonNull;
 
-import dssl.interpret.ScopeVariable;
-import dssl.interpret.element.Element;
-import dssl.interpret.element.primitive.StringElement;
 import dssl.lexer.*;
 import dssl.node.*;
 
@@ -276,10 +273,6 @@ public class Helpers {
 	
 	public static RuntimeException defError(@NonNull String identifier) {
 		return new IllegalArgumentException(String.format("Variable, constant, macro or class \"%s\" not defined!", identifier));
-	}
-	
-	public static <T extends ScopeVariable> BiConsumer<@NonNull String, T> scopeMapConsumer(Map<@NonNull Element, @NonNull Element> map) {
-		return (k, v) -> map.putIfAbsent(new StringElement(k), v.getRefElement());
 	}
 	
 	public static class Pair<A, B> {

@@ -4,9 +4,10 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
-import dssl.*;
+import dssl.Hierarchy;
 import dssl.interpret.*;
 import dssl.interpret.element.*;
+import dssl.interpret.element.primitive.StringElement;
 
 public class ClassElement extends Element {
 	
@@ -38,8 +39,8 @@ public class ClassElement extends Element {
 		return access.equals(MemberAccessType.INSTANCE) ? clazz.fullIdentifier : internal.fullIdentifier;
 	}
 	
-	protected static <T extends ScopeVariable> void addToScopeMap(Hierarchy<@NonNull String, T> hierarchy, Map<@NonNull Element, @NonNull Element> target) {
-		hierarchy.forEach(Helpers.scopeMapConsumer(target), false);
+	protected <T> void addToScopeMap(Hierarchy<@NonNull String, T> source, Map<@NonNull Element, @NonNull Element> target) {
+		source.forEach((k, v) -> target.put(new StringElement(k), new LabelElement(internal, k)), false);
 	}
 	
 	@Override

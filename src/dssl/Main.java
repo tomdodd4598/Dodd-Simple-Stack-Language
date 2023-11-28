@@ -9,7 +9,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import dssl.interpret.*;
 import dssl.interpret.element.*;
 import dssl.interpret.element.primitive.StringElement;
-import dssl.interpret.element.ref.LabelElement;
 import dssl.lexer.Lexer;
 import dssl.node.*;
 

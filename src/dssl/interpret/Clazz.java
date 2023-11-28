@@ -9,9 +9,8 @@ import org.eclipse.jdt.annotation.*;
 import dssl.*;
 import dssl.interpret.element.Element;
 import dssl.interpret.element.clazz.*;
-import dssl.interpret.element.ref.ClazzRefElement;
 
-public class Clazz implements HierarchicalScope, ScopeVariable {
+public class Clazz implements HierarchicalScope {
 	
 	public final @NonNull String fullIdentifier;
 	public final @NonNull String shallowIdentifier;
@@ -98,11 +97,6 @@ public class Clazz implements HierarchicalScope, ScopeVariable {
 	@Override
 	public Hierarchy<@NonNull String, Magic> getMagicHierarchy() {
 		return magicHierarchy;
-	}
-	
-	@Override
-	public @NonNull Element getRefElement() {
-		return new ClazzRefElement(this);
 	}
 	
 	public TokenResult instantiate(TokenExecutor exec) {

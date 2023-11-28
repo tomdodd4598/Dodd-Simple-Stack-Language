@@ -14,7 +14,6 @@ import dssl.interpret.element.bracket.*;
 import dssl.interpret.element.clazz.ClassElement;
 import dssl.interpret.element.iter.IterElement;
 import dssl.interpret.element.primitive.*;
-import dssl.interpret.element.ref.*;
 import dssl.interpret.token.BlockToken;
 import dssl.node.*;
 
@@ -502,14 +501,14 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected TokenResult onDeref(@NonNull Token token) {
 		@NonNull Element elem = pop();
-		if (!(elem instanceof RefElement)) {
-			throw new IllegalArgumentException(String.format("Keyword \"deref\" requires %s element as argument!", BuiltIn.REF));
+		if (!(elem instanceof LabelElement)) {
+			throw new IllegalArgumentException(String.format("Keyword \"deref\" requires %s element as argument!", BuiltIn.LABEL));
 		}
 		
-		RefElement ref = (RefElement) elem;
-		TokenResult result = scopeAction(ref::getDef, ref::getConst, ref::getMacro, ref::getClazz);
+		LabelElement label = (LabelElement) elem;
+		TokenResult result = scopeAction(label::getDef, label::getConst, label::getMacro, label::getClazz);
 		if (result == null) {
-			throw Helpers.defError(ref.refIdentifier());
+			throw Helpers.defError(label.fullIdentifier);
 		}
 		return result;
 	}

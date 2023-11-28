@@ -1,13 +1,12 @@
-package dssl.interpret.element.ref;
+package dssl.interpret.element;
 
 import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
 import dssl.interpret.*;
-import dssl.interpret.element.*;
 
-public class LabelElement extends Element implements RefElement {
+public class LabelElement extends Element {
 	
 	protected final @NonNull Scope scope;
 	
@@ -45,7 +44,6 @@ public class LabelElement extends Element implements RefElement {
 		shallowIdentifier = extension;
 	}
 	
-	@Override
 	public Def getDef() {
 		return scope.getDef(shallowIdentifier);
 	}
@@ -54,7 +52,6 @@ public class LabelElement extends Element implements RefElement {
 		scope.setDef(shallowIdentifier, value, shadow);
 	}
 	
-	@Override
 	public Const getConst() {
 		return scope.getConst(shallowIdentifier);
 	}
@@ -63,7 +60,6 @@ public class LabelElement extends Element implements RefElement {
 		scope.setConst(shallowIdentifier, value);
 	}
 	
-	@Override
 	public Macro getMacro() {
 		return scope.getMacro(shallowIdentifier);
 	}
@@ -72,7 +68,6 @@ public class LabelElement extends Element implements RefElement {
 		scope.setMacro(shallowIdentifier, block);
 	}
 	
-	@Override
 	public Clazz getClazz() {
 		return scope.getClazz(shallowIdentifier);
 	}
@@ -87,11 +82,6 @@ public class LabelElement extends Element implements RefElement {
 	
 	public void setMagic(@NonNull BlockElement block) {
 		scope.setMagic(shallowIdentifier, block);
-	}
-	
-	@Override
-	public @NonNull String refIdentifier() {
-		return fullIdentifier;
 	}
 	
 	public @NonNull LabelElement extended(@NonNull String extension, @NonNull MemberAccessType access) {
