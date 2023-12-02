@@ -26,7 +26,7 @@ public class LabelElement extends Element {
 	
 	protected LabelElement(@NonNull LabelElement prev, @NonNull String extension, @NonNull MemberAccessType access) {
 		super(BuiltIn.LABEL_CLAZZ);
-		Def def = prev.scope.getDef(prev.shallowIdentifier);
+		Def def = prev.getDef();
 		@NonNull Element elem;
 		@NonNull MemberAccessType modifiedAccess;
 		@Nullable Scope nextScope;
@@ -34,7 +34,7 @@ public class LabelElement extends Element {
 			scope = nextScope;
 			fullIdentifier = modifiedAccess.nextIdentifier(elem, extension);
 		}
-		else if ((nextScope = prev.scope.getClazz(prev.shallowIdentifier)) != null) {
+		else if ((nextScope = prev.getClazz()) != null) {
 			scope = nextScope;
 			fullIdentifier = MemberAccessType.STATIC.nextIdentifier(prev.fullIdentifier, extension);
 		}
