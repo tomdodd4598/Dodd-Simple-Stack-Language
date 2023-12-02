@@ -13,7 +13,7 @@ public class SetElement extends Element implements IterableElement {
 	
 	public final Set<@NonNull Element> value;
 	
-	public SetElement(Iterable<@NonNull Element> elems) {
+	public <T extends Element> SetElement(Iterable<@NonNull T> elems) {
 		super(BuiltIn.SET_CLAZZ);
 		value = new HashSet<>();
 		elems.forEach(value::add);

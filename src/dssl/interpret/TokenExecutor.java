@@ -1,6 +1,7 @@
 package dssl.interpret;
 
 import java.math.*;
+import java.nio.file.*;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -85,6 +86,14 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	@Override
 	public @Nullable String getIdentifier() {
 		return null;
+	}
+	
+	@Override
+	public void checkCollision(@NonNull String identifier) {
+		if (isRoot() && BuiltIn.KEYWORDS.contains(identifier)) {
+			throw new IllegalArgumentException(String.format("Identifier \"%s\" already used for keyword!", identifier));
+		}
+		HierarchicalScope.super.checkCollision(identifier);
 	}
 	
 	@Override
@@ -1158,7 +1167,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			return TokenResult.PASS;
 		}
 		
-		throw new IllegalArgumentException(String.format("Built-in math \"neg\" requires %s or %s element as argument!", BuiltIn.INT, BuiltIn.FLOAT));
+		throw new IllegalArgumentException(String.format("Built-in math macro \"neg\" requires %s or %s element as argument!", BuiltIn.INT, BuiltIn.FLOAT));
 	}
 	
 	protected TokenResult abs() {
@@ -1175,7 +1184,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			return TokenResult.PASS;
 		}
 		
-		throw new IllegalArgumentException(String.format("Built-in math \"abs\" requires %s or %s element as argument!", BuiltIn.INT, BuiltIn.FLOAT));
+		throw new IllegalArgumentException(String.format("Built-in math macro \"abs\" requires %s or %s element as argument!", BuiltIn.INT, BuiltIn.FLOAT));
 	}
 	
 	protected TokenResult sgn() {
@@ -1192,7 +1201,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			return TokenResult.PASS;
 		}
 		
-		throw new IllegalArgumentException(String.format("Built-in math \"sgn\" requires %s or %s element as argument!", BuiltIn.INT, BuiltIn.FLOAT));
+		throw new IllegalArgumentException(String.format("Built-in math macro \"sgn\" requires %s or %s element as argument!", BuiltIn.INT, BuiltIn.FLOAT));
 	}
 	
 	protected TokenResult floor() {
@@ -1230,12 +1239,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		@NonNull Element elem1 = pop(), elem0 = pop();
 		FloatElement floatElem = elem0.asFloat(this);
 		if (floatElem == null) {
-			throw new IllegalArgumentException(String.format("Built-in math \"places\" requires %s element as first argument!", BuiltIn.FLOAT));
+			throw new IllegalArgumentException(String.format("Built-in math macro \"places\" requires %s element as first argument!", BuiltIn.FLOAT));
 		}
 		
 		IntElement intElem = elem1.asInt(this);
 		if (intElem == null) {
-			throw new IllegalArgumentException(String.format("Built-in math \"places\" requires %s element as second argument!", BuiltIn.INT));
+			throw new IllegalArgumentException(String.format("Built-in math macro \"places\" requires %s element as second argument!", BuiltIn.INT));
 		}
 		
 		push(new FloatElement(floatElem.bigFloat().setScale(intElem.primitiveInt(), BigDecimal.ROUND_HALF_UP).doubleValue()));
@@ -1289,12 +1298,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		@NonNull Element elem1 = pop(), elem0 = pop();
 		FloatElement floatElem0 = elem0.asFloat(this);
 		if (floatElem0 == null) {
-			throw new IllegalArgumentException(String.format("Built-in math \"atan2\" requires %s element as first argument!", BuiltIn.FLOAT));
+			throw new IllegalArgumentException(String.format("Built-in math macro \"atan2\" requires %s element as first argument!", BuiltIn.FLOAT));
 		}
 		
 		FloatElement floatElem1 = elem1.asFloat(this);
 		if (floatElem1 == null) {
-			throw new IllegalArgumentException(String.format("Built-in math \"atan2\" requires %s element as second argument!", BuiltIn.FLOAT));
+			throw new IllegalArgumentException(String.format("Built-in math macro \"atan2\" requires %s element as second argument!", BuiltIn.FLOAT));
 		}
 		
 		push(new FloatElement(Math.atan2(floatElem0.primitiveFloat(), floatElem1.primitiveFloat())));
@@ -1305,12 +1314,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		@NonNull Element elem1 = pop(), elem0 = pop();
 		FloatElement floatElem0 = elem0.asFloat(this);
 		if (floatElem0 == null) {
-			throw new IllegalArgumentException(String.format("Built-in math \"hypot\" requires %s element as first argument!", BuiltIn.FLOAT));
+			throw new IllegalArgumentException(String.format("Built-in math macro \"hypot\" requires %s element as first argument!", BuiltIn.FLOAT));
 		}
 		
 		FloatElement floatElem1 = elem1.asFloat(this);
 		if (floatElem1 == null) {
-			throw new IllegalArgumentException(String.format("Built-in math \"hypot\" requires %s element as second argument!", BuiltIn.FLOAT));
+			throw new IllegalArgumentException(String.format("Built-in math macro \"hypot\" requires %s element as second argument!", BuiltIn.FLOAT));
 		}
 		
 		push(new FloatElement(Math.hypot(floatElem0.primitiveFloat(), floatElem1.primitiveFloat())));
@@ -1357,12 +1366,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		@NonNull Element elem1 = pop(), elem0 = pop();
 		FloatElement floatElem0 = elem0.asFloat(this);
 		if (floatElem0 == null) {
-			throw new IllegalArgumentException(String.format("Built-in math \"log\" requires %s element as first argument!", BuiltIn.FLOAT));
+			throw new IllegalArgumentException(String.format("Built-in math macro \"log\" requires %s element as first argument!", BuiltIn.FLOAT));
 		}
 		
 		FloatElement floatElem1 = elem1.asFloat(this);
 		if (floatElem1 == null) {
-			throw new IllegalArgumentException(String.format("Built-in math \"log\" requires %s element as second argument!", BuiltIn.FLOAT));
+			throw new IllegalArgumentException(String.format("Built-in math macro \"log\" requires %s element as second argument!", BuiltIn.FLOAT));
 		}
 		
 		push(new FloatElement(Math.log(floatElem0.primitiveFloat()) / Math.log(floatElem1.primitiveFloat())));
@@ -1397,12 +1406,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		@NonNull Element elem1 = pop(), elem0 = pop();
 		FloatElement floatElem0 = elem0.asFloat(this);
 		if (floatElem0 == null) {
-			throw new IllegalArgumentException(String.format("Built-in math \"root\" requires %s element as first argument!", BuiltIn.FLOAT));
+			throw new IllegalArgumentException(String.format("Built-in math macro \"root\" requires %s element as first argument!", BuiltIn.FLOAT));
 		}
 		
 		FloatElement floatElem1 = elem1.asFloat(this);
 		if (floatElem1 == null) {
-			throw new IllegalArgumentException(String.format("Built-in math \"root\" requires %s element as second argument!", BuiltIn.FLOAT));
+			throw new IllegalArgumentException(String.format("Built-in math macro \"root\" requires %s element as second argument!", BuiltIn.FLOAT));
 		}
 		
 		push(new FloatElement(Math.pow(floatElem0.primitiveFloat(), 1.0 / floatElem1.primitiveFloat())));
@@ -1425,12 +1434,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		@NonNull Element elem1 = pop(), elem0 = pop();
 		IntElement intElem0 = elem0.asInt(this);
 		if (intElem0 == null) {
-			throw new IllegalArgumentException(String.format("Built-in math \"iroot\" requires %s element as first argument!", BuiltIn.INT));
+			throw new IllegalArgumentException(String.format("Built-in math macro \"iroot\" requires %s element as first argument!", BuiltIn.INT));
 		}
 		
 		IntElement intElem1 = elem1.asInt(this);
 		if (intElem1 == null) {
-			throw new IllegalArgumentException(String.format("Built-in math \"iroot\" requires %s element as second argument!", BuiltIn.INT));
+			throw new IllegalArgumentException(String.format("Built-in math macro \"iroot\" requires %s element as second argument!", BuiltIn.INT));
 		}
 		
 		push(new IntElement(Helpers.iroot(intElem0.value.raw, intElem1.primitiveInt())));
@@ -1491,7 +1500,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			return TokenResult.PASS;
 		}
 		
-		throw new IllegalArgumentException(String.format("Built-in math \"min\" requires %s or %s element as %s argument!", BuiltIn.INT, BuiltIn.FLOAT, firstValid ? "second" : "first"));
+		throw new IllegalArgumentException(String.format("Built-in math macro \"min\" requires %s or %s element as %s argument!", BuiltIn.INT, BuiltIn.FLOAT, firstValid ? "second" : "first"));
 	}
 	
 	protected TokenResult max() {
@@ -1509,7 +1518,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			return TokenResult.PASS;
 		}
 		
-		throw new IllegalArgumentException(String.format("Built-in math \"max\" requires %s or %s element as %s argument!", BuiltIn.INT, BuiltIn.FLOAT, firstValid ? "second" : "first"));
+		throw new IllegalArgumentException(String.format("Built-in math macro \"max\" requires %s or %s element as %s argument!", BuiltIn.INT, BuiltIn.FLOAT, firstValid ? "second" : "first"));
 	}
 	
 	protected TokenResult clamp() {
@@ -1527,7 +1536,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			return TokenResult.PASS;
 		}
 		
-		throw new IllegalArgumentException(String.format("Built-in math \"clamp\" requires %s or %s element as %s argument!", BuiltIn.INT, BuiltIn.FLOAT, secondValid ? "third" : (firstValid ? "second" : "first")));
+		throw new IllegalArgumentException(String.format("Built-in math macro \"clamp\" requires %s or %s element as %s argument!", BuiltIn.INT, BuiltIn.FLOAT, secondValid ? "third" : (firstValid ? "second" : "first")));
 	}
 	
 	protected TokenResult clamp8() {
@@ -1558,7 +1567,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		@NonNull Element elem = pop();
 		IntElement intElem = elem.asInt(this);
 		if (intElem == null) {
-			throw new IllegalArgumentException(String.format("Built-in math \"%s\" requires %s element as argument!", name, BuiltIn.INT));
+			throw new IllegalArgumentException(String.format("Built-in math macro \"%s\" requires %s element as argument!", name, BuiltIn.INT));
 		}
 		return intElem;
 	}
@@ -1567,8 +1576,85 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		@NonNull Element elem = pop();
 		FloatElement floatElem = elem.asFloat(this);
 		if (floatElem == null) {
-			throw new IllegalArgumentException(String.format("Built-in math \"%s\" requires %s element as argument!", name, BuiltIn.FLOAT));
+			throw new IllegalArgumentException(String.format("Built-in math macro \"%s\" requires %s element as argument!", name, BuiltIn.FLOAT));
 		}
 		return floatElem;
+	}
+	
+	protected TokenResult args() {
+		push(new ListElement(interpreter.args));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult rootPath() {
+		push(interpreter.args.get(0));
+		return TokenResult.PASS;
+	}
+	
+	@SuppressWarnings("null")
+	protected TokenResult rootDir() {
+		push(new StringElement(Paths.get(interpreter.args.get(0).toString()).getParent().normalize().toString()));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult fromRoot() {
+		@NonNull Element elem = pop();
+		StringElement stringElem = elem.asString(this);
+		if (stringElem == null) {
+			throw new IllegalArgumentException(String.format("Built-in env macro \"fromRoot\" requires %s element as argument!", BuiltIn.STRING));
+		}
+		
+		@SuppressWarnings("null") Path root = Paths.get(interpreter.args.get(0).toString()).getParent();
+		@SuppressWarnings("null") @NonNull String relative = root.resolve(stringElem.toString()).normalize().toString().replace('\\', '/');
+		push(new StringElement(relative));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult readFile() {
+		@NonNull Element elem = pop();
+		StringElement stringElem = elem.asString(this);
+		if (stringElem == null) {
+			throw new IllegalArgumentException(String.format("Built-in fs macro \"readFile\" requires %s element as argument!", BuiltIn.STRING));
+		}
+		
+		push(new StringElement(Helpers.readFile(stringElem.toString())));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult writeFile() {
+		@NonNull Element elem1 = pop(), elem0 = pop();
+		StringElement stringElem0 = elem0.asString(this);
+		if (stringElem0 == null) {
+			throw new IllegalArgumentException(String.format("Built-in fs macro \"writeFile\" requires %s element as first argument!", BuiltIn.STRING));
+		}
+		
+		Helpers.writeFile(stringElem0.toString(), elem1.stringCast(this).toString());
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult readLines() {
+		@NonNull Element elem = pop();
+		StringElement stringElem = elem.asString(this);
+		if (stringElem == null) {
+			throw new IllegalArgumentException(String.format("Built-in fs macro \"readLines\" requires %s element as argument!", BuiltIn.STRING));
+		}
+		
+		push(new ListElement(() -> Helpers.readLines(stringElem.toString()).stream().map(StringElement::new).iterator()));
+		return TokenResult.PASS;
+	}
+	
+	protected TokenResult writeLines() {
+		@NonNull Element elem1 = pop(), elem0 = pop();
+		StringElement stringElem0 = elem0.asString(this);
+		if (stringElem0 == null) {
+			throw new IllegalArgumentException(String.format("Built-in fs macro \"writeLines\" requires %s element as first argument!", BuiltIn.STRING));
+		}
+		
+		if (!(elem1 instanceof IterableElement)) {
+			throw new IllegalArgumentException(String.format("Built-in fs macro \"writeLines\" requires %s element as second argument!", BuiltIn.ITERABLE));
+		}
+		
+		Helpers.writeLines(stringElem0.toString(), ((IterableElement) elem1).stream(this).map(x -> x.stringCast(this).toString()).iterator());
+		return TokenResult.PASS;
 	}
 }

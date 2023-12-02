@@ -15,7 +15,7 @@ public class RangeElement extends Element implements IterableElement {
 	protected final long size;
 	
 	@SuppressWarnings("null")
-	public RangeElement(TokenExecutor exec, Reverse<@NonNull Element> elems) {
+	public <T extends Element> RangeElement(TokenExecutor exec, Reverse<@NonNull T> elems) {
 		super(BuiltIn.RANGE_CLAZZ);
 		int elemCount = elems.size();
 		if (elemCount < 1 || elemCount > 3) {

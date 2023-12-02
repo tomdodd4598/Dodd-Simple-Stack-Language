@@ -18,14 +18,18 @@ import dssl.node.*;
 
 public class Helpers {
 	
+	public static RuntimeException panic(Exception e) {
+		e.printStackTrace();
+		return new RuntimeException();
+	}
+	
 	public static @NonNull String readFile(@NonNull String fileName) {
-		try {
-			return new String(Files.readAllBytes(Paths.get(fileName)), Charset.defaultCharset());
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException();
-		}
+		return getThrowing(() -> new String(Files.readAllBytes(Paths.get(fileName)), Charset.defaultCharset()));
+	}
+	
+	@SuppressWarnings("null")
+	public static List<@NonNull String> readLines(@NonNull String fileName) {
+		return getThrowing(() -> Files.readAllLines(Paths.get(fileName), Charset.defaultCharset()));
 	}
 	
 	public static void writeFile(@NonNull String fileName, String contents) {
@@ -33,9 +37,24 @@ public class Helpers {
 			out.print(contents);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException();
+			throw panic(e);
 		}
+	}
+	
+	public static void writeLines(@NonNull String fileName, Iterator<String> lines) {
+		try (PrintWriter out = new PrintWriter(fileName)) {
+			lines.forEachRemaining(x -> {
+				out.print(x);
+				out.println();
+			});
+		}
+		catch (Exception e) {
+			throw panic(e);
+		}
+	}
+	
+	public static void writeLines(@NonNull String fileName, List<String> lines) {
+		writeLines(fileName, lines.iterator());
 	}
 	
 	public static PushbackReader getPushbackReader(Reader reader) {
@@ -54,8 +73,7 @@ public class Helpers {
 			throw new IllegalArgumentException(String.format("Encountered invalid token \"%s\"!", e.getToken().getText()));
 		}
 		catch (IOException e) {
-			e.printStackTrace();
-			throw new RuntimeException();
+			throw panic(e);
 		}
 	}
 	
@@ -300,6 +318,66 @@ public class Helpers {
 			this.first = first;
 			this.second = second;
 			this.third = third;
+		}
+	}
+	
+	@FunctionalInterface
+	public static interface ThrowingRunnable {
+		
+		public void run() throws Exception;
+	}
+	
+	public static void runThrowing(ThrowingRunnable runnable) {
+		try {
+			runnable.run();
+		}
+		catch (Exception e) {
+			throw panic(e);
+		}
+	}
+	
+	@FunctionalInterface
+	public static interface ThrowingConsumer<T> {
+		
+		public void accept(T x) throws Exception;
+	}
+	
+	public static <T> void acceptThrowing(ThrowingConsumer<T> consumer, T x) {
+		try {
+			consumer.accept(x);
+		}
+		catch (Exception e) {
+			throw panic(e);
+		}
+	}
+	
+	@FunctionalInterface
+	public static interface ThrowingSupplier<T> {
+		
+		public T get() throws Exception;
+	}
+	
+	public static <T> T getThrowing(ThrowingSupplier<T> supplier) {
+		try {
+			return supplier.get();
+		}
+		catch (Exception e) {
+			throw panic(e);
+		}
+	}
+	
+	@FunctionalInterface
+	public static interface ThrowingFunction<A, B> {
+		
+		public B apply(A x) throws Exception;
+	}
+	
+	public static <A, B> B applyThrowing(ThrowingFunction<A, B> function, A x) {
+		try {
+			return function.apply(x);
+		}
+		catch (Exception e) {
+			throw panic(e);
 		}
 	}
 }

@@ -81,13 +81,7 @@ public class Main {
 			
 			@Override
 			public String read() {
-				try {
-					return READER.readLine();
-				}
-				catch (Exception e) {
-					e.printStackTrace();
-					throw new RuntimeException();
-				}
+				return Helpers.getThrowing(READER::readLine);
 			}
 		};
 		
@@ -102,8 +96,7 @@ public class Main {
 						return new TokenExecutor(new LexerIterator(pushbackReader), exec, false).iterate();
 					}
 					catch (Exception e) {
-						e.printStackTrace();
-						throw new RuntimeException();
+						throw Helpers.panic(e);
 					}
 				}
 				else if (elem instanceof ModuleElement) {
@@ -131,8 +124,7 @@ public class Main {
 						return otherExec.iterate();
 					}
 					catch (Exception e) {
-						e.printStackTrace();
-						throw new RuntimeException();
+						throw Helpers.panic(e);
 					}
 				}
 				else if (elem1 instanceof ModuleElement) {
@@ -192,17 +184,16 @@ public class Main {
 					return Helpers.getLexerNext(lexer);
 				}
 			};
-			Interpreter interpreter = new Interpreter(consoleIterator, blockIterImpl, consoleIO, moduleImpl, nativeImpl, debug);
+			Interpreter interpreter = new Interpreter(input.args, consoleIterator, blockIterImpl, consoleIO, moduleImpl, nativeImpl, debug);
 			interpreter.run();
 		}
 		else {
 			try (PushbackReader reader = Helpers.getPushbackReader(new FileReader(input.args.get(0)))) {
-				Interpreter interpreter = new Interpreter(new Lexer(reader), blockIterImpl, consoleIO, moduleImpl, nativeImpl, debug);
+				Interpreter interpreter = new Interpreter(input.args, new Lexer(reader), blockIterImpl, consoleIO, moduleImpl, nativeImpl, debug);
 				interpreter.run();
 			}
 			catch (Exception e) {
-				e.printStackTrace();
-				throw new RuntimeException();
+				throw Helpers.panic(e);
 			}
 		}
 	}

@@ -13,13 +13,13 @@ public class ListElement extends Element implements IterableElement {
 	
 	public final List<@NonNull Element> value;
 	
-	public ListElement(Iterable<@NonNull Element> elems) {
+	public <T extends Element> ListElement(Iterable<@NonNull T> elems) {
 		super(BuiltIn.LIST_CLAZZ);
 		value = new ArrayList<>();
 		elems.forEach(value::add);
 	}
 	
-	public ListElement(@NonNull Element... elems) {
+	public <T extends Element> ListElement(@NonNull T... elems) {
 		super(BuiltIn.LIST_CLAZZ);
 		value = new ArrayList<>();
 		for (@NonNull Element elem : elems) {

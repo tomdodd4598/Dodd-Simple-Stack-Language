@@ -15,7 +15,7 @@ public class DictElement extends Element implements IterableElement {
 	
 	public final Map<@NonNull Element, @NonNull Element> value;
 	
-	public DictElement(TokenExecutor exec, Reverse<@NonNull Element> elems) {
+	public <T extends Element> DictElement(TokenExecutor exec, Reverse<@NonNull T> elems) {
 		super(BuiltIn.DICT_CLAZZ);
 		int elemCount = elems.size();
 		if ((elemCount & 1) == 1) {
@@ -23,7 +23,7 @@ public class DictElement extends Element implements IterableElement {
 		}
 		
 		value = new HashMap<>();
-		Iterator<@NonNull Element> iter = elems.iterator();
+		Iterator<@NonNull T> iter = elems.iterator();
 		while (iter.hasNext()) {
 			value.put(iter.next(), iter.next());
 		}

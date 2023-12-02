@@ -680,6 +680,27 @@ public class BuiltIn {
 		CONSTS_MODULE.setDef("LOG10_2", new FloatElement(Constants.LOG10_2), true);
 	}
 	
+	public static final @NonNull Clazz ENV_MODULE = module("env");
+	
+	static {
+		ENV_MODULE.setMacro("args", TokenExecutor::args);
+		
+		ENV_MODULE.setMacro("rootPath", TokenExecutor::rootPath);
+		ENV_MODULE.setMacro("rootDir", TokenExecutor::rootDir);
+		
+		ENV_MODULE.setMacro("fromRoot", TokenExecutor::fromRoot);
+	}
+	
+	public static final @NonNull Clazz FS_MODULE = module("fs");
+	
+	static {
+		FS_MODULE.setMacro("readFile", TokenExecutor::readFile);
+		FS_MODULE.setMacro("writeFile", TokenExecutor::writeFile);
+		
+		FS_MODULE.setMacro("readLines", TokenExecutor::readLines);
+		FS_MODULE.setMacro("writeLines", TokenExecutor::writeLines);
+	}
+	
 	public static final Set<String> KEYWORDS = new HashSet<>();
 	
 	static {

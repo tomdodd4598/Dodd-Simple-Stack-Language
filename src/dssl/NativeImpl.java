@@ -395,6 +395,7 @@ public class NativeImpl implements Native {
 		return tracked(elem, y -> nativize(y, type), tracker);
 	}
 	
+	@SuppressWarnings("null")
 	static @NonNull Element convert(Object obj) {
 		if (obj == null) {
 			return NullElement.INSTANCE;
