@@ -58,7 +58,6 @@ Tokens
 	native = 'native';
 	
 	def = 'def';
-	const = 'const';
 	macro = 'macro';
 	class = 'class';
 	magic = 'magic';

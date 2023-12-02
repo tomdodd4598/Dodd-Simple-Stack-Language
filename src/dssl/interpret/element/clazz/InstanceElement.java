@@ -11,7 +11,6 @@ import dssl.interpret.element.primitive.StringElement;
 public class InstanceElement extends Element implements Scope {
 	
 	protected final Map<@NonNull String, Def> defMap;
-	protected final Map<@NonNull String, Const> constMap;
 	protected final Map<@NonNull String, Macro> macroMap;
 	protected final Map<@NonNull String, Clazz> clazzMap;
 	protected final Map<@NonNull String, Magic> magicMap;
@@ -19,13 +18,12 @@ public class InstanceElement extends Element implements Scope {
 	public final @NonNull String scopeIdentifier;
 	
 	public InstanceElement(@NonNull Clazz clazz) {
-		this(clazz, new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
+		this(clazz, new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
 	}
 	
-	protected InstanceElement(@NonNull Clazz clazz, Map<@NonNull String, Def> defMap, Map<@NonNull String, Const> constMap, Map<@NonNull String, Macro> macroMap, Map<@NonNull String, Clazz> clazzMap, Map<@NonNull String, Magic> magicMap) {
+	protected InstanceElement(@NonNull Clazz clazz, Map<@NonNull String, Def> defMap, Map<@NonNull String, Macro> macroMap, Map<@NonNull String, Clazz> clazzMap, Map<@NonNull String, Magic> magicMap) {
 		super(clazz);
 		this.defMap = defMap;
-		this.constMap = constMap;
 		this.macroMap = macroMap;
 		this.clazzMap = clazzMap;
 		this.magicMap = magicMap;
@@ -263,22 +261,6 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public boolean hasConst(@NonNull String identifier, boolean shallow) {
-		return constMap.containsKey(identifier);
-	}
-	
-	@Override
-	public Const getConst(@NonNull String identifier) {
-		return constMap.get(identifier);
-	}
-	
-	@Override
-	public void setConst(@NonNull String identifier, @NonNull Element value) {
-		checkCollision(identifier);
-		constMap.put(identifier, new Const(identifier, value));
-	}
-	
-	@Override
 	public boolean hasMacro(@NonNull String identifier, boolean shallow) {
 		return macroMap.containsKey(identifier);
 	}
@@ -359,7 +341,6 @@ public class InstanceElement extends Element implements Scope {
 	public @NonNull Element scope(TokenExecutor exec) {
 		Map<@NonNull Element, @NonNull Element> map = new HashMap<>();
 		addToScopeMap(defMap, map);
-		addToScopeMap(constMap, map);
 		addToScopeMap(macroMap, map);
 		addToScopeMap(clazzMap, map);
 		return new DictElement(map, false);
@@ -376,19 +357,19 @@ public class InstanceElement extends Element implements Scope {
 	
 	@Override
 	public @NonNull Element clone() {
-		return new InstanceElement(clazz, new HashMap<>(defMap), new HashMap<>(constMap), new HashMap<>(macroMap), new HashMap<>(clazzMap), new HashMap<>(magicMap));
+		return new InstanceElement(clazz, new HashMap<>(defMap), new HashMap<>(macroMap), new HashMap<>(clazzMap), new HashMap<>(magicMap));
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash("instance", clazz, defMap, constMap, clazzMap, magicMap);
+		return Objects.hash("instance", clazz, defMap, clazzMap, magicMap);
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof InstanceElement) {
 			InstanceElement other = (InstanceElement) obj;
-			return clazz.equals(other.clazz) && defMap.equals(other.defMap) && constMap.equals(other.constMap) && clazzMap.equals(other.clazzMap) && magicMap.equals(other.magicMap);
+			return clazz.equals(other.clazz) && defMap.equals(other.defMap) && clazzMap.equals(other.clazzMap) && magicMap.equals(other.magicMap);
 		}
 		return false;
 	}

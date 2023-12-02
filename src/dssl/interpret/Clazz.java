@@ -22,7 +22,6 @@ public class Clazz implements HierarchicalScope {
 	protected final List<Clazz> supers;
 	
 	protected final Hierarchy<@NonNull String, Def> defHierarchy;
-	protected final Hierarchy<@NonNull String, Const> constHierarchy;
 	protected final Hierarchy<@NonNull String, Macro> macroHierarchy;
 	protected final Hierarchy<@NonNull String, Clazz> clazzHierarchy;
 	protected final Hierarchy<@NonNull String, Magic> magicHierarchy;
@@ -42,7 +41,6 @@ public class Clazz implements HierarchicalScope {
 		this.supers = supers.stream().distinct().collect(Collectors.toList());
 		
 		defHierarchy = getHierarchy(base, HierarchicalScope::getDefHierarchy);
-		constHierarchy = getHierarchy(base, HierarchicalScope::getConstHierarchy);
 		macroHierarchy = getHierarchy(base, HierarchicalScope::getMacroHierarchy);
 		clazzHierarchy = getHierarchy(base, HierarchicalScope::getClazzHierarchy);
 		magicHierarchy = getHierarchy(base, HierarchicalScope::getMagicHierarchy);
@@ -77,11 +75,6 @@ public class Clazz implements HierarchicalScope {
 	@Override
 	public Hierarchy<@NonNull String, Def> getDefHierarchy() {
 		return defHierarchy;
-	}
-	
-	@Override
-	public Hierarchy<@NonNull String, Const> getConstHierarchy() {
-		return constHierarchy;
 	}
 	
 	@Override

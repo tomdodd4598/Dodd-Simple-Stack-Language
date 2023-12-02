@@ -31,7 +31,6 @@ public class ClassElement extends Element {
 	public @NonNull Element scope(TokenExecutor exec) {
 		Map<@NonNull Element, @NonNull Element> map = new HashMap<>();
 		addToScopeMap(internal.getDefHierarchy(), map);
-		addToScopeMap(internal.getConstHierarchy(), map);
 		addToScopeMap(internal.getMacroHierarchy(), map);
 		addToScopeMap(internal.getClazzHierarchy(), map);
 		return new DictElement(map, false);

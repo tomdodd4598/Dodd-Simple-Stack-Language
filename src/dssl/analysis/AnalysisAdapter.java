@@ -165,12 +165,6 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTConst(TConst node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
     public void caseTMacro(TMacro node)
     {
         defaultCase(node);

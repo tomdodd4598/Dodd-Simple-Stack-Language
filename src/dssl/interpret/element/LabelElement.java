@@ -28,14 +28,9 @@ public class LabelElement extends Element {
 	protected LabelElement(@NonNull LabelElement prev, @NonNull String extension) {
 		super(BuiltIn.LABEL_CLAZZ);
 		Def def;
-		Const cons;
 		@NonNull Element elem;
 		@Nullable Scope nextScope;
 		if ((def = prev.getDef()) != null && (nextScope = (elem = def.elem).getMemberScope(MemberAccessType.STATIC)) != null) {
-			scope = nextScope;
-			fullIdentifier = elem.extendedIdentifier(extension, MemberAccessType.STATIC);
-		}
-		else if ((cons = prev.getConst()) != null && (nextScope = (elem = cons.elem).getMemberScope(MemberAccessType.STATIC)) != null) {
 			scope = nextScope;
 			fullIdentifier = elem.extendedIdentifier(extension, MemberAccessType.STATIC);
 		}
@@ -55,14 +50,6 @@ public class LabelElement extends Element {
 	
 	public void setDef(@NonNull Element value, boolean shadow) {
 		scope.setDef(shallowIdentifier, value, shadow);
-	}
-	
-	public Const getConst() {
-		return scope.getConst(shallowIdentifier);
-	}
-	
-	public void setConst(@NonNull Element value) {
-		scope.setConst(shallowIdentifier, value);
 	}
 	
 	public Macro getMacro() {

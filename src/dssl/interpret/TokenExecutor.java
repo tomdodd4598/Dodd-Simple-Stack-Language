@@ -20,7 +20,6 @@ import dssl.node.*;
 public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected final Hierarchy<@NonNull String, Def> defHierarchy;
-	protected final Hierarchy<@NonNull String, Const> constHierarchy;
 	protected final Hierarchy<@NonNull String, Macro> macroHierarchy;
 	protected final Hierarchy<@NonNull String, Clazz> clazzHierarchy;
 	protected final Hierarchy<@NonNull String, Magic> magicHierarchy;
@@ -28,7 +27,6 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	protected TokenExecutor(Interpreter interpreter, TokenIterator iterator) {
 		super(interpreter, iterator);
 		defHierarchy = new Hierarchy<>();
-		constHierarchy = new Hierarchy<>();
 		macroHierarchy = new Hierarchy<>();
 		clazzHierarchy = new Hierarchy<>();
 		magicHierarchy = new Hierarchy<>();
@@ -38,7 +36,6 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	public TokenExecutor(TokenIterator iterator, TokenExecutor prev, boolean child) {
 		super(iterator, prev);
 		defHierarchy = prev.defHierarchy.copy(child);
-		constHierarchy = prev.constHierarchy.copy(child);
 		macroHierarchy = prev.macroHierarchy.copy(child);
 		clazzHierarchy = prev.clazzHierarchy.copy(child);
 		magicHierarchy = prev.magicHierarchy.copy(child);
@@ -93,11 +90,6 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	@Override
 	public Hierarchy<@NonNull String, Def> getDefHierarchy() {
 		return defHierarchy;
-	}
-	
-	@Override
-	public Hierarchy<@NonNull String, Const> getConstHierarchy() {
-		return constHierarchy;
 	}
 	
 	@Override
@@ -249,7 +241,6 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		TOKEN_FUNCTION_MAP.put(TNative.class, TokenExecutor::onNative);
 		
 		TOKEN_FUNCTION_MAP.put(TDef.class, TokenExecutor::onDef);
-		TOKEN_FUNCTION_MAP.put(TConst.class, TokenExecutor::onConst);
 		TOKEN_FUNCTION_MAP.put(TMacro.class, TokenExecutor::onMacro);
 		TOKEN_FUNCTION_MAP.put(TClass.class, TokenExecutor::onClass);
 		TOKEN_FUNCTION_MAP.put(TMagic.class, TokenExecutor::onMagic);
@@ -429,11 +420,6 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		return TokenResult.PASS;
 	}
 	
-	protected TokenResult onConst(@NonNull Token token) {
-		assign(pop(), pop(), AssignmentType.CONST);
-		return TokenResult.PASS;
-	}
-	
 	protected TokenResult onMacro(@NonNull Token token) {
 		@NonNull Element elem1 = pop(), elem0 = pop();
 		if (!(elem0 instanceof LabelElement)) {
@@ -505,7 +491,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		}
 		
 		LabelElement label = (LabelElement) elem;
-		TokenResult result = scopeAction(label::getDef, label::getConst, label::getMacro, label::getClazz);
+		TokenResult result = scopeAction(label::getDef, label::getMacro, label::getClazz);
 		if (result == null) {
 			throw Helpers.defError(label.fullIdentifier);
 		}
@@ -1053,16 +1039,11 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			}
 			
 			LabelElement label = (LabelElement) elem0;
-			if (type.equals(AssignmentType.CONST)) {
-				label.setConst(elem1);
+			boolean def = type.equals(AssignmentType.DEF);
+			if (!def && label.getDef() == null) {
+				throw Helpers.variableError(label.fullIdentifier);
 			}
-			else {
-				boolean def = type.equals(AssignmentType.DEF);
-				if (!def && label.getDef() == null) {
-					throw Helpers.variableError(label.fullIdentifier);
-				}
-				label.setDef(elem1, def);
-			}
+			label.setDef(elem1, def);
 		}
 	}
 	
@@ -1089,11 +1070,10 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	protected static enum AssignmentType {
 		
 		DEF,
-		CONST,
 		EQUALS;
 		
 		protected String labelErrorPrefix() {
-			return equals(EQUALS) ? "Assignment" : String.format("Keyword \"%s\"", equals(DEF) ? "def" : "const");
+			return equals(EQUALS) ? "Assignment" : "Keyword \"def\"";
 		}
 	}
 	
@@ -1124,17 +1104,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		return opResult;
 	}
 	
-	public @Nullable TokenResult scopeAction(Supplier<Def> getDef, Supplier<Const> getConst, Supplier<Macro> getMacro, Supplier<Clazz> getClazz) {
+	public @Nullable TokenResult scopeAction(Supplier<Def> getDef, Supplier<Macro> getMacro, Supplier<Clazz> getClazz) {
 		Def def;
-		Const cons;
 		Macro macro;
 		Clazz clazz;
 		if ((def = getDef.get()) != null) {
 			push(def.elem);
-			return TokenResult.PASS;
-		}
-		else if ((cons = getConst.get()) != null) {
-			push(cons.elem);
 			return TokenResult.PASS;
 		}
 		else if ((macro = getMacro.get()) != null) {

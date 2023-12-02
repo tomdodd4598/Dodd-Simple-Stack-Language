@@ -32,26 +32,6 @@ public interface HierarchicalScope extends Scope {
 	}
 	
 	@Override
-	public default boolean hasConst(@NonNull String identifier, boolean shallow) {
-		return getConstHierarchy().containsKey(identifier, shallow);
-	}
-	
-	@Override
-	public default Const getConst(@NonNull String identifier) {
-		return getConstHierarchy().get(identifier, false);
-	}
-	
-	public default void setConst(@NonNull String identifier, @NonNull Const cons, boolean shadow) {
-		checkCollision(identifier);
-		getConstHierarchy().put(identifier, cons, shadow);
-	}
-	
-	@Override
-	public default void setConst(@NonNull String identifier, @NonNull Element value) {
-		setConst(identifier, new Const(identifier, value), true);
-	}
-	
-	@Override
 	public default boolean hasMacro(@NonNull String identifier, boolean shallow) {
 		return getMacroHierarchy().containsKey(identifier, shallow);
 	}
@@ -112,8 +92,6 @@ public interface HierarchicalScope extends Scope {
 	
 	public Hierarchy<@NonNull String, Def> getDefHierarchy();
 	
-	public Hierarchy<@NonNull String, Const> getConstHierarchy();
-	
 	public Hierarchy<@NonNull String, Macro> getMacroHierarchy();
 	
 	public Hierarchy<@NonNull String, Clazz> getClazzHierarchy();
@@ -123,7 +101,6 @@ public interface HierarchicalScope extends Scope {
 	@SuppressWarnings("null")
 	public default void putAll(@NonNull HierarchicalScope from, boolean shadow, boolean shallow) {
 		from.getDefHierarchy().forEach((k, v) -> setDef(k, v, shadow), shallow);
-		from.getConstHierarchy().forEach((k, v) -> setConst(k, v, shadow), shallow);
 		from.getMacroHierarchy().forEach((k, v) -> setMacro(k, v, shadow), shallow);
 		from.getClazzHierarchy().forEach((k, v) -> setClazz(k, v, shadow), shallow);
 		from.getMagicHierarchy().forEach((k, v) -> setMagic(k, v, shadow), shallow);

@@ -11,15 +11,12 @@ public interface Scope {
 	public @Nullable String getIdentifier();
 	
 	public default @Nullable TokenResult scopeAction(TokenExecutor exec, @NonNull String identifier) {
-		return exec.scopeAction(() -> getDef(identifier), () -> getConst(identifier), () -> getMacro(identifier), () -> getClazz(identifier));
+		return exec.scopeAction(() -> getDef(identifier), () -> getMacro(identifier), () -> getClazz(identifier));
 	}
 	
 	public default void checkCollision(@NonNull String identifier) {
 		if (hasDef(identifier, true)) {
 			throw new IllegalArgumentException(String.format("Identifier \"%s\" already used for def!", identifier));
-		}
-		else if (hasConst(identifier, true)) {
-			throw new IllegalArgumentException(String.format("Identifier \"%s\" already used for const!", identifier));
 		}
 		else if (hasMacro(identifier, true)) {
 			throw new IllegalArgumentException(String.format("Identifier \"%s\" already used for macro!", identifier));
@@ -34,12 +31,6 @@ public interface Scope {
 	public Def getDef(@NonNull String identifier);
 	
 	public void setDef(@NonNull String identifier, @NonNull Element value, boolean shadow);
-	
-	public boolean hasConst(@NonNull String identifier, boolean shallow);
-	
-	public Const getConst(@NonNull String identifier);
-	
-	public void setConst(@NonNull String identifier, @NonNull Element value);
 	
 	public boolean hasMacro(@NonNull String identifier, boolean shallow);
 	

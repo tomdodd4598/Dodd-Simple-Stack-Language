@@ -618,66 +618,66 @@ public class BuiltIn {
 	public static final @NonNull Clazz CONSTS_MODULE = module("consts");
 	
 	static {
-		CONSTS_MODULE.setConst("MIN_INT_8", new IntElement(Constants.MIN_INT_8));
-		CONSTS_MODULE.setConst("MAX_INT_8", new IntElement(Constants.MAX_INT_8));
+		CONSTS_MODULE.setDef("MIN_INT_8", new IntElement(Constants.MIN_INT_8), true);
+		CONSTS_MODULE.setDef("MAX_INT_8", new IntElement(Constants.MAX_INT_8), true);
 		
-		CONSTS_MODULE.setConst("MIN_INT_16", new IntElement(Constants.MIN_INT_16));
-		CONSTS_MODULE.setConst("MAX_INT_16", new IntElement(Constants.MAX_INT_16));
+		CONSTS_MODULE.setDef("MIN_INT_16", new IntElement(Constants.MIN_INT_16), true);
+		CONSTS_MODULE.setDef("MAX_INT_16", new IntElement(Constants.MAX_INT_16), true);
 		
-		CONSTS_MODULE.setConst("MIN_INT_32", new IntElement(Constants.MIN_INT_32));
-		CONSTS_MODULE.setConst("MAX_INT_32", new IntElement(Constants.MAX_INT_32));
+		CONSTS_MODULE.setDef("MIN_INT_32", new IntElement(Constants.MIN_INT_32), true);
+		CONSTS_MODULE.setDef("MAX_INT_32", new IntElement(Constants.MAX_INT_32), true);
 		
-		CONSTS_MODULE.setConst("MIN_INT_64", new IntElement(Constants.MIN_INT_64));
-		CONSTS_MODULE.setConst("MAX_INT_64", new IntElement(Constants.MAX_INT_64));
+		CONSTS_MODULE.setDef("MIN_INT_64", new IntElement(Constants.MIN_INT_64), true);
+		CONSTS_MODULE.setDef("MAX_INT_64", new IntElement(Constants.MAX_INT_64), true);
 		
-		CONSTS_MODULE.setConst("INF", new FloatElement(Constants.INF));
-		CONSTS_MODULE.setConst("NAN", new FloatElement(Constants.NAN));
-		CONSTS_MODULE.setConst("MIN_F", new FloatElement(Constants.MIN_F));
-		CONSTS_MODULE.setConst("MAX_F", new FloatElement(Constants.MAX_F));
-		CONSTS_MODULE.setConst("EPSILON", new FloatElement(Constants.EPSILON));
+		CONSTS_MODULE.setDef("INF", new FloatElement(Constants.INF), true);
+		CONSTS_MODULE.setDef("NAN", new FloatElement(Constants.NAN), true);
+		CONSTS_MODULE.setDef("MIN_F", new FloatElement(Constants.MIN_F), true);
+		CONSTS_MODULE.setDef("MAX_F", new FloatElement(Constants.MAX_F), true);
+		CONSTS_MODULE.setDef("EPSILON", new FloatElement(Constants.EPSILON), true);
 		
-		CONSTS_MODULE.setConst("E", new FloatElement(Constants.E));
+		CONSTS_MODULE.setDef("E", new FloatElement(Constants.E), true);
 		
-		CONSTS_MODULE.setConst("PI", new FloatElement(Constants.PI));
-		CONSTS_MODULE.setConst("TAU", new FloatElement(Constants.TAU));
+		CONSTS_MODULE.setDef("PI", new FloatElement(Constants.PI), true);
+		CONSTS_MODULE.setDef("TAU", new FloatElement(Constants.TAU), true);
 		
-		CONSTS_MODULE.setConst("INV_PI", new FloatElement(Constants.INV_PI));
-		CONSTS_MODULE.setConst("INV_TAU", new FloatElement(Constants.INV_TAU));
+		CONSTS_MODULE.setDef("INV_PI", new FloatElement(Constants.INV_PI), true);
+		CONSTS_MODULE.setDef("INV_TAU", new FloatElement(Constants.INV_TAU), true);
 		
-		CONSTS_MODULE.setConst("SQRT_PI", new FloatElement(Constants.SQRT_PI));
-		CONSTS_MODULE.setConst("SQRT_TAU", new FloatElement(Constants.SQRT_TAU));
+		CONSTS_MODULE.setDef("SQRT_PI", new FloatElement(Constants.SQRT_PI), true);
+		CONSTS_MODULE.setDef("SQRT_TAU", new FloatElement(Constants.SQRT_TAU), true);
 		
-		CONSTS_MODULE.setConst("INV_SQRT_PI", new FloatElement(Constants.INV_SQRT_PI));
-		CONSTS_MODULE.setConst("INV_SQRT_TAU", new FloatElement(Constants.INV_SQRT_TAU));
+		CONSTS_MODULE.setDef("INV_SQRT_PI", new FloatElement(Constants.INV_SQRT_PI), true);
+		CONSTS_MODULE.setDef("INV_SQRT_TAU", new FloatElement(Constants.INV_SQRT_TAU), true);
 		
-		CONSTS_MODULE.setConst("INV_3", new FloatElement(Constants.INV_3));
-		CONSTS_MODULE.setConst("INV_6", new FloatElement(Constants.INV_6));
+		CONSTS_MODULE.setDef("INV_3", new FloatElement(Constants.INV_3), true);
+		CONSTS_MODULE.setDef("INV_6", new FloatElement(Constants.INV_6), true);
 		
-		CONSTS_MODULE.setConst("SQRT_2", new FloatElement(Constants.SQRT_2));
-		CONSTS_MODULE.setConst("SQRT_3", new FloatElement(Constants.SQRT_3));
-		CONSTS_MODULE.setConst("SQRT_6", new FloatElement(Constants.SQRT_6));
-		CONSTS_MODULE.setConst("SQRT_8", new FloatElement(Constants.SQRT_8));
+		CONSTS_MODULE.setDef("SQRT_2", new FloatElement(Constants.SQRT_2), true);
+		CONSTS_MODULE.setDef("SQRT_3", new FloatElement(Constants.SQRT_3), true);
+		CONSTS_MODULE.setDef("SQRT_6", new FloatElement(Constants.SQRT_6), true);
+		CONSTS_MODULE.setDef("SQRT_8", new FloatElement(Constants.SQRT_8), true);
 		
-		CONSTS_MODULE.setConst("INV_SQRT_2", new FloatElement(Constants.INV_SQRT_2));
-		CONSTS_MODULE.setConst("INV_SQRT_3", new FloatElement(Constants.INV_SQRT_3));
-		CONSTS_MODULE.setConst("INV_SQRT_6", new FloatElement(Constants.INV_SQRT_6));
-		CONSTS_MODULE.setConst("INV_SQRT_8", new FloatElement(Constants.INV_SQRT_8));
+		CONSTS_MODULE.setDef("INV_SQRT_2", new FloatElement(Constants.INV_SQRT_2), true);
+		CONSTS_MODULE.setDef("INV_SQRT_3", new FloatElement(Constants.INV_SQRT_3), true);
+		CONSTS_MODULE.setDef("INV_SQRT_6", new FloatElement(Constants.INV_SQRT_6), true);
+		CONSTS_MODULE.setDef("INV_SQRT_8", new FloatElement(Constants.INV_SQRT_8), true);
 		
-		CONSTS_MODULE.setConst("FRAC_PI_2", new FloatElement(Constants.FRAC_PI_2));
-		CONSTS_MODULE.setConst("FRAC_PI_3", new FloatElement(Constants.FRAC_PI_3));
-		CONSTS_MODULE.setConst("FRAC_PI_4", new FloatElement(Constants.FRAC_PI_4));
-		CONSTS_MODULE.setConst("FRAC_PI_6", new FloatElement(Constants.FRAC_PI_6));
-		CONSTS_MODULE.setConst("FRAC_PI_8", new FloatElement(Constants.FRAC_PI_8));
+		CONSTS_MODULE.setDef("FRAC_PI_2", new FloatElement(Constants.FRAC_PI_2), true);
+		CONSTS_MODULE.setDef("FRAC_PI_3", new FloatElement(Constants.FRAC_PI_3), true);
+		CONSTS_MODULE.setDef("FRAC_PI_4", new FloatElement(Constants.FRAC_PI_4), true);
+		CONSTS_MODULE.setDef("FRAC_PI_6", new FloatElement(Constants.FRAC_PI_6), true);
+		CONSTS_MODULE.setDef("FRAC_PI_8", new FloatElement(Constants.FRAC_PI_8), true);
 		
-		CONSTS_MODULE.setConst("FRAC_2_PI", new FloatElement(Constants.FRAC_2_PI));
-		CONSTS_MODULE.setConst("FRAC_2_SQRT_PI", new FloatElement(Constants.FRAC_2_SQRT_PI));
+		CONSTS_MODULE.setDef("FRAC_2_PI", new FloatElement(Constants.FRAC_2_PI), true);
+		CONSTS_MODULE.setDef("FRAC_2_SQRT_PI", new FloatElement(Constants.FRAC_2_SQRT_PI), true);
 		
-		CONSTS_MODULE.setConst("LN_2", new FloatElement(Constants.LN_2));
-		CONSTS_MODULE.setConst("LN_10", new FloatElement(Constants.LN_10));
-		CONSTS_MODULE.setConst("LOG2_E", new FloatElement(Constants.LOG2_E));
-		CONSTS_MODULE.setConst("LOG2_10", new FloatElement(Constants.LOG2_10));
-		CONSTS_MODULE.setConst("LOG10_E", new FloatElement(Constants.LOG10_E));
-		CONSTS_MODULE.setConst("LOG10_2", new FloatElement(Constants.LOG10_2));
+		CONSTS_MODULE.setDef("LN_2", new FloatElement(Constants.LN_2), true);
+		CONSTS_MODULE.setDef("LN_10", new FloatElement(Constants.LN_10), true);
+		CONSTS_MODULE.setDef("LOG2_E", new FloatElement(Constants.LOG2_E), true);
+		CONSTS_MODULE.setDef("LOG2_10", new FloatElement(Constants.LOG2_10), true);
+		CONSTS_MODULE.setDef("LOG10_E", new FloatElement(Constants.LOG10_E), true);
+		CONSTS_MODULE.setDef("LOG10_2", new FloatElement(Constants.LOG10_2), true);
 	}
 	
 	public static final Set<String> KEYWORDS = new HashSet<>();
@@ -704,7 +704,6 @@ public class BuiltIn {
 		KEYWORDS.add("native");
 		
 		KEYWORDS.add("def");
-		KEYWORDS.add("const");
 		KEYWORDS.add("macro");
 		KEYWORDS.add("class");
 		KEYWORDS.add("magic");

@@ -272,7 +272,7 @@ public class Helpers {
 	}
 	
 	public static RuntimeException defError(@NonNull String identifier) {
-		return new IllegalArgumentException(String.format("Variable, constant, macro or class \"%s\" not defined!", identifier));
+		return new IllegalArgumentException(String.format("Variable, macro or class \"%s\" not defined!", identifier));
 	}
 	
 	public static @NonNull String extendedIdentifier(@Nullable String prevIdentifier, @NonNull String extension) {
