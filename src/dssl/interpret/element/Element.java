@@ -516,30 +516,55 @@ public abstract class Element {
 		return toString();
 	}
 	
-	public @Nullable Scope getMemberLabelScope(@NonNull MemberAccessType access) {
-		return access.equals(MemberAccessType.INSTANCE) ? clazz : null;
+	public @Nullable Scope getMemberScope(@NonNull MemberAccessType access) {
+		return access.equals(MemberAccessType.STATIC) ? null : clazz;
 	}
 	
-	public @NonNull MemberAccessType getMemberLabelModifiedAccess(@NonNull MemberAccessType access) {
-		return access;
-	}
-	
-	public @Nullable TokenResult memberAccess(TokenExecutor exec, @NonNull String member, @NonNull MemberAccessType access) {
-		if (access.equals(MemberAccessType.INSTANCE)) {
+	public @Nullable TokenResult memberAccess(TokenExecutor exec, @NonNull String member) {
+		@Nullable Scope memberScope = getMemberScope(MemberAccessType.STATIC);
+		if (memberScope != null) {
+			TokenResult result = memberScope.scopeAction(exec, member);
+			if (result != null) {
+				return result;
+			}
+		}
+		
+		memberScope = getMemberScope(MemberAccessType.INSTANCE);
+		if (memberScope != null) {
 			exec.push(this);
-			return clazz.scopeAction(exec, member);
+			return memberScope.scopeAction(exec, member);
+		}
+		
+		return null;
+	}
+	
+	public @Nullable String memberAccessIdentifier(@NonNull MemberAccessType access) {
+		@Nullable Scope memberScope = getMemberScope(access);
+		if (memberScope != null) {
+			return memberScope.getIdentifier();
 		}
 		else {
-			return null;
+			return toString();
 		}
 	}
 	
-	public RuntimeException memberAccessError(@NonNull String member, @NonNull MemberAccessType access) {
-		return new IllegalArgumentException(String.format("%s member \"%s\" not defined!", access, access.nextIdentifier(this, member)));
+	public @NonNull String extendedIdentifier(@NonNull String extension, @NonNull MemberAccessType access) {
+		return Helpers.extendedIdentifier(memberAccessIdentifier(access), extension);
 	}
 	
-	public String scopeAccessIdentifier(@NonNull MemberAccessType access) {
-		return access.equals(MemberAccessType.INSTANCE) ? clazz.fullIdentifier : toString();
+	public RuntimeException memberAccessError(@NonNull String member) {
+		@NonNull String staticIdentifier = extendedIdentifier(member, MemberAccessType.STATIC);
+		@NonNull String instanceIdentifier = extendedIdentifier(member, MemberAccessType.INSTANCE);
+		
+		String desc;
+		if (staticIdentifier.equals(instanceIdentifier)) {
+			desc = String.format("\"%s\"", staticIdentifier);
+		}
+		else {
+			desc = String.format("\"%s\" or \"%s\"", staticIdentifier, instanceIdentifier);
+		}
+		
+		return new IllegalArgumentException(String.format("Member %s not defined!", desc));
 	}
 	
 	public Object formatted(TokenExecutor exec) {

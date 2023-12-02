@@ -345,8 +345,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		
 		TOKEN_FUNCTION_MAP.put(TIdentifier.class, TokenExecutor::onIdentifier);
 		TOKEN_FUNCTION_MAP.put(TLabel.class, TokenExecutor::onLabel);
-		TOKEN_FUNCTION_MAP.put(TInstanceMember.class, TokenExecutor::onInstanceMember);
-		TOKEN_FUNCTION_MAP.put(TStaticMember.class, TokenExecutor::onStaticMember);
+		TOKEN_FUNCTION_MAP.put(TMember.class, TokenExecutor::onMember);
 		TOKEN_FUNCTION_MAP.put(TModule.class, TokenExecutor::onModule);
 		
 		TOKEN_FUNCTION_MAP.put(BlockToken.class, TokenExecutor::onBlock);
@@ -1008,16 +1007,21 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		return TokenResult.PASS;
 	}
 	
-	protected TokenResult onInstanceMember(@NonNull Token token) {
+	protected TokenResult onMember(@NonNull Token token) {
 		@SuppressWarnings("null") @NonNull String member = token.getText().substring(1);
-		checkKeyword(member, "an instance member identifier");
-		return memberAccess(MemberAccessType.INSTANCE, member);
-	}
-	
-	protected TokenResult onStaticMember(@NonNull Token token) {
-		@SuppressWarnings("null") @NonNull String member = token.getText().substring(2);
-		checkKeyword(member, "a static member identifier");
-		return memberAccess(MemberAccessType.STATIC, member);
+		checkKeyword(member, "a member identifier");
+		
+		@NonNull Element elem = pop();
+		if (elem instanceof LabelElement) {
+			push(((LabelElement) elem).extended(member));
+			return TokenResult.PASS;
+		}
+		
+		TokenResult result = elem.memberAccess(this, member);
+		if (result == null) {
+			throw elem.memberAccessError(member);
+		}
+		return result;
 	}
 	
 	protected TokenResult onModule(@NonNull Token token) {
@@ -1118,20 +1122,6 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	protected TokenResult opAssign(TokenResult opResult) {
 		assign(pop(), pop(), AssignmentType.EQUALS);
 		return opResult;
-	}
-	
-	protected TokenResult memberAccess(@NonNull MemberAccessType access, @NonNull String member) {
-		@NonNull Element elem = pop();
-		if (elem instanceof LabelElement) {
-			push(((LabelElement) elem).extended(member, access));
-			return TokenResult.PASS;
-		}
-		
-		TokenResult result = elem.memberAccess(this, member, access);
-		if (result == null) {
-			throw elem.memberAccessError(member, access);
-		}
-		return result;
 	}
 	
 	public @Nullable TokenResult scopeAction(Supplier<Def> getDef, Supplier<Const> getConst, Supplier<Macro> getMacro, Supplier<Clazz> getClazz) {

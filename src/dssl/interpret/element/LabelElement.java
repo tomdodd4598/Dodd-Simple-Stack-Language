@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
+import dssl.Helpers;
 import dssl.interpret.*;
 
 public class LabelElement extends Element {
@@ -14,7 +15,7 @@ public class LabelElement extends Element {
 	protected final @NonNull String shallowIdentifier;
 	
 	public LabelElement(@NonNull Scope scope, @NonNull String identifier) {
-		this(scope, MemberAccessType.STATIC.nextIdentifier(scope.getIdentifier(), identifier), identifier);
+		this(scope, Helpers.extendedIdentifier(scope.getIdentifier(), identifier), identifier);
 	}
 	
 	protected LabelElement(@NonNull Scope scope, @NonNull String fullIdentifier, @NonNull String shallowIdentifier) {
@@ -24,19 +25,23 @@ public class LabelElement extends Element {
 		this.shallowIdentifier = shallowIdentifier;
 	}
 	
-	protected LabelElement(@NonNull LabelElement prev, @NonNull String extension, @NonNull MemberAccessType access) {
+	protected LabelElement(@NonNull LabelElement prev, @NonNull String extension) {
 		super(BuiltIn.LABEL_CLAZZ);
-		Def def = prev.getDef();
+		Def def;
+		Const cons;
 		@NonNull Element elem;
-		@NonNull MemberAccessType modifiedAccess;
 		@Nullable Scope nextScope;
-		if (def != null && (nextScope = (elem = def.elem).getMemberLabelScope(modifiedAccess = elem.getMemberLabelModifiedAccess(access))) != null) {
+		if ((def = prev.getDef()) != null && (nextScope = (elem = def.elem).getMemberScope(MemberAccessType.STATIC)) != null) {
 			scope = nextScope;
-			fullIdentifier = modifiedAccess.nextIdentifier(elem, extension);
+			fullIdentifier = elem.extendedIdentifier(extension, MemberAccessType.STATIC);
+		}
+		else if ((cons = prev.getConst()) != null && (nextScope = (elem = cons.elem).getMemberScope(MemberAccessType.STATIC)) != null) {
+			scope = nextScope;
+			fullIdentifier = elem.extendedIdentifier(extension, MemberAccessType.STATIC);
 		}
 		else if ((nextScope = prev.getClazz()) != null) {
 			scope = nextScope;
-			fullIdentifier = MemberAccessType.STATIC.nextIdentifier(prev.fullIdentifier, extension);
+			fullIdentifier = Helpers.extendedIdentifier(prev.fullIdentifier, extension);
 		}
 		else {
 			throw new IllegalArgumentException(String.format("Scope \"%s\" not accessible for member \"%s\"!", prev.fullIdentifier, extension));
@@ -84,8 +89,8 @@ public class LabelElement extends Element {
 		scope.setMagic(shallowIdentifier, block);
 	}
 	
-	public @NonNull LabelElement extended(@NonNull String extension, @NonNull MemberAccessType access) {
-		return new LabelElement(this, extension, access);
+	public @NonNull LabelElement extended(@NonNull String extension) {
+		return new LabelElement(this, extension);
 	}
 	
 	@Override

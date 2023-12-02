@@ -345,30 +345,8 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public @Nullable Scope getMemberLabelScope(@NonNull MemberAccessType access) {
-		return this;
-	}
-	
-	@Override
-	public @NonNull MemberAccessType getMemberLabelModifiedAccess(@NonNull MemberAccessType access) {
-		return MemberAccessType.STATIC;
-	}
-	
-	@Override
-	public @Nullable TokenResult memberAccess(TokenExecutor exec, @NonNull String member, @NonNull MemberAccessType access) {
-		TokenResult result = scopeAction(exec, member);
-		if (result == null && access.equals(MemberAccessType.INSTANCE)) {
-			exec.push(this);
-			return clazz.scopeAction(exec, member);
-		}
-		else {
-			return result;
-		}
-	}
-	
-	@Override
-	public String scopeAccessIdentifier(@NonNull MemberAccessType access) {
-		return access.equals(MemberAccessType.INSTANCE) ? clazz.fullIdentifier : scopeIdentifier;
+	public @Nullable Scope getMemberScope(@NonNull MemberAccessType access) {
+		return access.equals(MemberAccessType.STATIC) ? this : clazz;
 	}
 	
 	protected <T> void addToScopeMap(Map<@NonNull String, T> source, Map<@NonNull Element, @NonNull Element> target) {

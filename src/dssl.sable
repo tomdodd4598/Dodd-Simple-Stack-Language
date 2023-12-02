@@ -154,6 +154,5 @@ Tokens
 	
 	identifier = name;
 	label = '/' name;
-	instance_member = '.' name;
-	static_member = '::' name;
+	member = '.' name;
 	module = '$' name;

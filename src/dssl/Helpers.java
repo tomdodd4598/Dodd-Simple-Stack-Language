@@ -11,7 +11,7 @@ import java.util.stream.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.translate.*;
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import dssl.lexer.*;
 import dssl.node.*;
@@ -273,6 +273,10 @@ public class Helpers {
 	
 	public static RuntimeException defError(@NonNull String identifier) {
 		return new IllegalArgumentException(String.format("Variable, constant, macro or class \"%s\" not defined!", identifier));
+	}
+	
+	public static @NonNull String extendedIdentifier(@Nullable String prevIdentifier, @NonNull String extension) {
+		return prevIdentifier == null ? extension : prevIdentifier + "." + extension;
 	}
 	
 	public static class Pair<A, B> {

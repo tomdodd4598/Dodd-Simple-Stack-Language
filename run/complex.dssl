@@ -52,7 +52,7 @@ $math include
 	/pow {
 		dup .re /yre exch def .im /yim exch def
 		dup .abs ln /xlnr exch def .arg /xtheta exch def
-		xlnr yre * xtheta yim * - exp xtheta yre * xlnr yim * + Complex ::fromPolar
+		xlnr yre * xtheta yim * - exp xtheta yre * xlnr yim * + Complex .fromPolar
 	} magic
 	
 	/str {

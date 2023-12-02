@@ -32,7 +32,7 @@ public class Clazz implements HierarchicalScope {
 	}
 	
 	public Clazz(String prev, @NonNull String extension, @NonNull ClazzType type, HierarchicalScope base, ArrayList<Clazz> supers) {
-		fullIdentifier = MemberAccessType.STATIC.nextIdentifier(prev, extension);
+		fullIdentifier = Helpers.extendedIdentifier(prev, extension);
 		shallowIdentifier = extension;
 		this.type = type;
 		

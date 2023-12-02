@@ -19,24 +19,8 @@ public class ClassElement extends Element {
 	}
 	
 	@Override
-	public @Nullable Scope getMemberLabelScope(@NonNull MemberAccessType access) {
-		return access.equals(MemberAccessType.INSTANCE) ? clazz : internal;
-	}
-	
-	@Override
-	public @Nullable TokenResult memberAccess(TokenExecutor exec, @NonNull String member, @NonNull MemberAccessType access) {
-		if (access.equals(MemberAccessType.INSTANCE)) {
-			exec.push(this);
-			return clazz.scopeAction(exec, member);
-		}
-		else {
-			return internal.scopeAction(exec, member);
-		}
-	}
-	
-	@Override
-	public String scopeAccessIdentifier(@NonNull MemberAccessType access) {
-		return access.equals(MemberAccessType.INSTANCE) ? clazz.fullIdentifier : internal.fullIdentifier;
+	public @Nullable Scope getMemberScope(@NonNull MemberAccessType access) {
+		return access.equals(MemberAccessType.STATIC) ? internal : clazz;
 	}
 	
 	protected <T> void addToScopeMap(Hierarchy<@NonNull String, T> source, Map<@NonNull Element, @NonNull Element> target) {

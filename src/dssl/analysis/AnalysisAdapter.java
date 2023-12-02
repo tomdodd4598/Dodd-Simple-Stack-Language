@@ -93,25 +93,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTDictLBracket(TDictLBracket node)
+    public void caseTRangeLBracket(TRangeLBracket node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTDictRBracket(TDictRBracket node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTSetLBracket(TSetLBracket node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTSetRBracket(TSetRBracket node)
+    public void caseTRangeRBracket(TRangeRBracket node)
     {
         defaultCase(node);
     }
@@ -129,13 +117,25 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTRangeLBracket(TRangeLBracket node)
+    public void caseTSetLBracket(TSetLBracket node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTRangeRBracket(TRangeRBracket node)
+    public void caseTSetRBracket(TSetRBracket node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTDictLBracket(TDictLBracket node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTDictRBracket(TDictRBracket node)
     {
         defaultCase(node);
     }
@@ -609,13 +609,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTInstanceMember(TInstanceMember node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTStaticMember(TStaticMember node)
+    public void caseTMember(TMember node)
     {
         defaultCase(node);
     }
