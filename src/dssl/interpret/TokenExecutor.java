@@ -71,11 +71,11 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		}
 		TokenResult result = TOKEN_FUNCTION_MAP.apply(this, token);
 		if (interpreter.debug && !Helpers.isSeparator(token)) {
-			interpreter.io.debug(token.getText().trim().replaceAll("\\s+", " ") + " -> " + debug() + "\n");
+			interpreter.ioImpl.debug(token.getText().trim().replaceAll("\\s+", " ") + " -> " + debug() + "\n");
 		}
 		
 		for (String str : interpreter.printList) {
-			interpreter.io.print(str);
+			interpreter.ioImpl.print(str);
 		}
 		interpreter.printList.clear();
 		
@@ -576,7 +576,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	protected TokenResult onRead(@NonNull Token token) {
-		String str = interpreter.io.read();
+		String str = interpreter.ioImpl.read();
 		push(str == null ? NullElement.INSTANCE : new StringElement(str));
 		return TokenResult.PASS;
 	}

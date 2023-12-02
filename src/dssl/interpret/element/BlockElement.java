@@ -10,7 +10,7 @@ import dssl.node.Token;
 
 public class BlockElement extends Element implements Invokable {
 	
-	protected final List<@NonNull Token> tokens;
+	public final List<@NonNull Token> tokens;
 	
 	public BlockElement(List<@NonNull Token> tokens) {
 		super(BuiltIn.BLOCK_CLAZZ);
@@ -18,26 +18,7 @@ public class BlockElement extends Element implements Invokable {
 	}
 	
 	public TokenExecutor executor(TokenExecutor exec) {
-		return new TokenExecutor(new TokenIterator() {
-			
-			Iterator<@NonNull Token> internal = tokens.iterator();
-			
-			@Override
-			public void onStart() {
-				curr = getNextChecked();
-			}
-			
-			@Override
-			public boolean validNext() {
-				return internal.hasNext();
-			}
-			
-			@SuppressWarnings("null")
-			@Override
-			protected Token getNext() {
-				return internal.next();
-			}
-		}, exec, true);
+		return new TokenExecutor(exec.interpreter.blockIteratorImpl.get(this), exec, true);
 	}
 	
 	@Override

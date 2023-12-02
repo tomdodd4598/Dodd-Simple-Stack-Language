@@ -46,6 +46,27 @@ public class Main {
 			}
 		}
 		
+		BlockIterator blockIterImpl = x -> new TokenIterator() {
+			
+			Iterator<@NonNull Token> internal = x.tokens.iterator();
+			
+			@Override
+			public void onStart() {
+				curr = getNextChecked();
+			}
+			
+			@Override
+			public boolean validNext() {
+				return internal.hasNext();
+			}
+			
+			@SuppressWarnings("null")
+			@Override
+			protected Token getNext() {
+				return internal.next();
+			}
+		};
+		
 		IO consoleIO = new IO() {
 			
 			@Override
@@ -171,12 +192,12 @@ public class Main {
 					return Helpers.getLexerNext(lexer);
 				}
 			};
-			Interpreter interpreter = new Interpreter(consoleIterator, consoleIO, moduleImpl, nativeImpl, debug);
+			Interpreter interpreter = new Interpreter(consoleIterator, blockIterImpl, consoleIO, moduleImpl, nativeImpl, debug);
 			interpreter.run();
 		}
 		else {
 			try (PushbackReader reader = Helpers.getPushbackReader(new FileReader(input.args.get(0)))) {
-				Interpreter interpreter = new Interpreter(new Lexer(reader), consoleIO, moduleImpl, nativeImpl, debug);
+				Interpreter interpreter = new Interpreter(new Lexer(reader), blockIterImpl, consoleIO, moduleImpl, nativeImpl, debug);
 				interpreter.run();
 			}
 			catch (Exception e) {
