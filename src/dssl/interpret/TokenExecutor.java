@@ -1,7 +1,7 @@
 package dssl.interpret;
 
 import java.math.*;
-import java.nio.file.*;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -72,11 +72,11 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		}
 		TokenResult result = TOKEN_FUNCTION_MAP.apply(this, token);
 		if (interpreter.debug && !Helpers.isSeparator(token)) {
-			interpreter.ioImpl.debug(token.getText().trim().replaceAll("\\s+", " ") + " -> " + debug() + "\n");
+			interpreter.hooks.debug(token.getText().trim().replaceAll("\\s+", " ") + " -> " + debug() + "\n");
 		}
 		
 		for (String str : interpreter.printList) {
-			interpreter.ioImpl.print(str);
+			interpreter.hooks.print(str);
 		}
 		interpreter.printList.clear();
 		
@@ -413,15 +413,15 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	protected TokenResult onInclude(@NonNull Token token) {
-		return interpreter.moduleImpl.onInclude(this);
+		return interpreter.hooks.onInclude(this);
 	}
 	
 	protected TokenResult onImport(@NonNull Token token) {
-		return interpreter.moduleImpl.onImport(this);
+		return interpreter.hooks.onImport(this);
 	}
 	
 	protected TokenResult onNative(@NonNull Token token) {
-		return interpreter.nativeImpl.onNative(this);
+		return interpreter.hooks.onNative(this);
 	}
 	
 	protected TokenResult onDef(@NonNull Token token) {
@@ -585,7 +585,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	protected TokenResult onRead(@NonNull Token token) {
-		String str = interpreter.ioImpl.read();
+		String str = interpreter.hooks.read();
 		push(str == null ? NullElement.INSTANCE : new StringElement(str));
 		return TokenResult.PASS;
 	}
@@ -1582,18 +1582,17 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	protected TokenResult args() {
-		push(new ListElement(interpreter.args));
+		push(new ListElement(interpreter.args.stream().map(StringElement::new)));
 		return TokenResult.PASS;
 	}
 	
 	protected TokenResult rootPath() {
-		push(interpreter.args.get(0));
+		push(new StringElement(Helpers.normalizedPathString(interpreter.hooks.getRootPath(this))));
 		return TokenResult.PASS;
 	}
 	
-	@SuppressWarnings("null")
 	protected TokenResult rootDir() {
-		push(new StringElement(Paths.get(interpreter.args.get(0).toString()).getParent().normalize().toString()));
+		push(new StringElement(Helpers.normalizedPathString(interpreter.hooks.getRootPath(this).getParent())));
 		return TokenResult.PASS;
 	}
 	
@@ -1604,9 +1603,8 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in env macro \"fromRoot\" requires %s element as argument!", BuiltIn.STRING));
 		}
 		
-		@SuppressWarnings("null") Path root = Paths.get(interpreter.args.get(0).toString()).getParent();
-		@SuppressWarnings("null") @NonNull String relative = root.resolve(stringElem.toString()).normalize().toString().replace('\\', '/');
-		push(new StringElement(relative));
+		Path root = interpreter.hooks.getRootPath(this).getParent();
+		push(new StringElement(Helpers.normalizedPathString(root.resolve(stringElem.toString()))));
 		return TokenResult.PASS;
 	}
 	
@@ -1639,7 +1637,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in fs macro \"readLines\" requires %s element as argument!", BuiltIn.STRING));
 		}
 		
-		push(new ListElement(() -> Helpers.readLines(stringElem.toString()).stream().map(StringElement::new).iterator()));
+		push(new ListElement(Helpers.readLines(stringElem.toString()).stream().map(StringElement::new)));
 		return TokenResult.PASS;
 	}
 	
@@ -1654,7 +1652,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in fs macro \"writeLines\" requires %s element as second argument!", BuiltIn.ITERABLE));
 		}
 		
-		Helpers.writeLines(stringElem0.toString(), ((IterableElement) elem1).stream(this).map(x -> x.stringCast(this).toString()).iterator());
+		Helpers.writeLines(stringElem0.toString(), ((IterableElement) elem1).stream(this).map(x -> x.stringCast(this).toString()));
 		return TokenResult.PASS;
 	}
 }

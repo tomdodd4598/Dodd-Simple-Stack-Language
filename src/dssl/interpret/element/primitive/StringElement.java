@@ -161,7 +161,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 		if (!(elem instanceof StringElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"split\" requires %s element as argument!", BuiltIn.STRING));
 		}
-		return new ListElement(Helpers.map(Arrays.asList(value.raw.split(((StringElement) elem).value.raw, -1)), StringElement::new));
+		return new ListElement(Arrays.stream(value.raw.split(((StringElement) elem).value.raw, -1)).map(StringElement::new));
 	}
 	
 	@Override

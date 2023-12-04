@@ -1,7 +1,8 @@
 package dssl.interpret.element;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
+import java.util.stream.*;
 
 import org.eclipse.jdt.annotation.NonNull;
 
@@ -13,10 +14,22 @@ public class ListElement extends Element implements IterableElement {
 	
 	public final List<@NonNull Element> value;
 	
-	public <T extends Element> ListElement(Iterable<@NonNull T> elems) {
+	public <T extends Element> ListElement(Consumer<Consumer<@NonNull T>> forEach) {
 		super(BuiltIn.LIST_CLAZZ);
 		value = new ArrayList<>();
-		elems.forEach(value::add);
+		forEach.accept(value::add);
+	}
+	
+	public <T extends Element> ListElement(Iterable<@NonNull T> elems) {
+		this(elems::forEach);
+	}
+	
+	public <T extends Element> ListElement(Iterator<@NonNull T> elems) {
+		this(elems::forEachRemaining);
+	}
+	
+	public <T extends Element> ListElement(Stream<@NonNull T> elems) {
+		this(elems::forEachOrdered);
 	}
 	
 	public <T extends Element> ListElement(@NonNull T... elems) {

@@ -1,7 +1,8 @@
 package dssl.interpret.element;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
+import java.util.stream.*;
 
 import org.eclipse.jdt.annotation.NonNull;
 
@@ -13,10 +14,22 @@ public class SetElement extends Element implements IterableElement {
 	
 	public final Set<@NonNull Element> value;
 	
-	public <T extends Element> SetElement(Iterable<@NonNull T> elems) {
+	public <T extends Element> SetElement(Consumer<Consumer<@NonNull T>> forEach) {
 		super(BuiltIn.SET_CLAZZ);
 		value = new HashSet<>();
-		elems.forEach(value::add);
+		forEach.accept(value::add);
+	}
+	
+	public <T extends Element> SetElement(Iterable<@NonNull T> elems) {
+		this(elems::forEach);
+	}
+	
+	public <T extends Element> SetElement(Iterator<@NonNull T> elems) {
+		this(elems::forEachRemaining);
+	}
+	
+	public <T extends Element> SetElement(Stream<@NonNull T> elems) {
+		this(elems::forEach);
 	}
 	
 	@Override

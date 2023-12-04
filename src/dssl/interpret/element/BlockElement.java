@@ -18,7 +18,7 @@ public class BlockElement extends Element implements Invokable {
 	}
 	
 	public TokenExecutor executor(TokenExecutor exec) {
-		return new TokenExecutor(exec.interpreter.blockIteratorImpl.get(this), exec, true);
+		return new TokenExecutor(exec.interpreter.hooks.getBlockIterator(exec, this), exec, true);
 	}
 	
 	@Override

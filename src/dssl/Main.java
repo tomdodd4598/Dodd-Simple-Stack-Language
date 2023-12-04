@@ -1,6 +1,7 @@
 package dssl;
 
 import java.io.*;
+import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,28 +47,7 @@ public class Main {
 			}
 		}
 		
-		BlockIterator blockIterImpl = x -> new TokenIterator() {
-			
-			Iterator<@NonNull Token> internal = x.tokens.iterator();
-			
-			@Override
-			public void onStart() {
-				curr = getNextChecked();
-			}
-			
-			@Override
-			public boolean validNext() {
-				return internal.hasNext();
-			}
-			
-			@SuppressWarnings("null")
-			@Override
-			protected Token getNext() {
-				return internal.next();
-			}
-		};
-		
-		IO consoleIO = new IO() {
+		Hooks hooks = new Hooks() {
 			
 			@Override
 			public void print(String str) {
@@ -83,9 +63,6 @@ public class Main {
 			public String read() {
 				return Helpers.getThrowing(READER::readLine);
 			}
-		};
-		
-		Module moduleImpl = new Module() {
 			
 			@Override
 			public TokenResult onInclude(TokenExecutor exec) {
@@ -135,13 +112,44 @@ public class Main {
 					throw new IllegalArgumentException(String.format("Keyword \"import\" requires %s or %s element as second argument!", BuiltIn.STRING, BuiltIn.MODULE));
 				}
 			}
-		};
-		
-		Native nativeImpl = natives ? new NativeImpl() : new Native() {
 			
 			@Override
 			public TokenResult onNative(TokenExecutor exec) {
-				throw new IllegalArgumentException(String.format("Keyword \"native\" not enabled!"));
+				if (natives) {
+					return NativeImpl.INSTANCE.onNative(exec);
+				}
+				else {
+					throw new IllegalArgumentException(String.format("Keyword \"native\" not enabled!"));
+				}
+			}
+			
+			@Override
+			public TokenIterator getBlockIterator(TokenExecutor exec, @NonNull BlockElement block) {
+				return new TokenIterator() {
+					
+					Iterator<@NonNull Token> internal = block.tokens.iterator();
+					
+					@Override
+					public void onStart() {
+						curr = getNextChecked();
+					}
+					
+					@Override
+					public boolean validNext() {
+						return internal.hasNext();
+					}
+					
+					@SuppressWarnings("null")
+					@Override
+					protected Token getNext() {
+						return internal.next();
+					}
+				};
+			}
+			
+			@Override
+			public Path getRootPath(TokenExecutor exec) {
+				return Paths.get(exec.interpreter.args.get(0));
 			}
 		};
 		
@@ -154,7 +162,7 @@ public class Main {
 				public @NonNull Token next() {
 					@NonNull Token next = super.next();
 					if (debug && !Helpers.isSeparator(next)) {
-						consoleIO.print("::: ");
+						hooks.print("::: ");
 					}
 					return next;
 				}
@@ -168,8 +176,8 @@ public class Main {
 				public boolean validNext() {
 					while (curr instanceof EOF) {
 						String str;
-						consoleIO.print(">>> ");
-						if ((str = consoleIO.read()) == null) {
+						hooks.print(">>> ");
+						if ((str = hooks.read()) == null) {
 							return false;
 						}
 						lexer = Helpers.stringLexer(str);
@@ -184,12 +192,13 @@ public class Main {
 					return Helpers.getLexerNext(lexer);
 				}
 			};
-			Interpreter interpreter = new Interpreter(input.args, consoleIterator, blockIterImpl, consoleIO, moduleImpl, nativeImpl, debug);
+			
+			Interpreter interpreter = new Interpreter(input.args, hooks, consoleIterator, debug);
 			interpreter.run();
 		}
 		else {
 			try (PushbackReader reader = Helpers.getPushbackReader(new FileReader(input.args.get(0)))) {
-				Interpreter interpreter = new Interpreter(input.args, new Lexer(reader), blockIterImpl, consoleIO, moduleImpl, nativeImpl, debug);
+				Interpreter interpreter = new Interpreter(input.args, hooks, new Lexer(reader), debug);
 				interpreter.run();
 			}
 			catch (Exception e) {

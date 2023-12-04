@@ -13,9 +13,14 @@ import dssl.interpret.element.*;
 import dssl.interpret.element.primitive.*;
 import sun.reflect.generics.reflectiveObjects.*;
 
-public class NativeImpl implements Native {
+public class NativeImpl {
 	
-	@Override
+	public static final NativeImpl INSTANCE = new NativeImpl();
+	
+	private NativeImpl() {
+		
+	}
+	
 	public TokenResult onNative(TokenExecutor exec) {
 		@NonNull Element elem = exec.pop();
 		StringElement stringElem = elem.asString(exec);
@@ -395,7 +400,6 @@ public class NativeImpl implements Native {
 		return tracked(elem, y -> nativize(y, type), tracker);
 	}
 	
-	@SuppressWarnings("null")
 	static @NonNull Element convert(Object obj) {
 		if (obj == null) {
 			return NullElement.INSTANCE;
@@ -431,10 +435,10 @@ public class NativeImpl implements Native {
 			return new StringElement((String) obj);
 		}
 		else if (obj instanceof List) {
-			return new ListElement(Helpers.map((List<?>) obj, NativeImpl::convert));
+			return new ListElement(((List<?>) obj).stream().map(NativeImpl::convert));
 		}
 		else if (obj.getClass().isArray()) {
-			return new ListElement(IntStream.range(0, Array.getLength(obj)).boxed().map(x -> Array.get(obj, x)).map(NativeImpl::convert).collect(Collectors.toList()));
+			return new ListElement(IntStream.range(0, Array.getLength(obj)).mapToObj(x -> NativeImpl.convert(Array.get(obj, x))));
 		}
 		else if (obj instanceof Set) {
 			return new SetElement(Helpers.map((Set<?>) obj, NativeImpl::convert));

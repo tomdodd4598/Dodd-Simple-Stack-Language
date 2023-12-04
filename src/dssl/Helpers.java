@@ -6,7 +6,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.util.*;
-import java.util.function.Function;
+import java.util.function.*;
 import java.util.stream.*;
 
 import org.apache.commons.lang3.StringUtils;
@@ -41,9 +41,9 @@ public class Helpers {
 		}
 	}
 	
-	public static void writeLines(@NonNull String fileName, Iterator<String> lines) {
+	public static <T> void writeLines(@NonNull String fileName, Consumer<Consumer<? super String>> forEach) {
 		try (PrintWriter out = new PrintWriter(fileName)) {
-			lines.forEachRemaining(x -> {
+			forEach.accept(x -> {
 				out.print(x);
 				out.println();
 			});
@@ -53,8 +53,16 @@ public class Helpers {
 		}
 	}
 	
-	public static void writeLines(@NonNull String fileName, List<String> lines) {
-		writeLines(fileName, lines.iterator());
+	public static void writeLines(@NonNull String fileName, Iterable<String> lines) {
+		writeLines(fileName, lines::forEach);
+	}
+	
+	public static void writeLines(@NonNull String fileName, Iterator<String> lines) {
+		writeLines(fileName, lines::forEachRemaining);
+	}
+	
+	public static void writeLines(@NonNull String fileName, Stream<String> lines) {
+		writeLines(fileName, lines::forEachOrdered);
 	}
 	
 	public static PushbackReader getPushbackReader(Reader reader) {
@@ -84,6 +92,11 @@ public class Helpers {
 		else {
 			return value;
 		}
+	}
+	
+	@SuppressWarnings("null")
+	public static @NonNull String normalizedPathString(Path path) {
+		return path.normalize().toString().replace('\\', '/');
 	}
 	
 	@SuppressWarnings("null")

@@ -50,12 +50,12 @@ public abstract class IterElement extends Element {
 	
 	@Override
 	public @NonNull Element collectList(TokenExecutor exec) {
-		return new ListElement(() -> internalIterator(exec));
+		return new ListElement(internalIterator(exec));
 	}
 	
 	@Override
 	public @NonNull Element collectSet(TokenExecutor exec) {
-		return new SetElement(() -> internalIterator(exec));
+		return new SetElement(internalIterator(exec));
 	}
 	
 	@Override
