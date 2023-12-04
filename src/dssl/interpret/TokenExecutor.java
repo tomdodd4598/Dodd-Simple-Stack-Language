@@ -1,7 +1,6 @@
 package dssl.interpret;
 
 import java.math.*;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -1603,8 +1602,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in env macro \"fromRoot\" requires %s element as argument!", BuiltIn.STRING));
 		}
 		
-		Path root = interpreter.hooks.getRootPath(this).getParent();
-		push(new StringElement(Helpers.normalizedPathString(root.resolve(stringElem.toString()))));
+		push(new StringElement(Helpers.normalizedPathString(interpreter.hooks.getRootPath(this).getParent().resolve(stringElem.toString()))));
 		return TokenResult.PASS;
 	}
 	

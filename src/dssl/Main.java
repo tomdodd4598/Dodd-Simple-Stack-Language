@@ -149,7 +149,7 @@ public class Main {
 			
 			@Override
 			public Path getRootPath(TokenExecutor exec) {
-				return Paths.get(exec.interpreter.args.get(0));
+				return Paths.get(input.args.get(0));
 			}
 		};
 		
