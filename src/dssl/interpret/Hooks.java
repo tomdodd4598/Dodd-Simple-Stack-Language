@@ -14,11 +14,11 @@ public interface Hooks {
 	
 	public String read();
 	
-	public TokenResult onInclude(TokenExecutor exec);
+	public @NonNull TokenResult onInclude(TokenExecutor exec);
 	
-	public TokenResult onImport(TokenExecutor exec);
+	public @NonNull TokenResult onImport(TokenExecutor exec);
 	
-	public TokenResult onNative(TokenExecutor exec);
+	public @NonNull TokenResult onNative(TokenExecutor exec);
 	
 	public TokenIterator getBlockIterator(TokenExecutor exec, @NonNull BlockElement block);
 	

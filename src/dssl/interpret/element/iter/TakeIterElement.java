@@ -8,9 +8,9 @@ import dssl.interpret.element.Element;
 public class TakeIterElement extends IterElement {
 	
 	protected final IterElement internal;
-	protected int take;
+	protected long take;
 	
-	public TakeIterElement(IterElement internal, int take) {
+	public TakeIterElement(IterElement internal, long take) {
 		super();
 		this.internal = internal;
 		this.take = take;

@@ -125,6 +125,11 @@ public class DictElement extends Element implements IterableElement {
 	}
 	
 	@Override
+	public void removeEntry(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
+		value.remove(elem0, elem1);
+	}
+	
+	@Override
 	public boolean containsKey(TokenExecutor exec, @NonNull Element elem) {
 		return value.containsKey(elem);
 	}
@@ -145,7 +150,7 @@ public class DictElement extends Element implements IterableElement {
 	}
 	
 	@Override
-	public @NonNull Element items(TokenExecutor exec) {
+	public @NonNull Element entries(TokenExecutor exec) {
 		return new SetElement(internalIterable(exec));
 	}
 	

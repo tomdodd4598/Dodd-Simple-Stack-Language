@@ -10,12 +10,12 @@ import dssl.interpret.element.*;
 public class ChunksIterElement extends IterElement {
 	
 	protected final IterElement internal;
-	protected final int size;
+	protected final long size;
 	
 	protected @Nullable ListElement next = null;
 	protected boolean end = false;
 	
-	public ChunksIterElement(IterElement internal, int size) {
+	public ChunksIterElement(IterElement internal, long size) {
 		super();
 		this.internal = internal;
 		this.size = size;
@@ -23,7 +23,7 @@ public class ChunksIterElement extends IterElement {
 	
 	protected void prepare(TokenExecutor exec) {
 		if (next == null && !end) {
-			int count = 0;
+			long count = 0;
 			List<@NonNull Element> list = new ArrayList<>();
 			
 			while (internal.hasNext(exec)) {

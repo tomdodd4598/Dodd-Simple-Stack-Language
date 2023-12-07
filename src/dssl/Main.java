@@ -65,7 +65,7 @@ public class Main {
 			}
 			
 			@Override
-			public TokenResult onInclude(TokenExecutor exec) {
+			public @NonNull TokenResult onInclude(TokenExecutor exec) {
 				@NonNull Element elem = exec.pop();
 				StringElement stringElem = elem.asString(exec);
 				if (stringElem != null) {
@@ -86,7 +86,7 @@ public class Main {
 			}
 			
 			@Override
-			public TokenResult onImport(TokenExecutor exec) {
+			public @NonNull TokenResult onImport(TokenExecutor exec) {
 				@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
 				if (!(elem0 instanceof LabelElement)) {
 					throw new IllegalArgumentException(String.format("Keyword \"import\" requires %s element as first argument!", BuiltIn.LABEL));
@@ -114,7 +114,7 @@ public class Main {
 			}
 			
 			@Override
-			public TokenResult onNative(TokenExecutor exec) {
+			public @NonNull TokenResult onNative(TokenExecutor exec) {
 				if (natives) {
 					return NativeImpl.INSTANCE.onNative(exec);
 				}

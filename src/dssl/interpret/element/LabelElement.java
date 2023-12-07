@@ -9,7 +9,7 @@ import dssl.interpret.*;
 
 public class LabelElement extends Element {
 	
-	protected final @NonNull Scope scope;
+	public final @NonNull Scope scope;
 	
 	public final @NonNull String fullIdentifier;
 	protected final @NonNull String shallowIdentifier;

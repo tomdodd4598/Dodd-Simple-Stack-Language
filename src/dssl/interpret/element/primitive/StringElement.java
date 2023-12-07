@@ -52,13 +52,13 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	}
 	
 	@Override
-	public TokenResult onConcat(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onConcat(TokenExecutor exec, @NonNull Element other) {
 		exec.push(new StringElement(toString() + other.stringCast(exec)));
 		return TokenResult.PASS;
 	}
 	
 	@Override
-	public TokenResult onNot(TokenExecutor exec) {
+	public @NonNull TokenResult onNot(TokenExecutor exec) {
 		throw unaryOpError("!");
 	}
 	
@@ -114,7 +114,22 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	@SuppressWarnings("null")
 	@Override
 	public @NonNull Element slice(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
-		return new StringElement(value.raw.substring(methodIndex(exec, elem0, "slice"), methodIndex(exec, elem1, "slice")));
+		return new StringElement(value.raw.substring(methodIndex(exec, elem0, "slice", 1), methodIndex(exec, elem1, "slice", 2)));
+	}
+	
+	@Override
+	public @NonNull Element fst(TokenExecutor exec) {
+		return new CharElement(value.raw.charAt(0));
+	}
+	
+	@Override
+	public @NonNull Element snd(TokenExecutor exec) {
+		return new CharElement(value.raw.charAt(1));
+	}
+	
+	@Override
+	public @NonNull Element last(TokenExecutor exec) {
+		return new CharElement(value.raw.charAt(value.raw.length() - 1));
 	}
 	
 	@Override

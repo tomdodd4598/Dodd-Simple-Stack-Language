@@ -21,7 +21,7 @@ public class FloatElement extends PrimitiveElement<@NonNull Double, @NonNull Flo
 	}
 	
 	@Override
-	public TokenResult onNot(TokenExecutor exec) {
+	public @NonNull TokenResult onNot(TokenExecutor exec) {
 		throw unaryOpError("!");
 	}
 	

@@ -102,13 +102,18 @@ public class ListElement extends Element implements IterableElement {
 	}
 	
 	@Override
-	public void add(TokenExecutor exec, @NonNull Element elem) {
+	public void push(TokenExecutor exec, @NonNull Element elem) {
 		value.add(elem);
 	}
 	
 	@Override
+	public void insert(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
+		value.add(methodIndex(exec, elem0, "insert", 1), elem1);
+	}
+	
+	@Override
 	public void remove(TokenExecutor exec, @NonNull Element elem) {
-		value.remove(elem);
+		value.remove(methodIndex(exec, elem, "remove"));
 	}
 	
 	@Override
@@ -125,9 +130,9 @@ public class ListElement extends Element implements IterableElement {
 	}
 	
 	@Override
-	public void addAll(TokenExecutor exec, @NonNull Element elem) {
+	public void pushAll(TokenExecutor exec, @NonNull Element elem) {
 		if (!(elem instanceof IterableElement)) {
-			throw new IllegalArgumentException(String.format("Built-in method \"addAll\" requires %s element as argument!", BuiltIn.ITERABLE));
+			throw new IllegalArgumentException(String.format("Built-in method \"pushAll\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
 		for (@NonNull Element e : ((IterableElement) elem).internalIterable(exec)) {
 			value.add(e);
@@ -135,13 +140,36 @@ public class ListElement extends Element implements IterableElement {
 	}
 	
 	@Override
+	public void insertAll(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
+		int index = methodIndex(exec, elem0, "insertAll", 1);
+		if (!(elem1 instanceof IterableElement)) {
+			throw new IllegalArgumentException(String.format("Built-in method \"insertAll\" requires %s element as second argument!", BuiltIn.ITERABLE));
+		}
+		for (@NonNull Element e : ((IterableElement) elem1).internalIterable(exec)) {
+			value.add(index++, e);
+		}
+	}
+	
+	@SuppressWarnings("null")
+	@Override
 	public void removeAll(TokenExecutor exec, @NonNull Element elem) {
 		if (!(elem instanceof IterableElement)) {
-			throw new IllegalArgumentException(String.format("Built-in method \"removeAll\" requires %s element as argument!", BuiltIn.ITERABLE));
+			throw new IllegalArgumentException(String.format("Built-in method \"removeAll\" requires %s element of non-negative integers as argument!", BuiltIn.ITERABLE));
 		}
 		for (@NonNull Element e : ((IterableElement) elem).internalIterable(exec)) {
-			value.remove(e);
+			IntElement intElem = e.asInt(exec);
+			if (intElem == null) {
+				throw new IllegalArgumentException(String.format("Built-in method \"removeAll\" requires %s element of non-negative integers as argument!", BuiltIn.ITERABLE));
+			}
+			value.set(intElem.primitiveInt(), null);
 		}
+		value.removeIf(x -> x == null);
+	}
+	
+	@SuppressWarnings("null")
+	@Override
+	public @NonNull Element pop(TokenExecutor exec) {
+		return value.remove(value.size() - 1);
 	}
 	
 	@Override
@@ -156,13 +184,18 @@ public class ListElement extends Element implements IterableElement {
 	}
 	
 	@Override
-	public void put(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
-		value.set(methodIndex(exec, elem0, "put"), elem1);
+	public void set(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
+		value.set(methodIndex(exec, elem0, "set", 1), elem1);
+	}
+	
+	@Override
+	public void removeValue(TokenExecutor exec, @NonNull Element elem) {
+		value.remove(elem);
 	}
 	
 	@Override
 	public @NonNull Element slice(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
-		return new ListElement(value.subList(methodIndex(exec, elem0, "slice"), methodIndex(exec, elem1, "slice")));
+		return new ListElement(value.subList(methodIndex(exec, elem0, "slice", 1), methodIndex(exec, elem1, "slice", 2)));
 	}
 	
 	@SuppressWarnings("null")
@@ -175,6 +208,12 @@ public class ListElement extends Element implements IterableElement {
 	@Override
 	public @NonNull Element snd(TokenExecutor exec) {
 		return value.get(1);
+	}
+	
+	@SuppressWarnings("null")
+	@Override
+	public @NonNull Element last(TokenExecutor exec) {
+		return value.get(value.size() - 1);
 	}
 	
 	@Override

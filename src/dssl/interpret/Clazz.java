@@ -92,7 +92,7 @@ public class Clazz implements HierarchicalScope {
 		return magicHierarchy;
 	}
 	
-	public TokenResult instantiate(TokenExecutor exec) {
+	public @NonNull TokenResult instantiate(TokenExecutor exec) {
 		if (!type.canInstantiate()) {
 			throw new IllegalArgumentException(String.format("Can not instantiate instance of class \"%s\"!", fullIdentifier));
 		}

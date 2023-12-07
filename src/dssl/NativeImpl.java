@@ -21,7 +21,7 @@ public class NativeImpl {
 		
 	}
 	
-	public TokenResult onNative(TokenExecutor exec) {
+	public @NonNull TokenResult onNative(TokenExecutor exec) {
 		@NonNull Element elem = exec.pop();
 		StringElement stringElem = elem.asString(exec);
 		if (stringElem == null) {

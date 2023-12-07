@@ -59,6 +59,10 @@ public abstract class Element {
 	}
 	
 	public @NonNull StringElement stringCast(TokenExecutor exec) {
+		TokenResult magic = magicAction(exec, "str");
+		if (magic != null) {
+			return exec.pop().stringCast(exec);
+		}
 		return new StringElement(toString());
 	}
 	
@@ -82,53 +86,101 @@ public abstract class Element {
 		return new IllegalArgumentException(String.format("Binary operator \"%s\" is undefined for argument types \"%s\" and \"%s\"!", operator, typeName(), other.typeName()));
 	}
 	
-	public TokenResult onEqualTo(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onEqualTo(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "eq", other);
+		if (magic != null) {
+			return magic;
+		}
 		exec.push(new BoolElement(NullElement.INSTANCE.equals(other) ? false : equals(other)));
 		return TokenResult.PASS;
 	}
 	
-	public TokenResult onNotEqualTo(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onNotEqualTo(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "ne", other);
+		if (magic != null) {
+			return magic;
+		}
 		exec.push(new BoolElement(NullElement.INSTANCE.equals(other) ? true : !equals(other)));
 		return TokenResult.PASS;
 	}
 	
-	public TokenResult onLessThan(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onLessThan(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "lt", other);
+		if (magic != null) {
+			return magic;
+		}
 		throw binaryOpError("<", other);
 	}
 	
-	public TokenResult onLessOrEqual(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onLessOrEqual(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "le", other);
+		if (magic != null) {
+			return magic;
+		}
 		throw binaryOpError("<=", other);
 	}
 	
-	public TokenResult onMoreThan(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onMoreThan(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "gt", other);
+		if (magic != null) {
+			return magic;
+		}
 		throw binaryOpError(">", other);
 	}
 	
-	public TokenResult onMoreOrEqual(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onMoreOrEqual(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "ge", other);
+		if (magic != null) {
+			return magic;
+		}
 		throw binaryOpError(">=", other);
 	}
 	
-	public TokenResult onPlus(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onPlus(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "add", other);
+		if (magic != null) {
+			return magic;
+		}
 		throw binaryOpError("+", other);
 	}
 	
-	public TokenResult onAnd(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onAnd(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "and", other);
+		if (magic != null) {
+			return magic;
+		}
 		throw binaryOpError("&", other);
 	}
 	
-	public TokenResult onOr(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onOr(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "or", other);
+		if (magic != null) {
+			return magic;
+		}
 		throw binaryOpError("|", other);
 	}
 	
-	public TokenResult onXor(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onXor(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "xor", other);
+		if (magic != null) {
+			return magic;
+		}
 		throw binaryOpError("^", other);
 	}
 	
-	public TokenResult onMinus(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onMinus(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "sub", other);
+		if (magic != null) {
+			return magic;
+		}
 		throw binaryOpError("-", other);
 	}
 	
-	public TokenResult onConcat(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onConcat(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "concat", other);
+		if (magic != null) {
+			return magic;
+		}
 		if (other instanceof StringElement) {
 			exec.push(new StringElement(stringCast(exec).toString() + other));
 			return TokenResult.PASS;
@@ -136,35 +188,67 @@ public abstract class Element {
 		throw binaryOpError("~", other);
 	}
 	
-	public TokenResult onLeftShift(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onLeftShift(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "lshift", other);
+		if (magic != null) {
+			return magic;
+		}
 		throw binaryOpError("<<", other);
 	}
 	
-	public TokenResult onRightShift(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onRightShift(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "rshift", other);
+		if (magic != null) {
+			return magic;
+		}
 		throw binaryOpError(">>", other);
 	}
 	
-	public TokenResult onMultiply(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onMultiply(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "mul", other);
+		if (magic != null) {
+			return magic;
+		}
 		throw binaryOpError("*", other);
 	}
 	
-	public TokenResult onDivide(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onDivide(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "div", other);
+		if (magic != null) {
+			return magic;
+		}
 		throw binaryOpError("/", other);
 	}
 	
-	public TokenResult onRemainder(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onRemainder(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "rem", other);
+		if (magic != null) {
+			return magic;
+		}
 		throw binaryOpError("%", other);
 	}
 	
-	public TokenResult onPower(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onPower(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "pow", other);
+		if (magic != null) {
+			return magic;
+		}
 		throw binaryOpError("**", other);
 	}
 	
-	public TokenResult onIdivide(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onIdivide(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "floordiv", other);
+		if (magic != null) {
+			return magic;
+		}
 		throw binaryOpError("//", other);
 	}
 	
-	public TokenResult onModulo(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onModulo(TokenExecutor exec, @NonNull Element other) {
+		TokenResult magic = magicAction(exec, "mod", other);
+		if (magic != null) {
+			return magic;
+		}
 		throw binaryOpError("%%", other);
 	}
 	
@@ -172,7 +256,11 @@ public abstract class Element {
 		return new IllegalArgumentException(String.format("Unary operator \"%s\" is undefined for argument type \"%s\"!", operator, typeName()));
 	}
 	
-	public TokenResult onNot(TokenExecutor exec) {
+	public @NonNull TokenResult onNot(TokenExecutor exec) {
+		TokenResult magic = magicAction(exec, "not");
+		if (magic != null) {
+			return magic;
+		}
 		throw unaryOpError("!");
 	}
 	
@@ -200,6 +288,14 @@ public abstract class Element {
 		throw builtInMethodError("contains");
 	}
 	
+	public void push(TokenExecutor exec, @NonNull Element elem) {
+		throw builtInMethodError("push");
+	}
+	
+	public void insert(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
+		throw builtInMethodError("insert");
+	}
+	
 	public void add(TokenExecutor exec, @NonNull Element elem) {
 		throw builtInMethodError("add");
 	}
@@ -212,12 +308,24 @@ public abstract class Element {
 		throw builtInMethodError("containsAll");
 	}
 	
+	public void pushAll(TokenExecutor exec, @NonNull Element elem) {
+		throw builtInMethodError("pushAll");
+	}
+	
+	public void insertAll(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
+		throw builtInMethodError("insertAll");
+	}
+	
 	public void addAll(TokenExecutor exec, @NonNull Element elem) {
 		throw builtInMethodError("addAll");
 	}
 	
 	public void removeAll(TokenExecutor exec, @NonNull Element elem) {
 		throw builtInMethodError("removeAll");
+	}
+	
+	public @NonNull Element pop(TokenExecutor exec) {
+		throw builtInMethodError("pop");
 	}
 	
 	public void clear(TokenExecutor exec) {
@@ -228,8 +336,8 @@ public abstract class Element {
 		throw builtInMethodError("get");
 	}
 	
-	public void put(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
-		throw builtInMethodError("put");
+	public void set(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
+		throw builtInMethodError("set");
 	}
 	
 	public @NonNull Element slice(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
@@ -272,12 +380,20 @@ public abstract class Element {
 		throw builtInMethodError("format");
 	}
 	
+	public void removeValue(TokenExecutor exec, @NonNull Element elem) {
+		throw builtInMethodError("removeValue");
+	}
+	
 	public @NonNull Element fst(TokenExecutor exec) {
 		throw builtInMethodError("fst");
 	}
 	
 	public @NonNull Element snd(TokenExecutor exec) {
 		throw builtInMethodError("snd");
+	}
+	
+	public @NonNull Element last(TokenExecutor exec) {
+		throw builtInMethodError("last");
 	}
 	
 	public void reverse(TokenExecutor exec) {
@@ -296,8 +412,16 @@ public abstract class Element {
 		throw builtInMethodError("shuffle");
 	}
 	
+	public void put(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
+		throw builtInMethodError("put");
+	}
+	
 	public void putAll(TokenExecutor exec, @NonNull Element elem) {
 		throw builtInMethodError("putAll");
+	}
+	
+	public void removeEntry(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
+		throw builtInMethodError("removeEntry");
 	}
 	
 	public boolean containsKey(TokenExecutor exec, @NonNull Element elem) {
@@ -316,8 +440,8 @@ public abstract class Element {
 		throw builtInMethodError("values");
 	}
 	
-	public @NonNull Element items(TokenExecutor exec) {
-		throw builtInMethodError("items");
+	public @NonNull Element entries(TokenExecutor exec) {
+		throw builtInMethodError("entries");
 	}
 	
 	public @NonNull Element collectString(TokenExecutor exec) {
@@ -483,21 +607,32 @@ public abstract class Element {
 		return methodInt(exec, elem, name, 0);
 	}
 	
-	public int methodIndex(TokenExecutor exec, @NonNull Element elem, String name, String type, int n) {
-		@NonNull IntElement intElem = methodInt(exec, elem, name, type, n);
+	protected static final String NON_NEGATIVE_INT = "non-negative " + BuiltIn.INT;
+	
+	public int methodIndex(TokenExecutor exec, @NonNull Element elem, String name, int n) {
+		@NonNull IntElement intElem = methodInt(exec, elem, name, NON_NEGATIVE_INT, n);
 		int primitiveInt = intElem.primitiveInt();
 		if (primitiveInt < 0) {
-			throw builtInMethodArgumentError(name, type, n);
+			throw builtInMethodArgumentError(name, NON_NEGATIVE_INT, n);
 		}
 		return primitiveInt;
 	}
 	
-	public int methodIndex(TokenExecutor exec, @NonNull Element elem, String name, int n) {
-		return methodIndex(exec, elem, name, "non-negative " + BuiltIn.INT, n);
-	}
-	
 	public int methodIndex(TokenExecutor exec, @NonNull Element elem, String name) {
 		return methodIndex(exec, elem, name, 0);
+	}
+	
+	public long methodLongIndex(TokenExecutor exec, @NonNull Element elem, String name, int n) {
+		@NonNull IntElement intElem = methodInt(exec, elem, name, NON_NEGATIVE_INT, n);
+		long primitiveLong = intElem.primitiveLong();
+		if (primitiveLong < 0) {
+			throw builtInMethodArgumentError(name, NON_NEGATIVE_INT, n);
+		}
+		return primitiveLong;
+	}
+	
+	public long methodLongIndex(TokenExecutor exec, @NonNull Element elem, String name) {
+		return methodLongIndex(exec, elem, name, 0);
 	}
 	
 	public @NonNull Element clone(TokenExecutor exec) {
@@ -508,12 +643,16 @@ public abstract class Element {
 		return hashCode();
 	}
 	
-	protected RuntimeException magicMethodError(String name) {
-		return new IllegalArgumentException(String.format("Magic method \"%s\" is undefined for argument type \"%s\"!", name, typeName()));
+	public @NonNull String debug(TokenExecutor exec) {
+		TokenResult magic = magicAction(exec, "debug");
+		if (magic != null) {
+			return exec.pop().debug(exec);
+		}
+		return toString();
 	}
 	
-	public @NonNull String debug(TokenExecutor exec) {
-		return toString();
+	protected RuntimeException magicMethodError(String name) {
+		return new IllegalArgumentException(String.format("Magic method \"%s\" is undefined for argument type \"%s\"!", name, typeName()));
 	}
 	
 	public @Nullable Scope getMemberScope(@NonNull MemberAccessType access) {
@@ -533,6 +672,33 @@ public abstract class Element {
 		if (memberScope != null) {
 			exec.push(this);
 			return memberScope.scopeAction(exec, member);
+		}
+		
+		return null;
+	}
+	
+	public @Nullable TokenResult magicAction(TokenExecutor exec, @NonNull String identifier, @NonNull Element... args) {
+		@Nullable Scope memberScope = getMemberScope(MemberAccessType.STATIC);
+		if (memberScope != null) {
+			Magic magic = memberScope.getMagic(identifier);
+			if (magic != null) {
+				for (@NonNull Element arg : args) {
+					exec.push(arg);
+				}
+				return magic.invokable.invoke(exec);
+			}
+		}
+		
+		memberScope = getMemberScope(MemberAccessType.INSTANCE);
+		if (memberScope != null) {
+			Magic magic = memberScope.getMagic(identifier);
+			if (magic != null) {
+				exec.push(this);
+				for (@NonNull Element arg : args) {
+					exec.push(arg);
+				}
+				return magic.invokable.invoke(exec);
+			}
 		}
 		
 		return null;
@@ -568,6 +734,10 @@ public abstract class Element {
 	}
 	
 	public Object formatted(TokenExecutor exec) {
+		TokenResult magic = magicAction(exec, "str");
+		if (magic != null) {
+			return exec.pop().stringCast(exec);
+		}
 		return this;
 	}
 	

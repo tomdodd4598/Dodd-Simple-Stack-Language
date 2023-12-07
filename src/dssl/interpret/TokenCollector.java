@@ -17,7 +17,7 @@ public class TokenCollector extends TokenReader {
 	}
 	
 	@Override
-	protected TokenResult read(@NonNull Token token) {
+	protected @NonNull TokenResult read(@NonNull Token token) {
 		if (token instanceof TLBrace) {
 			listStack.push(new ArrayList<>());
 		}

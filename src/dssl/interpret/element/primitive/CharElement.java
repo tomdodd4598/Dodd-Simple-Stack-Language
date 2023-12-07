@@ -21,7 +21,7 @@ public class CharElement extends PrimitiveElement<@NonNull Character, @NonNull C
 	}
 	
 	@Override
-	public TokenResult onNot(TokenExecutor exec) {
+	public @NonNull TokenResult onNot(TokenExecutor exec) {
 		throw unaryOpError("!");
 	}
 	

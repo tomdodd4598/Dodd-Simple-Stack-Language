@@ -26,13 +26,17 @@ public class IntElement extends PrimitiveElement<@NonNull BigInteger, @NonNull I
 	}
 	
 	@Override
-	public TokenResult onNot(TokenExecutor exec) {
+	public @NonNull TokenResult onNot(TokenExecutor exec) {
 		exec.push(new IntElement(value.raw.not()));
 		return TokenResult.PASS;
 	}
 	
 	public int primitiveInt() {
 		return value.raw.intValueExact();
+	}
+	
+	public long primitiveLong() {
+		return value.raw.longValueExact();
 	}
 	
 	@Override

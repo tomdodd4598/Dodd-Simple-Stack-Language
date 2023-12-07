@@ -216,10 +216,25 @@ public class BuiltIn {
 			});
 		}
 		
-		for (Clazz clazz : Arrays.asList(STRING_CLAZZ, LIST_CLAZZ)) {
+		for (Clazz clazz : Arrays.asList(STRING_CLAZZ, RANGE_CLAZZ, LIST_CLAZZ)) {
 			clazz.setMacro("slice", x -> {
 				@NonNull Element elem2 = x.pop(), elem1 = x.pop(), elem0 = x.pop();
 				x.push(elem2.slice(x, elem0, elem1));
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("fst", x -> {
+				x.push(x.pop().fst(x));
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("snd", x -> {
+				x.push(x.pop().snd(x));
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("last", x -> {
+				x.push(x.pop().last(x));
 				return TokenResult.PASS;
 			});
 		}
@@ -289,34 +304,42 @@ public class BuiltIn {
 			});
 		}
 		
-		for (Clazz clazz : Arrays.asList(LIST_CLAZZ, SET_CLAZZ)) {
-			clazz.setMacro("add", x -> {
-				x.pop().add(x, x.pop());
-				return TokenResult.PASS;
-			});
-			
-			clazz.setMacro("addAll", x -> {
-				x.pop().addAll(x, x.pop());
-				return TokenResult.PASS;
-			});
-		}
-		
-		for (Clazz clazz : Arrays.asList(LIST_CLAZZ, DICT_CLAZZ)) {
-			clazz.setMacro("put", x -> {
-				@NonNull Element elem2 = x.pop(), elem1 = x.pop(), elem0 = x.pop();
-				elem2.put(x, elem0, elem1);
-				return TokenResult.PASS;
-			});
-		}
-		
 		for (Clazz clazz : Arrays.asList(LIST_CLAZZ)) {
-			clazz.setMacro("fst", x -> {
-				x.push(x.pop().fst(x));
+			clazz.setMacro("push", x -> {
+				x.pop().push(x, x.pop());
 				return TokenResult.PASS;
 			});
 			
-			clazz.setMacro("snd", x -> {
-				x.push(x.pop().snd(x));
+			clazz.setMacro("insert", x -> {
+				@NonNull Element elem2 = x.pop(), elem1 = x.pop(), elem0 = x.pop();
+				elem2.insert(x, elem0, elem1);
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("pushAll", x -> {
+				x.pop().pushAll(x, x.pop());
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("insertAll", x -> {
+				@NonNull Element elem2 = x.pop(), elem1 = x.pop(), elem0 = x.pop();
+				elem2.insertAll(x, elem0, elem1);
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("pop", x -> {
+				x.push(x.pop().pop(x));
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("set", x -> {
+				@NonNull Element elem2 = x.pop(), elem1 = x.pop(), elem0 = x.pop();
+				elem2.set(x, elem0, elem1);
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("removeValue", x -> {
+				x.pop().removeValue(x, x.pop());
 				return TokenResult.PASS;
 			});
 			
@@ -341,9 +364,33 @@ public class BuiltIn {
 			});
 		}
 		
+		for (Clazz clazz : Arrays.asList(SET_CLAZZ)) {
+			clazz.setMacro("add", x -> {
+				x.pop().add(x, x.pop());
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("addAll", x -> {
+				x.pop().addAll(x, x.pop());
+				return TokenResult.PASS;
+			});
+		}
+		
 		for (Clazz clazz : Arrays.asList(DICT_CLAZZ)) {
+			clazz.setMacro("put", x -> {
+				@NonNull Element elem2 = x.pop(), elem1 = x.pop(), elem0 = x.pop();
+				elem2.put(x, elem0, elem1);
+				return TokenResult.PASS;
+			});
+			
 			clazz.setMacro("putAll", x -> {
 				x.pop().putAll(x, x.pop());
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("removeEntry", x -> {
+				@NonNull Element elem2 = x.pop(), elem1 = x.pop(), elem0 = x.pop();
+				elem2.removeEntry(x, elem0, elem1);
 				return TokenResult.PASS;
 			});
 			
@@ -367,8 +414,8 @@ public class BuiltIn {
 				return TokenResult.PASS;
 			});
 			
-			clazz.setMacro("items", x -> {
-				x.push(x.pop().items(x));
+			clazz.setMacro("entries", x -> {
+				x.push(x.pop().entries(x));
 				return TokenResult.PASS;
 			});
 		}
@@ -524,11 +571,6 @@ public class BuiltIn {
 			
 			clazz.setMacro("hash", x -> {
 				x.push(new IntElement(x.pop().hash(x)));
-				return TokenResult.PASS;
-			});
-			
-			clazz.setMacro("toString", x -> {
-				x.push(x.pop().stringCast(x));
 				return TokenResult.PASS;
 			});
 		}

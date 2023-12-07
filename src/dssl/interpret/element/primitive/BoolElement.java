@@ -20,7 +20,7 @@ public class BoolElement extends PrimitiveElement<@NonNull Boolean, @NonNull Boo
 	}
 	
 	@Override
-	public TokenResult onNot(TokenExecutor exec) {
+	public @NonNull TokenResult onNot(TokenExecutor exec) {
 		exec.push(new BoolElement(!primitiveBool()));
 		return TokenResult.PASS;
 	}

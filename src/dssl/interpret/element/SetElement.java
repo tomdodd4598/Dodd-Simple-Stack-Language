@@ -122,7 +122,7 @@ public class SetElement extends Element implements IterableElement {
 			throw new IllegalArgumentException(String.format("Built-in method \"addAll\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
 		for (@NonNull Element e : ((IterableElement) elem).internalIterable(exec)) {
-			value.add(e);
+			add(exec, e);
 		}
 	}
 	
@@ -132,7 +132,7 @@ public class SetElement extends Element implements IterableElement {
 			throw new IllegalArgumentException(String.format("Built-in method \"removeAll\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
 		for (@NonNull Element e : ((IterableElement) elem).internalIterable(exec)) {
-			value.remove(e);
+			remove(exec, e);
 		}
 	}
 	

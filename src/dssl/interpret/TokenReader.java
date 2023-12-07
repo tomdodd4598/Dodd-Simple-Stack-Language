@@ -22,9 +22,9 @@ public abstract class TokenReader {
 		this.prev = prev;
 	}
 	
-	public TokenResult iterate() {
+	public @NonNull TokenResult iterate() {
 		loop: while (iterator.hasNext()) {
-			TokenResult readResult = read(iterator.next());
+			@NonNull TokenResult readResult = read(iterator.next());
 			switch (readResult) {
 				case PASS:
 					continue loop;
@@ -35,5 +35,5 @@ public abstract class TokenReader {
 		return TokenResult.PASS;
 	}
 	
-	protected abstract TokenResult read(@NonNull Token token);
+	protected abstract @NonNull TokenResult read(@NonNull Token token);
 }

@@ -77,7 +77,7 @@ public abstract class IterElement extends Element {
 	
 	@Override
 	public @NonNull Element stepBy(TokenExecutor exec, @NonNull Element elem) {
-		return new StepByIterElement(this, methodIndex(exec, elem, "stepBy"));
+		return new StepByIterElement(this, methodLongIndex(exec, elem, "stepBy"));
 	}
 	
 	@Override
@@ -143,12 +143,12 @@ public abstract class IterElement extends Element {
 	
 	@Override
 	public @NonNull Element skip(TokenExecutor exec, @NonNull Element elem) {
-		return new SkipIterElement(this, methodIndex(exec, elem, "skip"));
+		return new SkipIterElement(this, methodLongIndex(exec, elem, "skip"));
 	}
 	
 	@Override
 	public @NonNull Element take(TokenExecutor exec, @NonNull Element elem) {
-		return new TakeIterElement(this, methodIndex(exec, elem, "take"));
+		return new TakeIterElement(this, methodLongIndex(exec, elem, "take"));
 	}
 	
 	@Override
@@ -166,7 +166,7 @@ public abstract class IterElement extends Element {
 	
 	@Override
 	public @NonNull Element chunks(TokenExecutor exec, @NonNull Element elem) {
-		return new ChunksIterElement(this, methodIndex(exec, elem, "chunks"));
+		return new ChunksIterElement(this, methodLongIndex(exec, elem, "chunks"));
 	}
 	
 	@Override

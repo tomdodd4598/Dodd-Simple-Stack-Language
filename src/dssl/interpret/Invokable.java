@@ -1,6 +1,8 @@
 package dssl.interpret;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 public interface Invokable {
 	
-	public TokenResult invoke(TokenExecutor exec);
+	public @NonNull TokenResult invoke(TokenExecutor exec);
 }

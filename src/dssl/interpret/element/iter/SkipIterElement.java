@@ -8,9 +8,9 @@ import dssl.interpret.element.Element;
 public class SkipIterElement extends IterElement {
 	
 	protected final IterElement internal;
-	protected int skip;
+	protected long skip;
 	
-	public SkipIterElement(IterElement internal, int skip) {
+	public SkipIterElement(IterElement internal, long skip) {
 		super();
 		this.internal = internal;
 		this.skip = skip;

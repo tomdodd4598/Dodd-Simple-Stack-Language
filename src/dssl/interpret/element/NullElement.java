@@ -16,13 +16,13 @@ public class NullElement extends Element {
 	}
 	
 	@Override
-	public TokenResult onEqualTo(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onEqualTo(TokenExecutor exec, @NonNull Element other) {
 		exec.push(new BoolElement(INSTANCE.equals(other)));
 		return TokenResult.PASS;
 	}
 	
 	@Override
-	public TokenResult onNotEqualTo(TokenExecutor exec, @NonNull Element other) {
+	public @NonNull TokenResult onNotEqualTo(TokenExecutor exec, @NonNull Element other) {
 		exec.push(new BoolElement(!INSTANCE.equals(other)));
 		return TokenResult.PASS;
 	}

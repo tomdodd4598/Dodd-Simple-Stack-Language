@@ -22,7 +22,7 @@ public class BlockElement extends Element implements Invokable {
 	}
 	
 	@Override
-	public TokenResult invoke(TokenExecutor exec) {
+	public @NonNull TokenResult invoke(TokenExecutor exec) {
 		return executor(exec).iterate();
 	}
 	

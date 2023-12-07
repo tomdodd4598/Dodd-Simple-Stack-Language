@@ -8,12 +8,12 @@ import dssl.interpret.element.Element;
 public class StepByIterElement extends IterElement {
 	
 	protected final IterElement internal;
-	protected final int step;
+	protected final long step;
 	
 	protected @Nullable Element next = null;
 	protected boolean start = true, end = false;
 	
-	public StepByIterElement(IterElement internal, int step) {
+	public StepByIterElement(IterElement internal, long step) {
 		super();
 		this.internal = internal;
 		this.step = step;
@@ -30,7 +30,7 @@ public class StepByIterElement extends IterElement {
 			end = true;
 		}
 		else if (next == null && !end) {
-			int count = 0;
+			long count = 0;
 			while (internal.hasNext(exec)) {
 				if (count++ >= step) {
 					return;

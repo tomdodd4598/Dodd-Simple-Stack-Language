@@ -70,6 +70,15 @@ public class RangeElement extends Element implements IterableElement {
 	
 	public RangeElement(@NonNull BigInteger start, @NonNull BigInteger stop, @NonNull BigInteger step, long size) {
 		super(BuiltIn.RANGE_CLAZZ);
+		
+		if (step.equals(BigInteger.ZERO)) {
+			throw new IllegalArgumentException(String.format("Range element constructed with zero step size!"));
+		}
+		
+		if (size < 0) {
+			throw new IllegalArgumentException(String.format("Range element constructed with negative size!"));
+		}
+		
 		this.start = start;
 		this.stop = stop;
 		this.step = step;
@@ -104,7 +113,7 @@ public class RangeElement extends Element implements IterableElement {
 			
 			@Override
 			public @NonNull Element next(TokenExecutor exec) {
-				return new IntElement(start.add(step.multiply(BigInteger.valueOf(index++))));
+				return new IntElement(at(index++));
 			}
 		};
 	}
@@ -113,7 +122,7 @@ public class RangeElement extends Element implements IterableElement {
 	public void unpack(TokenExecutor exec) {
 		long index = 0;
 		while (index < size) {
-			exec.push(new IntElement(start.add(step.multiply(BigInteger.valueOf(index++)))));
+			exec.push(new IntElement(at(index++)));
 		}
 	}
 	
@@ -166,11 +175,49 @@ public class RangeElement extends Element implements IterableElement {
 	
 	@Override
 	public @NonNull Element get(TokenExecutor exec, @NonNull Element elem) {
-		int primitiveInt = methodIndex(exec, elem, "get");
-		if (primitiveInt >= size) {
-			throw new IndexOutOfBoundsException(String.format("Built-in method \"get\" (index: %s, size: %s)", primitiveInt, size));
+		long primitiveLong = methodLongIndex(exec, elem, "get");
+		methodIndexBoundsCheck(primitiveLong, "get");
+		return new IntElement(at(primitiveLong));
+	}
+	
+	@SuppressWarnings("null")
+	@Override
+	public @NonNull Element slice(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
+		long begin = methodLongIndex(exec, elem0, "slice", 1);
+		methodIndexBoundsCheck(begin, "slice");
+		
+		long end = methodLongIndex(exec, elem1, "slice", 2);
+		methodIndexBoundsCheck(end, "slice");
+		
+		return new RangeElement(at(begin), at(end), step, end - begin);
+	}
+	
+	@Override
+	public @NonNull Element fst(TokenExecutor exec) {
+		methodIndexBoundsCheck(0, "fst");
+		return new IntElement(start);
+	}
+	
+	@Override
+	public @NonNull Element snd(TokenExecutor exec) {
+		methodIndexBoundsCheck(1, "snd");
+		return new IntElement(start.add(step));
+	}
+	
+	@Override
+	public @NonNull Element last(TokenExecutor exec) {
+		methodIndexBoundsCheck(size - 1, "last");
+		return new IntElement(at(size - 1));
+	}
+	
+	protected BigInteger at(long index) {
+		return start.add(step.multiply(BigInteger.valueOf(index)));
+	}
+	
+	protected void methodIndexBoundsCheck(long index, String name) {
+		if (index >= size) {
+			throw new IndexOutOfBoundsException(String.format("Built-in method \"%s\" (index: %s, size: %s)", name, index, size));
 		}
-		return new IntElement(start.add(step.multiply(BigInteger.valueOf(primitiveInt))));
 	}
 	
 	@Override
