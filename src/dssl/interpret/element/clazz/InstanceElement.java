@@ -31,7 +31,7 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public @Nullable String getIdentifier() {
+	public @Nullable String scopeIdentifier() {
 		return scopeIdentifier;
 	}
 	
@@ -54,6 +54,11 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
+	public Def removeDef(@NonNull String identifier) {
+		return defMap.remove(identifier);
+	}
+	
+	@Override
 	public boolean hasMacro(@NonNull String identifier, boolean shallow) {
 		return macroMap.containsKey(identifier);
 	}
@@ -67,6 +72,11 @@ public class InstanceElement extends Element implements Scope {
 	public void setMacro(@NonNull String identifier, @NonNull Invokable invokable) {
 		checkCollision(identifier);
 		macroMap.put(identifier, new Macro(identifier, invokable));
+	}
+	
+	@Override
+	public Macro removeMacro(@NonNull String identifier) {
+		return macroMap.remove(identifier);
 	}
 	
 	@Override
@@ -86,6 +96,11 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
+	public Clazz removeClazz(@NonNull String shallowIdentifier) {
+		return clazzMap.remove(shallowIdentifier);
+	}
+	
+	@Override
 	public boolean hasMagic(@NonNull String identifier, boolean shallow) {
 		return magicMap.containsKey(identifier);
 	}
@@ -101,8 +116,8 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public @Nullable Scope getMemberScope(@NonNull MemberAccessType access) {
-		return access.equals(MemberAccessType.STATIC) ? this : clazz;
+	public Magic removeMagic(@NonNull String identifier) {
+		return magicMap.remove(identifier);
 	}
 	
 	protected <T> void addToScopeMap(Map<@NonNull String, T> source, Map<@NonNull Element, @NonNull Element> target) {
@@ -112,12 +127,22 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public @NonNull Element scope(TokenExecutor exec) {
+	public @NonNull Element scopeElement(TokenExecutor exec) {
 		Map<@NonNull Element, @NonNull Element> map = new HashMap<>();
 		addToScopeMap(defMap, map);
 		addToScopeMap(macroMap, map);
 		addToScopeMap(clazzMap, map);
 		return new DictElement(map, false);
+	}
+	
+	@Override
+	public @Nullable Scope getMemberScope(@NonNull MemberAccessType access) {
+		return access.equals(MemberAccessType.STATIC) ? this : clazz;
+	}
+	
+	@Override
+	public @NonNull Element scope(TokenExecutor exec) {
+		return scopeElement(exec);
 	}
 	
 	@Override

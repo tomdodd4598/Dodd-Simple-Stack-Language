@@ -1,13 +1,11 @@
 package dssl.interpret.element.clazz;
 
-import java.util.*;
+import java.util.Objects;
 
 import org.eclipse.jdt.annotation.*;
 
-import dssl.Hierarchy;
 import dssl.interpret.*;
-import dssl.interpret.element.*;
-import dssl.interpret.element.primitive.StringElement;
+import dssl.interpret.element.Element;
 
 public class ClassElement extends Element {
 	
@@ -23,17 +21,9 @@ public class ClassElement extends Element {
 		return access.equals(MemberAccessType.STATIC) ? internal : clazz;
 	}
 	
-	protected <T> void addToScopeMap(Hierarchy<@NonNull String, T> source, Map<@NonNull Element, @NonNull Element> target) {
-		source.forEach((k, v) -> target.put(new StringElement(k), new LabelElement(internal, k)), false);
-	}
-	
 	@Override
 	public @NonNull Element scope(TokenExecutor exec) {
-		Map<@NonNull Element, @NonNull Element> map = new HashMap<>();
-		addToScopeMap(internal.getDefHierarchy(), map);
-		addToScopeMap(internal.getMacroHierarchy(), map);
-		addToScopeMap(internal.getClazzHierarchy(), map);
-		return new DictElement(map, false);
+		return internal.scopeElement(exec);
 	}
 	
 	@Override

@@ -1,11 +1,12 @@
 package dssl.interpret;
 
-import java.util.ArrayList;
+import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNull;
 
 import dssl.Hierarchy;
-import dssl.interpret.element.Element;
+import dssl.interpret.element.*;
+import dssl.interpret.element.primitive.StringElement;
 
 public interface HierarchicalScope extends Scope {
 	
@@ -32,6 +33,11 @@ public interface HierarchicalScope extends Scope {
 	}
 	
 	@Override
+	public default Def removeDef(@NonNull String identifier) {
+		return getDefHierarchy().remove(identifier, false);
+	}
+	
+	@Override
 	public default boolean hasMacro(@NonNull String identifier, boolean shallow) {
 		return getMacroHierarchy().containsKey(identifier, shallow);
 	}
@@ -52,6 +58,11 @@ public interface HierarchicalScope extends Scope {
 	}
 	
 	@Override
+	public default Macro removeMacro(@NonNull String identifier) {
+		return getMacroHierarchy().remove(identifier, false);
+	}
+	
+	@Override
 	public default boolean hasClazz(@NonNull String shallowIdentifier, boolean shallow) {
 		return getClazzHierarchy().containsKey(shallowIdentifier, shallow);
 	}
@@ -68,7 +79,12 @@ public interface HierarchicalScope extends Scope {
 	
 	@Override
 	public default void setClazz(@NonNull String shallowIdentifier, @NonNull ClazzType type, HierarchicalScope base, ArrayList<Clazz> supers) {
-		setClazz(shallowIdentifier, new Clazz(getIdentifier(), shallowIdentifier, type, base, supers), true);
+		setClazz(shallowIdentifier, new Clazz(scopeIdentifier(), shallowIdentifier, type, base, supers), true);
+	}
+	
+	@Override
+	public default Clazz removeClazz(@NonNull String shallowIdentifier) {
+		return getClazzHierarchy().remove(shallowIdentifier, false);
 	}
 	
 	@Override
@@ -90,6 +106,11 @@ public interface HierarchicalScope extends Scope {
 		setMagic(identifier, new Magic(identifier, invokable), true);
 	}
 	
+	@Override
+	public default Magic removeMagic(@NonNull String identifier) {
+		return getMagicHierarchy().remove(identifier, false);
+	}
+	
 	public Hierarchy<@NonNull String, Def> getDefHierarchy();
 	
 	public Hierarchy<@NonNull String, Macro> getMacroHierarchy();
@@ -97,6 +118,19 @@ public interface HierarchicalScope extends Scope {
 	public Hierarchy<@NonNull String, Clazz> getClazzHierarchy();
 	
 	public Hierarchy<@NonNull String, Magic> getMagicHierarchy();
+	
+	public default <T> void addToScopeMap(Hierarchy<@NonNull String, T> source, Map<@NonNull Element, @NonNull Element> target) {
+		source.forEach((k, v) -> target.put(new StringElement(k), new LabelElement(this, k)), false);
+	}
+	
+	@Override
+	public default @NonNull Element scopeElement(TokenExecutor exec) {
+		Map<@NonNull Element, @NonNull Element> map = new HashMap<>();
+		addToScopeMap(getDefHierarchy(), map);
+		addToScopeMap(getMacroHierarchy(), map);
+		addToScopeMap(getClazzHierarchy(), map);
+		return new DictElement(map, false);
+	}
 	
 	@SuppressWarnings("null")
 	public default void putAll(@NonNull HierarchicalScope from, boolean shadow, boolean shallow) {

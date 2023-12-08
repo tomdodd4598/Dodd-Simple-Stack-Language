@@ -22,6 +22,11 @@ public class ModuleElement extends Element {
 	}
 	
 	@Override
+	public @NonNull Element scope(TokenExecutor exec) {
+		return internal.scopeElement(exec);
+	}
+	
+	@Override
 	public @NonNull String debug(TokenExecutor exec) {
 		return "$" + identifier;
 	}

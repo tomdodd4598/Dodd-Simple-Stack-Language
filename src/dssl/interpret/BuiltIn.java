@@ -14,17 +14,18 @@ public class BuiltIn {
 	
 	public static final String SCOPE = "Scope";
 	public static final String CLASS = "Class";
-	
 	public static final String LABEL = "Label";
 	
 	public static final String ITERABLE = "Iterable";
+	
+	public static final String ITER = "Iter";
+	
+	public static final String MODULE = "Module";
 	
 	public static final String BLOCK = "Block";
 	public static final String BRACKET = "Bracket";
 	public static final String NATIVE = "Native";
 	public static final String NULL = "Null";
-	public static final String MODULE = "Module";
-	public static final String ITER = "Iter";
 	
 	public static final String INT = "Int";
 	public static final String BOOL = "Bool";
@@ -44,17 +45,18 @@ public class BuiltIn {
 	
 	public static final @NonNull Clazz SCOPE_CLAZZ = clazz(new Clazz(SCOPE, ClazzType.INTERNAL));
 	public static final @NonNull Clazz CLASS_CLAZZ = clazz(new Clazz(CLASS, ClazzType.INTERNAL, SCOPE_CLAZZ));
-	
-	public static final @NonNull Clazz LABEL_CLAZZ = clazz(new Clazz(LABEL, ClazzType.INTERNAL));
+	public static final @NonNull Clazz LABEL_CLAZZ = clazz(new Clazz(LABEL, ClazzType.INTERNAL, SCOPE_CLAZZ));
 	
 	public static final @NonNull Clazz ITERABLE_CLAZZ = clazz(new Clazz(ITERABLE, ClazzType.INTERNAL));
+	
+	public static final @NonNull Clazz ITER_CLAZZ = clazz(new Clazz(ITER, ClazzType.INTERNAL));
+	
+	public static final @NonNull Clazz MODULE_CLAZZ = clazz(new Clazz(MODULE, ClazzType.INTERNAL, SCOPE_CLAZZ));
 	
 	public static final @NonNull Clazz BLOCK_CLAZZ = clazz(new Clazz(BLOCK, ClazzType.INTERNAL));
 	public static final @NonNull Clazz BRACKET_CLAZZ = clazz(new Clazz(BRACKET, ClazzType.INTERNAL));
 	public static final @NonNull Clazz NATIVE_CLAZZ = clazz(new Clazz(NATIVE, ClazzType.INTERNAL));
 	public static final @NonNull Clazz NULL_CLAZZ = clazz(new Clazz(NULL, ClazzType.INTERNAL));
-	public static final @NonNull Clazz MODULE_CLAZZ = clazz(new Clazz(MODULE, ClazzType.INTERNAL));
-	public static final @NonNull Clazz ITER_CLAZZ = clazz(new Clazz(ITER, ClazzType.INTERNAL));
 	
 	public static final @NonNull Clazz INT_CLAZZ = primitive(new Clazz(INT, ClazzType.FINAL) {
 		
@@ -175,7 +177,7 @@ public class BuiltIn {
 	}
 	
 	static {
-		for (Clazz clazz : Arrays.asList(STRING_CLAZZ, RANGE_CLAZZ, LIST_CLAZZ, SET_CLAZZ, DICT_CLAZZ)) {
+		for (Clazz clazz : Arrays.asList(ITERABLE_CLAZZ)) {
 			clazz.setMacro("unpack", x -> {
 				x.pop().unpack(x);
 				return TokenResult.PASS;
@@ -401,6 +403,12 @@ public class BuiltIn {
 			
 			clazz.setMacro("containsValue", x -> {
 				x.push(new BoolElement(x.pop().containsValue(x, x.pop())));
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("containsEntry", x -> {
+				@NonNull Element elem2 = x.pop(), elem1 = x.pop(), elem0 = x.pop();
+				x.push(new BoolElement(elem2.containsEntry(x, elem0, elem1)));
 				return TokenResult.PASS;
 			});
 			
@@ -770,6 +778,8 @@ public class BuiltIn {
 		KEYWORDS.add("macro");
 		KEYWORDS.add("class");
 		KEYWORDS.add("magic");
+		
+		KEYWORDS.add("delete");
 		
 		KEYWORDS.add("new");
 		

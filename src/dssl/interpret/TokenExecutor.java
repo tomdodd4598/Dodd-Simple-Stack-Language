@@ -83,13 +83,13 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	@Override
-	public @Nullable String getIdentifier() {
+	public @Nullable String scopeIdentifier() {
 		return null;
 	}
 	
 	@Override
 	public void checkCollision(@NonNull String identifier) {
-		if (isRoot() && BuiltIn.KEYWORDS.contains(identifier)) {
+		if (BuiltIn.KEYWORDS.contains(identifier)) {
 			throw new IllegalArgumentException(String.format("Identifier \"%s\" already used for keyword!", identifier));
 		}
 		HierarchicalScope.super.checkCollision(identifier);
@@ -193,7 +193,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	@FunctionalInterface
-	protected static interface ExecutorTokenFunction {
+	protected static interface TokenFunction {
 		
 		@NonNull
 		TokenResult apply(TokenExecutor exec, @NonNull Token token);
@@ -201,19 +201,19 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected static class TokenFunctionMap {
 		
-		protected final Map<Class<? extends Token>, ExecutorTokenFunction> internal = new HashMap<>();
+		protected final Map<Class<? extends Token>, TokenFunction> internal = new HashMap<>();
 		
-		protected <T extends Token> void put(Class<T> clazz, ExecutorTokenFunction function) {
+		protected <T extends Token> void put(Class<T> clazz, TokenFunction function) {
 			internal.put(clazz, function);
 		}
 		
-		protected <T extends Token> ExecutorTokenFunction get(Class<T> clazz) {
+		protected <T extends Token> TokenFunction get(Class<T> clazz) {
 			return internal.get(clazz);
 		}
 		
 		protected <T extends Token> @NonNull TokenResult apply(TokenExecutor exec, @NonNull T token) {
 			Class<T> clazz = (Class<T>) token.getClass();
-			ExecutorTokenFunction function = get(clazz);
+			TokenFunction function = get(clazz);
 			if (function == null) {
 				throw new IllegalArgumentException(String.format("Encountered unsupported %s token \"%s\"!", clazz.getSimpleName(), token.getText()));
 			}
@@ -254,9 +254,11 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		TOKEN_FUNCTION_MAP.put(TClass.class, TokenExecutor::onClass);
 		TOKEN_FUNCTION_MAP.put(TMagic.class, TokenExecutor::onMagic);
 		
-		TOKEN_FUNCTION_MAP.put(TNew.class, TokenExecutor::onNew);
-		
 		TOKEN_FUNCTION_MAP.put(TDeref.class, TokenExecutor::onDeref);
+		
+		TOKEN_FUNCTION_MAP.put(TDelete.class, TokenExecutor::onDelete);
+		
+		TOKEN_FUNCTION_MAP.put(TNew.class, TokenExecutor::onNew);
 		
 		TOKEN_FUNCTION_MAP.put(TNull.class, TokenExecutor::onNull);
 		TOKEN_FUNCTION_MAP.put(TType.class, TokenExecutor::onType);
@@ -481,14 +483,6 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		return TokenResult.PASS;
 	}
 	
-	protected @NonNull TokenResult onNew(@NonNull Token token) {
-		@NonNull Element elem = pop();
-		if (!(elem instanceof ClassElement)) {
-			throw new IllegalArgumentException(String.format("Keyword \"new\" requires %s element as argument!", BuiltIn.CLASS));
-		}
-		return ((ClassElement) elem).internal.instantiate(this);
-	}
-	
 	protected @NonNull TokenResult onDeref(@NonNull Token token) {
 		@NonNull Element elem = pop();
 		if (!(elem instanceof LabelElement)) {
@@ -503,13 +497,29 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		return result;
 	}
 	
+	protected @NonNull TokenResult onDelete(@NonNull Token token) {
+		@NonNull Element elem = pop();
+		if (!(elem instanceof LabelElement)) {
+			throw new IllegalArgumentException(String.format("Keyword \"delete\" requires %s element as argument!", BuiltIn.LABEL));
+		}
+		return ((LabelElement) elem).delete();
+	}
+	
+	protected @NonNull TokenResult onNew(@NonNull Token token) {
+		@NonNull Element elem = pop();
+		if (!(elem instanceof ClassElement)) {
+			throw new IllegalArgumentException(String.format("Keyword \"new\" requires %s element as argument!", BuiltIn.CLASS));
+		}
+		return ((ClassElement) elem).internal.instantiate(this);
+	}
+	
 	protected @NonNull TokenResult onNull(@NonNull Token token) {
 		push(NullElement.INSTANCE);
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onType(@NonNull Token token) {
-		push(pop().clazz.getElem());
+		push(pop().clazz.clazzElement());
 		return TokenResult.PASS;
 	}
 	
@@ -1000,7 +1010,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected @NonNull TokenResult onMember(@NonNull Token token) {
 		@SuppressWarnings("null") @NonNull String member = token.getText().substring(1);
-		checkKeyword(member, "a member identifier");
+		// checkKeyword(member, "a member identifier");
 		
 		@NonNull Element elem = pop();
 		if (elem instanceof LabelElement) {
@@ -1017,7 +1027,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected @NonNull TokenResult onModule(@NonNull Token token) {
 		@SuppressWarnings("null") @NonNull String identifier = token.getText().substring(1);
-		checkKeyword(identifier, "a module identifier");
+		// checkKeyword(identifier, "a module identifier");
 		push(new ModuleElement(identifier));
 		return TokenResult.PASS;
 	}
@@ -1121,7 +1131,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			return macro.invokable.invoke(this);
 		}
 		else if ((clazz = getClazz.get()) != null) {
-			push(clazz.getElem());
+			push(clazz.clazzElement());
 			return TokenResult.PASS;
 		}
 		else {

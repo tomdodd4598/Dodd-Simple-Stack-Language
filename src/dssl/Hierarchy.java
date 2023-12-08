@@ -20,6 +20,35 @@ public class Hierarchy<K, V> {
 		this.parents = parents;
 	}
 	
+	public boolean containsKey(K key, boolean shallow) {
+		if (internal.containsKey(key)) {
+			return true;
+		}
+		if (!shallow) {
+			for (Hierarchy<K, V> parent : parents) {
+				if (parent.containsKey(key, false)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public @Nullable V get(K key, boolean shallow) {
+		if (internal.containsKey(key)) {
+			return internal.get(key);
+		}
+		if (!shallow) {
+			for (Hierarchy<K, V> parent : parents) {
+				V value = parent.get(key, false);
+				if (value != null) {
+					return value;
+				}
+			}
+		}
+		return null;
+	}
+	
 	protected @Nullable V putInternal(K key, V value, boolean shadow) {
 		if (shadow || internal.containsKey(key)) {
 			return internal.put(key, value);
@@ -41,6 +70,21 @@ public class Hierarchy<K, V> {
 		return prev;
 	}
 	
+	public @Nullable V remove(K key, boolean shallow) {
+		if (internal.containsKey(key)) {
+			return internal.remove(key);
+		}
+		if (!shallow) {
+			for (Hierarchy<K, V> parent : parents) {
+				V value = parent.remove(key, false);
+				if (value != null) {
+					return value;
+				}
+			}
+		}
+		return null;
+	}
+	
 	public void forEach(BiConsumer<K, V> consumer, boolean shallow) {
 		for (Entry<K, V> entry : internal.entrySet()) {
 			consumer.accept(entry.getKey(), entry.getValue());
@@ -50,35 +94,6 @@ public class Hierarchy<K, V> {
 				parent.forEach(consumer, false);
 			}
 		}
-	}
-	
-	public @Nullable V get(K key, boolean shallow) {
-		if (internal.containsKey(key)) {
-			return internal.get(key);
-		}
-		if (!shallow) {
-			for (Hierarchy<K, V> parent : parents) {
-				V value = parent.get(key, false);
-				if (value != null) {
-					return value;
-				}
-			}
-		}
-		return null;
-	}
-	
-	public boolean containsKey(K key, boolean shallow) {
-		if (internal.containsKey(key)) {
-			return true;
-		}
-		if (!shallow) {
-			for (Hierarchy<K, V> parent : parents) {
-				if (parent.containsKey(key, false)) {
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 	
 	public Hierarchy<K, V> copy(boolean child) {

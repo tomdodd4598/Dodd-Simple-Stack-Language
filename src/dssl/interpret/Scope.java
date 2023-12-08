@@ -8,7 +8,7 @@ import dssl.interpret.element.Element;
 
 public interface Scope {
 	
-	public @Nullable String getIdentifier();
+	public @Nullable String scopeIdentifier();
 	
 	public default @Nullable TokenResult scopeAction(TokenExecutor exec, @NonNull String identifier) {
 		return exec.scopeAction(() -> getDef(identifier), () -> getMacro(identifier), () -> getClazz(identifier));
@@ -32,11 +32,15 @@ public interface Scope {
 	
 	public void setDef(@NonNull String identifier, @NonNull Element value, boolean shadow);
 	
+	public Def removeDef(@NonNull String identifier);
+	
 	public boolean hasMacro(@NonNull String identifier, boolean shallow);
 	
 	public Macro getMacro(@NonNull String identifier);
 	
 	public void setMacro(@NonNull String identifier, @NonNull Invokable invokable);
+	
+	public Macro removeMacro(@NonNull String identifier);
 	
 	public boolean hasClazz(@NonNull String shallowIdentifier, boolean shallow);
 	
@@ -44,9 +48,15 @@ public interface Scope {
 	
 	public void setClazz(@NonNull String shallowIdentifier, @NonNull ClazzType type, HierarchicalScope base, ArrayList<Clazz> supers);
 	
+	public Clazz removeClazz(@NonNull String shallowIdentifier);
+	
 	public boolean hasMagic(@NonNull String identifier, boolean shallow);
 	
 	public Magic getMagic(@NonNull String identifier);
 	
 	public void setMagic(@NonNull String identifier, @NonNull Invokable invokable);
+	
+	public Magic removeMagic(@NonNull String identifier);
+	
+	public @NonNull Element scopeElement(TokenExecutor exec);
 }

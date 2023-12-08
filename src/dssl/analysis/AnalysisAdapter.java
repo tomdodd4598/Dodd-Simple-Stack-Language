@@ -183,13 +183,19 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTNew(TNew node)
+    public void caseTDeref(TDeref node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTDeref(TDeref node)
+    public void caseTDelete(TDelete node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTNew(TNew node)
     {
         defaultCase(node);
     }

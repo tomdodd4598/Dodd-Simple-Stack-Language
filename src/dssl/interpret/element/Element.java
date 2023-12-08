@@ -432,6 +432,10 @@ public abstract class Element {
 		throw builtInMethodError("containsValue");
 	}
 	
+	public boolean containsEntry(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
+		throw builtInMethodError("containsEntry");
+	}
+	
 	public @NonNull Element keys(TokenExecutor exec) {
 		throw builtInMethodError("keys");
 	}
@@ -707,7 +711,7 @@ public abstract class Element {
 	public @Nullable String memberAccessIdentifier(@NonNull MemberAccessType access) {
 		@Nullable Scope memberScope = getMemberScope(access);
 		if (memberScope != null) {
-			return memberScope.getIdentifier();
+			return memberScope.scopeIdentifier();
 		}
 		else {
 			return toString();

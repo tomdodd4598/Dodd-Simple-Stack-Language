@@ -60,7 +60,7 @@ public class Clazz implements HierarchicalScope {
 	}
 	
 	@SuppressWarnings("null")
-	public @NonNull Element getElem() {
+	public @NonNull Element clazzElement() {
 		if (elem == null) {
 			elem = new ClassElement(this);
 		}
@@ -68,7 +68,7 @@ public class Clazz implements HierarchicalScope {
 	}
 	
 	@Override
-	public @Nullable String getIdentifier() {
+	public @Nullable String scopeIdentifier() {
 		return fullIdentifier;
 	}
 	

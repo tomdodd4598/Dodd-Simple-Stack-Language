@@ -140,6 +140,12 @@ public class DictElement extends Element implements IterableElement {
 	}
 	
 	@Override
+	public boolean containsEntry(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
+		@SuppressWarnings("null") Element get = value.get(elem0);
+		return get == null ? false : get.equals(elem1);
+	}
+	
+	@Override
 	public @NonNull Element keys(TokenExecutor exec) {
 		return new SetElement(value.keySet());
 	}

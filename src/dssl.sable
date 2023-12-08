@@ -62,9 +62,11 @@ Tokens
 	class = 'class';
 	magic = 'magic';
 	
-	new = 'new';
-	
 	deref = 'deref';
+	
+	delete = 'delete';
+	
+	new = 'new';
 	
 	null = 'null';
 	type = 'type';

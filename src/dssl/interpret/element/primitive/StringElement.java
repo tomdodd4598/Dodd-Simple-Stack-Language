@@ -134,18 +134,18 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	
 	@Override
 	public @NonNull Element startsWith(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof StringElement)) {
-			throw new IllegalArgumentException(String.format("Built-in method \"startsWith\" requires %s element as argument!", BuiltIn.STRING));
+		if (!(elem instanceof CharElement) && !(elem instanceof StringElement)) {
+			throw new IllegalArgumentException(String.format("Built-in method \"startsWith\" requires %s or %s element as argument!", BuiltIn.CHAR, BuiltIn.STRING));
 		}
-		return new BoolElement(value.raw.startsWith(((StringElement) elem).value.raw));
+		return new BoolElement(value.raw.startsWith(elem.toString()));
 	}
 	
 	@Override
 	public @NonNull Element endsWith(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof StringElement)) {
-			throw new IllegalArgumentException(String.format("Built-in method \"endsWith\" requires %s element as argument!", BuiltIn.STRING));
+		if (!(elem instanceof CharElement) && !(elem instanceof StringElement)) {
+			throw new IllegalArgumentException(String.format("Built-in method \"endsWith\" requires %s or %s element as argument!", BuiltIn.CHAR, BuiltIn.STRING));
 		}
-		return new BoolElement(value.raw.endsWith(((StringElement) elem).value.raw));
+		return new BoolElement(value.raw.endsWith(elem.toString()));
 	}
 	
 	@Override

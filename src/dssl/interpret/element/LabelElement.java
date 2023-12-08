@@ -9,13 +9,13 @@ import dssl.interpret.*;
 
 public class LabelElement extends Element {
 	
-	public final @NonNull Scope scope;
+	protected final @NonNull Scope scope;
 	
 	public final @NonNull String fullIdentifier;
 	protected final @NonNull String shallowIdentifier;
 	
 	public LabelElement(@NonNull Scope scope, @NonNull String identifier) {
-		this(scope, Helpers.extendedIdentifier(scope.getIdentifier(), identifier), identifier);
+		this(scope, Helpers.extendedIdentifier(scope.scopeIdentifier(), identifier), identifier);
 	}
 	
 	protected LabelElement(@NonNull Scope scope, @NonNull String fullIdentifier, @NonNull String shallowIdentifier) {
@@ -76,8 +76,29 @@ public class LabelElement extends Element {
 		scope.setMagic(shallowIdentifier, block);
 	}
 	
+	public @NonNull TokenResult delete() {
+		if (scope.removeDef(shallowIdentifier) != null) {
+			return TokenResult.PASS;
+		}
+		else if (scope.removeMacro(shallowIdentifier) != null) {
+			return TokenResult.PASS;
+		}
+		else if (scope.removeClazz(shallowIdentifier) != null) {
+			return TokenResult.PASS;
+		}
+		else if (scope.removeMagic(shallowIdentifier) != null) {
+			return TokenResult.PASS;
+		}
+		throw Helpers.defError(fullIdentifier);
+	}
+	
 	public @NonNull LabelElement extended(@NonNull String extension) {
 		return new LabelElement(this, extension);
+	}
+	
+	@Override
+	public @NonNull Element scope(TokenExecutor exec) {
+		return scope.scopeElement(exec);
 	}
 	
 	@Override
