@@ -152,16 +152,16 @@ public abstract class IterElement extends Element {
 	}
 	
 	@Override
+	public @NonNull Element flatten(TokenExecutor exec) {
+		return new FlattenIterElement(this);
+	}
+	
+	@Override
 	public @NonNull Element flatMap(TokenExecutor exec, @NonNull Element elem) {
 		if (!(elem instanceof BlockElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"flatMap\" requires %s element as argument!", BuiltIn.BLOCK));
 		}
 		return new FlatMapIterElement(this, (BlockElement) elem);
-	}
-	
-	@Override
-	public @NonNull Element flatten(TokenExecutor exec) {
-		return new FlattenIterElement(this);
 	}
 	
 	@Override
@@ -191,28 +191,6 @@ public abstract class IterElement extends Element {
 			exec.push(x);
 			block.invoke(exec);
 		});
-	}
-	
-	@Override
-	public void into(TokenExecutor exec, @NonNull Element elem) {
-		internalIterator(exec).forEachRemaining(x -> elem.add(exec, x));
-	}
-	
-	@Override
-	public @NonNull Element fold(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
-		if (!(elem1 instanceof BlockElement)) {
-			throw new IllegalArgumentException(String.format("Built-in method \"fold\" requires %s element as second argument!", BuiltIn.BLOCK));
-		}
-		
-		Iterator<@NonNull Element> iter = internalIterator(exec);
-		BlockElement block = (BlockElement) elem1;
-		while (iter.hasNext()) {
-			exec.push(elem0);
-			exec.push(iter.next());
-			block.invoke(exec);
-			elem0 = exec.pop();
-		}
-		return elem0;
 	}
 	
 	@Override

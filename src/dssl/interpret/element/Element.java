@@ -508,12 +508,12 @@ public abstract class Element {
 		throw builtInMethodError("take");
 	}
 	
-	public @NonNull Element flatMap(TokenExecutor exec, @NonNull Element elem) {
-		throw builtInMethodError("flatMap");
-	}
-	
 	public @NonNull Element flatten(TokenExecutor exec) {
 		throw builtInMethodError("flatten");
+	}
+	
+	public @NonNull Element flatMap(TokenExecutor exec, @NonNull Element elem) {
+		throw builtInMethodError("flatMap");
 	}
 	
 	public @NonNull Element chunks(TokenExecutor exec, @NonNull Element elem) {
@@ -526,14 +526,6 @@ public abstract class Element {
 	
 	public void forEach(TokenExecutor exec, @NonNull Element elem) {
 		throw builtInMethodError("forEach");
-	}
-	
-	public void into(TokenExecutor exec, @NonNull Element elem) {
-		throw builtInMethodError("into");
-	}
-	
-	public @NonNull Element fold(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
-		throw builtInMethodError("fold");
 	}
 	
 	public boolean all(TokenExecutor exec) {

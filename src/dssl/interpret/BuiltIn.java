@@ -504,13 +504,13 @@ public class BuiltIn {
 				return TokenResult.PASS;
 			});
 			
-			clazz.setMacro("flatMap", x -> {
-				x.push(x.pop().flatMap(x, x.pop()));
+			clazz.setMacro("flatten", x -> {
+				x.push(x.pop().flatten(x));
 				return TokenResult.PASS;
 			});
 			
-			clazz.setMacro("flatten", x -> {
-				x.push(x.pop().flatten(x));
+			clazz.setMacro("flatMap", x -> {
+				x.push(x.pop().flatMap(x, x.pop()));
 				return TokenResult.PASS;
 			});
 			
@@ -526,17 +526,6 @@ public class BuiltIn {
 			
 			clazz.setMacro("forEach", x -> {
 				x.pop().forEach(x, x.pop());
-				return TokenResult.PASS;
-			});
-			
-			clazz.setMacro("into", x -> {
-				x.pop().into(x, x.pop());
-				return TokenResult.PASS;
-			});
-			
-			clazz.setMacro("fold", x -> {
-				@NonNull Element elem2 = x.pop(), elem1 = x.pop(), elem0 = x.pop();
-				x.push(elem2.fold(x, elem0, elem1));
 				return TokenResult.PASS;
 			});
 			
