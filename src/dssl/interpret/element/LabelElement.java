@@ -86,9 +86,6 @@ public class LabelElement extends Element {
 		else if (scope.removeClazz(shallowIdentifier) != null) {
 			return TokenResult.PASS;
 		}
-		else if (scope.removeMagic(shallowIdentifier) != null) {
-			return TokenResult.PASS;
-		}
 		throw Helpers.defError(fullIdentifier);
 	}
 	
