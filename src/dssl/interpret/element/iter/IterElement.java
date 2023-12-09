@@ -2,7 +2,7 @@ package dssl.interpret.element.iter;
 
 import java.util.*;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import dssl.interpret.*;
 import dssl.interpret.element.*;
@@ -63,12 +63,10 @@ public abstract class IterElement extends Element {
 		Iterator<@NonNull Element> iter = internalIterator(exec);
 		Map<@NonNull Element, @NonNull Element> map = new HashMap<>();
 		while (iter.hasNext()) {
-			@SuppressWarnings("null") @NonNull Element elem = iter.next();
-			if (!(elem instanceof IterableElement)) {
+			@SuppressWarnings("null") @Nullable IterElement iterElem = iter.next().iterator(exec);
+			if (iterElem == null) {
 				throw new IllegalArgumentException(String.format("Built-in method \"collectDict\" requires \"() -> %s\" %s element as argument!", BuiltIn.ITERABLE, BuiltIn.ITER));
 			}
-			
-			IterElement iterElem = ((IterableElement) elem).iterator(exec);
 			map.put(iterElem.next(exec), iterElem.next(exec));
 		}
 		

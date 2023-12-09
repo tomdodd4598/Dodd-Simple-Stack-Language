@@ -6,6 +6,7 @@ import org.eclipse.jdt.annotation.*;
 
 import dssl.interpret.*;
 import dssl.interpret.element.*;
+import dssl.interpret.element.iter.IterElement;
 import dssl.interpret.element.primitive.StringElement;
 
 public class InstanceElement extends Element implements Scope {
@@ -118,6 +119,12 @@ public class InstanceElement extends Element implements Scope {
 	@Override
 	public Magic removeMagic(@NonNull String identifier) {
 		return magicMap.remove(identifier);
+	}
+	
+	@Override
+	public @Nullable IterElement iterator(TokenExecutor exec) {
+		TokenResult result = memberAccess(exec, "iter");
+		return result == null ? null : (IterElement) exec.pop();
 	}
 	
 	protected <T> void addToScopeMap(Map<@NonNull String, T> source, Map<@NonNull Element, @NonNull Element> target) {

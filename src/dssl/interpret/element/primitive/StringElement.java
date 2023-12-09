@@ -1,9 +1,10 @@
 package dssl.interpret.element.primitive;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import org.apache.commons.text.StringEscapeUtils;
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import dssl.Helpers;
 import dssl.interpret.*;
@@ -11,7 +12,7 @@ import dssl.interpret.element.*;
 import dssl.interpret.element.iter.IterElement;
 import dssl.interpret.value.StringValue;
 
-public class StringElement extends PrimitiveElement<@NonNull String, @NonNull StringValue> implements IterableElement {
+public class StringElement extends PrimitiveElement<@NonNull String, @NonNull StringValue> {
 	
 	public StringElement(@NonNull String rawValue) {
 		super(BuiltIn.STRING_CLAZZ, new StringValue(rawValue));
@@ -33,6 +34,17 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	}
 	
 	@Override
+	public @NonNull TokenResult onConcat(TokenExecutor exec, @NonNull Element other) {
+		exec.push(new StringElement(toString() + other.stringCast(exec)));
+		return TokenResult.PASS;
+	}
+	
+	@Override
+	public @NonNull TokenResult onNot(TokenExecutor exec) {
+		throw unaryOpError("!");
+	}
+	
+	@Override
 	public @NonNull IterElement iterator(TokenExecutor exec) {
 		return new IterElement() {
 			
@@ -49,17 +61,6 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 				return new CharElement(value.raw.charAt(index++));
 			}
 		};
-	}
-	
-	@Override
-	public @NonNull TokenResult onConcat(TokenExecutor exec, @NonNull Element other) {
-		exec.push(new StringElement(toString() + other.stringCast(exec)));
-		return TokenResult.PASS;
-	}
-	
-	@Override
-	public @NonNull TokenResult onNot(TokenExecutor exec) {
-		throw unaryOpError("!");
 	}
 	
 	@Override
@@ -95,10 +96,11 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	
 	@Override
 	public boolean containsAll(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof IterableElement)) {
+		@Nullable Iterable<@NonNull Element> iterable = elem.internalIterable(exec);
+		if (iterable == null) {
 			throw new IllegalArgumentException(String.format("Built-in method \"containsAll\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
-		for (@NonNull Element e : ((IterableElement) elem).internalIterable(exec)) {
+		for (@NonNull Element e : iterable) {
 			if (!contains(exec, e)) {
 				return false;
 			}
@@ -198,10 +200,11 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	@SuppressWarnings("null")
 	@Override
 	public @NonNull Element format(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof IterableElement)) {
+		@Nullable Stream<@NonNull Element> stream = elem.internalStream(exec);
+		if (stream == null) {
 			throw new IllegalArgumentException(String.format("Built-in method \"format\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
-		return new StringElement(String.format(value.raw, ((IterableElement) elem).stream(exec).map(x -> x.formatted(exec)).toArray()));
+		return new StringElement(String.format(value.raw, stream.map(x -> x.formatted(exec)).toArray()));
 	}
 	
 	@Override

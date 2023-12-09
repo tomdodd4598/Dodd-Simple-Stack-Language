@@ -3,7 +3,7 @@ package dssl.interpret;
 import java.math.*;
 import java.util.*;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
+import java.util.stream.*;
 
 import org.eclipse.jdt.annotation.*;
 
@@ -710,7 +710,9 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected @NonNull TokenResult onForeach(@NonNull Token token) {
 		@NonNull Element elem1 = pop(), elem0 = pop();
-		if (!(elem0 instanceof IterableElement)) {
+		
+		@Nullable Iterable<@NonNull Element> iterable = elem0.internalIterable(this);
+		if (iterable == null) {
 			throw new IllegalArgumentException(String.format("Keyword \"foreach\" requires %s element as first argument!", BuiltIn.ITERABLE));
 		}
 		if (!(elem1 instanceof BlockElement)) {
@@ -718,7 +720,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		}
 		
 		BlockElement block = (BlockElement) elem1;
-		loop: for (@NonNull Element e : ((IterableElement) elem0).internalIterable(this)) {
+		loop: for (@NonNull Element e : iterable) {
 			push(e);
 			TokenResult invokeResult = block.invoke(this);
 			switch (invokeResult) {
@@ -1038,8 +1040,8 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	protected void assign(@NonNull Element elem1, @NonNull Element elem0, @NonNull AssignmentType type) {
-		if (elem1 instanceof IterableElement && elem0 instanceof IterableElement) {
-			IterElement iter1 = ((IterableElement) elem1).iterator(this), iter0 = ((IterableElement) elem0).iterator(this);
+		@Nullable IterElement iter1, iter0;
+		if ((iter0 = elem0.iterator(this)) != null && (iter1 = elem1.iterator(this)) != null) {
 			while (iter1.hasNext(this) && iter0.hasNext(this)) {
 				assign(iter1.next(this), iter0.next(this), type);
 			}
@@ -1653,11 +1655,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in fs macro \"writeLines\" requires %s element as first argument!", BuiltIn.STRING));
 		}
 		
-		if (!(elem1 instanceof IterableElement)) {
+		@Nullable Stream<@NonNull Element> stream = elem1.internalStream(this);
+		if (stream == null) {
 			throw new IllegalArgumentException(String.format("Built-in fs macro \"writeLines\" requires %s element as second argument!", BuiltIn.ITERABLE));
 		}
 		
-		Helpers.writeLines(stringElem0.toString(), ((IterableElement) elem1).stream(this).map(x -> x.stringCast(this).toString()));
+		Helpers.writeLines(stringElem0.toString(), stream.map(x -> x.stringCast(this).toString()));
 		return TokenResult.PASS;
 	}
 }

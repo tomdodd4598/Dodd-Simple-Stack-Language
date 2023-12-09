@@ -4,13 +4,13 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.*;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import dssl.interpret.*;
 import dssl.interpret.element.iter.IterElement;
 import dssl.interpret.element.primitive.*;
 
-public class ListElement extends Element implements IterableElement {
+public class ListElement extends Element {
 	
 	public final List<@NonNull Element> value;
 	
@@ -118,10 +118,11 @@ public class ListElement extends Element implements IterableElement {
 	
 	@Override
 	public boolean containsAll(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof IterableElement)) {
+		@Nullable Iterable<@NonNull Element> iterable = elem.internalIterable(exec);
+		if (iterable == null) {
 			throw new IllegalArgumentException(String.format("Built-in method \"containsAll\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
-		for (@NonNull Element e : ((IterableElement) elem).internalIterable(exec)) {
+		for (@NonNull Element e : iterable) {
 			if (!contains(exec, e)) {
 				return false;
 			}
@@ -131,21 +132,24 @@ public class ListElement extends Element implements IterableElement {
 	
 	@Override
 	public void pushAll(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof IterableElement)) {
+		@Nullable Iterable<@NonNull Element> iterable = elem.internalIterable(exec);
+		if (iterable == null) {
 			throw new IllegalArgumentException(String.format("Built-in method \"pushAll\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
-		for (@NonNull Element e : ((IterableElement) elem).internalIterable(exec)) {
+		for (@NonNull Element e : iterable) {
 			value.add(e);
 		}
 	}
 	
 	@Override
 	public void insertAll(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
-		int index = methodIndex(exec, elem0, "insertAll", 1);
-		if (!(elem1 instanceof IterableElement)) {
+		@Nullable Iterable<@NonNull Element> iterable = elem1.internalIterable(exec);
+		if (iterable == null) {
 			throw new IllegalArgumentException(String.format("Built-in method \"insertAll\" requires %s element as second argument!", BuiltIn.ITERABLE));
 		}
-		for (@NonNull Element e : ((IterableElement) elem1).internalIterable(exec)) {
+		
+		int index = methodIndex(exec, elem0, "insertAll", 1);
+		for (@NonNull Element e : iterable) {
 			value.add(index++, e);
 		}
 	}
@@ -153,10 +157,11 @@ public class ListElement extends Element implements IterableElement {
 	@SuppressWarnings("null")
 	@Override
 	public void removeAll(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof IterableElement)) {
+		@Nullable Iterable<@NonNull Element> iterable = elem.internalIterable(exec);
+		if (iterable == null) {
 			throw new IllegalArgumentException(String.format("Built-in method \"removeAll\" requires %s element of non-negative integers as argument!", BuiltIn.ITERABLE));
 		}
-		for (@NonNull Element e : ((IterableElement) elem).internalIterable(exec)) {
+		for (@NonNull Element e : iterable) {
 			IntElement intElem = e.asInt(exec);
 			if (intElem == null) {
 				throw new IllegalArgumentException(String.format("Built-in method \"removeAll\" requires %s element of non-negative integers as argument!", BuiltIn.ITERABLE));

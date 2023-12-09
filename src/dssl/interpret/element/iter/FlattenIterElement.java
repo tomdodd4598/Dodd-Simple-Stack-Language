@@ -3,7 +3,7 @@ package dssl.interpret.element.iter;
 import org.eclipse.jdt.annotation.*;
 
 import dssl.interpret.*;
-import dssl.interpret.element.*;
+import dssl.interpret.element.Element;
 
 public class FlattenIterElement extends IterElement {
 	
@@ -29,11 +29,11 @@ public class FlattenIterElement extends IterElement {
 			}
 			
 			if (internal.hasNext(exec)) {
-				@NonNull Element elem = internal.next(exec);
-				if (!(elem instanceof IterableElement)) {
+				@Nullable IterElement iter = internal.next(exec).iterator(exec);
+				if (iter == null) {
 					throw new IllegalArgumentException(String.format("Built-in method \"flatten\" requires \"() -> %s\" %s element!", BuiltIn.ITERABLE, BuiltIn.ITER));
 				}
-				current = ((IterableElement) elem).iterator(exec);
+				current = iter;
 			}
 			else {
 				end = true;

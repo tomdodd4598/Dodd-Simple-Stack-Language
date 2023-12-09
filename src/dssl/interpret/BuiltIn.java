@@ -18,14 +18,14 @@ public class BuiltIn {
 	
 	public static final String ITERABLE = "Iterable";
 	
-	public static final String ITER = "Iter";
-	
 	public static final String MODULE = "Module";
 	
 	public static final String BLOCK = "Block";
 	public static final String BRACKET = "Bracket";
 	public static final String NATIVE = "Native";
 	public static final String NULL = "Null";
+	
+	public static final String ITER = "Iter";
 	
 	public static final String INT = "Int";
 	public static final String BOOL = "Bool";
@@ -47,10 +47,6 @@ public class BuiltIn {
 	public static final @NonNull Clazz CLASS_CLAZZ = clazz(new Clazz(CLASS, ClazzType.INTERNAL, SCOPE_CLAZZ));
 	public static final @NonNull Clazz LABEL_CLAZZ = clazz(new Clazz(LABEL, ClazzType.INTERNAL, SCOPE_CLAZZ));
 	
-	public static final @NonNull Clazz ITERABLE_CLAZZ = clazz(new Clazz(ITERABLE, ClazzType.INTERNAL));
-	
-	public static final @NonNull Clazz ITER_CLAZZ = clazz(new Clazz(ITER, ClazzType.INTERNAL));
-	
 	public static final @NonNull Clazz MODULE_CLAZZ = clazz(new Clazz(MODULE, ClazzType.INTERNAL, SCOPE_CLAZZ));
 	
 	public static final @NonNull Clazz BLOCK_CLAZZ = clazz(new Clazz(BLOCK, ClazzType.INTERNAL));
@@ -58,7 +54,25 @@ public class BuiltIn {
 	public static final @NonNull Clazz NATIVE_CLAZZ = clazz(new Clazz(NATIVE, ClazzType.INTERNAL));
 	public static final @NonNull Clazz NULL_CLAZZ = clazz(new Clazz(NULL, ClazzType.INTERNAL));
 	
-	public static final @NonNull Clazz INT_CLAZZ = primitive(new Clazz(INT, ClazzType.FINAL) {
+	public static final @NonNull Clazz ITER_CLAZZ = clazz(new Clazz(ITER, ClazzType.FINAL) {
+		
+		@Override
+		public @NonNull TokenResult instantiate(TokenExecutor exec) {
+			@NonNull Element elem = exec.pop();
+			TokenResult result = elem.memberAccess(exec, "iter");
+			if (result == null) {
+				throw elem.memberAccessError("iter");
+			}
+			return result;
+		}
+	});
+	
+	public static final @NonNull Clazz INT_CLAZZ = clazz(new Clazz(INT, ClazzType.FINAL) {
+		
+		@Override
+		public @NonNull TokenResult instantiate(TokenExecutor exec) {
+			return instantiatePrimitive(exec, this);
+		}
 		
 		@Override
 		public @Nullable Element as(TokenExecutor exec, @NonNull Element elem) {
@@ -71,7 +85,12 @@ public class BuiltIn {
 		}
 	});
 	
-	public static final @NonNull Clazz BOOL_CLAZZ = primitive(new Clazz(BOOL, ClazzType.FINAL) {
+	public static final @NonNull Clazz BOOL_CLAZZ = clazz(new Clazz(BOOL, ClazzType.FINAL) {
+		
+		@Override
+		public @NonNull TokenResult instantiate(TokenExecutor exec) {
+			return instantiatePrimitive(exec, this);
+		}
 		
 		@Override
 		public @Nullable Element as(TokenExecutor exec, @NonNull Element elem) {
@@ -84,7 +103,12 @@ public class BuiltIn {
 		}
 	});
 	
-	public static final @NonNull Clazz FLOAT_CLAZZ = primitive(new Clazz(FLOAT, ClazzType.FINAL) {
+	public static final @NonNull Clazz FLOAT_CLAZZ = clazz(new Clazz(FLOAT, ClazzType.FINAL) {
+		
+		@Override
+		public @NonNull TokenResult instantiate(TokenExecutor exec) {
+			return instantiatePrimitive(exec, this);
+		}
 		
 		@Override
 		public @Nullable Element as(TokenExecutor exec, @NonNull Element elem) {
@@ -97,7 +121,12 @@ public class BuiltIn {
 		}
 	});
 	
-	public static final @NonNull Clazz CHAR_CLAZZ = primitive(new Clazz(CHAR, ClazzType.FINAL) {
+	public static final @NonNull Clazz CHAR_CLAZZ = clazz(new Clazz(CHAR, ClazzType.FINAL) {
+		
+		@Override
+		public @NonNull TokenResult instantiate(TokenExecutor exec) {
+			return instantiatePrimitive(exec, this);
+		}
 		
 		@Override
 		public @Nullable Element as(TokenExecutor exec, @NonNull Element elem) {
@@ -110,7 +139,12 @@ public class BuiltIn {
 		}
 	});
 	
-	public static final @NonNull Clazz STRING_CLAZZ = primitive(new Clazz(STRING, ClazzType.FINAL, ITERABLE_CLAZZ) {
+	public static final @NonNull Clazz STRING_CLAZZ = clazz(new Clazz(STRING, ClazzType.FINAL) {
+		
+		@Override
+		public @NonNull TokenResult instantiate(TokenExecutor exec) {
+			return instantiatePrimitive(exec, this);
+		}
 		
 		@Override
 		public @Nullable Element as(TokenExecutor exec, @NonNull Element elem) {
@@ -123,7 +157,12 @@ public class BuiltIn {
 		}
 	});
 	
-	public static final @NonNull Clazz RANGE_CLAZZ = primitive(new Clazz(RANGE, ClazzType.FINAL, ITERABLE_CLAZZ) {
+	public static final @NonNull Clazz RANGE_CLAZZ = clazz(new Clazz(RANGE, ClazzType.FINAL) {
+		
+		@Override
+		public @NonNull TokenResult instantiate(TokenExecutor exec) {
+			return instantiatePrimitive(exec, this);
+		}
 		
 		@Override
 		public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
@@ -131,7 +170,12 @@ public class BuiltIn {
 		}
 	});
 	
-	public static final @NonNull Clazz LIST_CLAZZ = primitive(new Clazz(LIST, ClazzType.FINAL, ITERABLE_CLAZZ) {
+	public static final @NonNull Clazz LIST_CLAZZ = clazz(new Clazz(LIST, ClazzType.FINAL) {
+		
+		@Override
+		public @NonNull TokenResult instantiate(TokenExecutor exec) {
+			return instantiatePrimitive(exec, this);
+		}
 		
 		@Override
 		public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
@@ -139,7 +183,12 @@ public class BuiltIn {
 		}
 	});
 	
-	public static final @NonNull Clazz SET_CLAZZ = primitive(new Clazz(SET, ClazzType.FINAL, ITERABLE_CLAZZ) {
+	public static final @NonNull Clazz SET_CLAZZ = clazz(new Clazz(SET, ClazzType.FINAL) {
+		
+		@Override
+		public @NonNull TokenResult instantiate(TokenExecutor exec) {
+			return instantiatePrimitive(exec, this);
+		}
 		
 		@Override
 		public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
@@ -147,7 +196,12 @@ public class BuiltIn {
 		}
 	});
 	
-	public static final @NonNull Clazz DICT_CLAZZ = primitive(new Clazz(DICT, ClazzType.FINAL, ITERABLE_CLAZZ) {
+	public static final @NonNull Clazz DICT_CLAZZ = clazz(new Clazz(DICT, ClazzType.FINAL) {
+		
+		@Override
+		public @NonNull TokenResult instantiate(TokenExecutor exec) {
+			return instantiatePrimitive(exec, this);
+		}
 		
 		@Override
 		public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
@@ -160,24 +214,17 @@ public class BuiltIn {
 		return clazz;
 	}
 	
-	static @NonNull Clazz constructable(@NonNull Clazz clazz, @NonNull Invokable constructor) {
-		clazz.setMagic("init", constructor);
-		return clazz(clazz);
-	}
-	
-	static @NonNull Clazz primitive(@NonNull Clazz clazz) {
-		return constructable(clazz, x -> {
-			Element casted = clazz.as(x, x.pop());
-			if (casted == null) {
-				throw new IllegalArgumentException(String.format("Constructor for type \"%1$s\" requires %1$s element as argument!", clazz.fullIdentifier));
-			}
-			x.push(casted);
-			return TokenResult.PASS;
-		});
+	static @NonNull TokenResult instantiatePrimitive(TokenExecutor exec, Clazz clazz) {
+		Element casted = clazz.as(exec, exec.pop());
+		if (casted == null) {
+			throw new IllegalArgumentException(String.format("Constructor for type \"%1$s\" requires %1$s element as argument!", clazz.fullIdentifier));
+		}
+		exec.push(casted);
+		return TokenResult.PASS;
 	}
 	
 	static {
-		for (Clazz clazz : Arrays.asList(ITERABLE_CLAZZ)) {
+		for (Clazz clazz : Arrays.asList(STRING_CLAZZ, RANGE_CLAZZ, LIST_CLAZZ, SET_CLAZZ, DICT_CLAZZ)) {
 			clazz.setMacro("unpack", x -> {
 				x.pop().unpack(x);
 				return TokenResult.PASS;

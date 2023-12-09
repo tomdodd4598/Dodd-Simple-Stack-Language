@@ -1,9 +1,12 @@
 package dssl.interpret.element;
 
+import java.util.stream.Stream;
+
 import org.eclipse.jdt.annotation.*;
 
 import dssl.Helpers;
 import dssl.interpret.*;
+import dssl.interpret.element.iter.IterElement;
 import dssl.interpret.element.primitive.*;
 
 public abstract class Element {
@@ -262,6 +265,20 @@ public abstract class Element {
 			return magic;
 		}
 		throw unaryOpError("!");
+	}
+	
+	public @Nullable IterElement iterator(TokenExecutor exec) {
+		return null;
+	}
+	
+	public @Nullable Iterable<@NonNull Element> internalIterable(TokenExecutor exec) {
+		@Nullable IterElement iter = iterator(exec);
+		return iter == null ? null : () -> iter.internalIterator(exec);
+	}
+	
+	public @Nullable Stream<@NonNull Element> internalStream(TokenExecutor exec) {
+		@Nullable Iterable<@NonNull Element> iterable = internalIterable(exec);
+		return iterable == null ? null : Helpers.stream(iterable);
 	}
 	
 	protected RuntimeException builtInMethodError(String name) {
@@ -642,7 +659,7 @@ public abstract class Element {
 	public @NonNull String debug(TokenExecutor exec) {
 		TokenResult magic = magicAction(exec, "debug");
 		if (magic != null) {
-			return exec.pop().debug(exec);
+			return exec.pop().stringCast(exec).toString();
 		}
 		return toString();
 	}

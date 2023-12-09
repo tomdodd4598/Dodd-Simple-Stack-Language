@@ -4,13 +4,13 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.*;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import dssl.interpret.*;
 import dssl.interpret.element.iter.IterElement;
 import dssl.interpret.element.primitive.StringElement;
 
-public class SetElement extends Element implements IterableElement {
+public class SetElement extends Element {
 	
 	public final Set<@NonNull Element> value;
 	
@@ -105,10 +105,11 @@ public class SetElement extends Element implements IterableElement {
 	
 	@Override
 	public boolean containsAll(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof IterableElement)) {
+		@Nullable Iterable<@NonNull Element> iterable = elem.internalIterable(exec);
+		if (iterable == null) {
 			throw new IllegalArgumentException(String.format("Built-in method \"containsAll\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
-		for (@NonNull Element e : ((IterableElement) elem).internalIterable(exec)) {
+		for (@NonNull Element e : iterable) {
 			if (!contains(exec, e)) {
 				return false;
 			}
@@ -118,20 +119,22 @@ public class SetElement extends Element implements IterableElement {
 	
 	@Override
 	public void addAll(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof IterableElement)) {
+		@Nullable Iterable<@NonNull Element> iterable = elem.internalIterable(exec);
+		if (iterable == null) {
 			throw new IllegalArgumentException(String.format("Built-in method \"addAll\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
-		for (@NonNull Element e : ((IterableElement) elem).internalIterable(exec)) {
+		for (@NonNull Element e : iterable) {
 			add(exec, e);
 		}
 	}
 	
 	@Override
 	public void removeAll(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof IterableElement)) {
+		@Nullable Iterable<@NonNull Element> iterable = elem.internalIterable(exec);
+		if (iterable == null) {
 			throw new IllegalArgumentException(String.format("Built-in method \"removeAll\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
-		for (@NonNull Element e : ((IterableElement) elem).internalIterable(exec)) {
+		for (@NonNull Element e : iterable) {
 			remove(exec, e);
 		}
 	}

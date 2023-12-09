@@ -3,13 +3,13 @@ package dssl.interpret.element;
 import java.math.BigInteger;
 import java.util.Objects;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import dssl.interpret.*;
 import dssl.interpret.element.iter.IterElement;
 import dssl.interpret.element.primitive.IntElement;
 
-public class RangeElement extends Element implements IterableElement {
+public class RangeElement extends Element {
 	
 	protected final @NonNull BigInteger start, stop, step;
 	protected final long size;
@@ -162,10 +162,11 @@ public class RangeElement extends Element implements IterableElement {
 	
 	@Override
 	public boolean containsAll(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof IterableElement)) {
+		@Nullable Iterable<@NonNull Element> iterable = elem.internalIterable(exec);
+		if (iterable == null) {
 			throw new IllegalArgumentException(String.format("Built-in method \"containsAll\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
-		for (@NonNull Element e : ((IterableElement) elem).internalIterable(exec)) {
+		for (@NonNull Element e : iterable) {
 			if (!contains(exec, e)) {
 				return false;
 			}

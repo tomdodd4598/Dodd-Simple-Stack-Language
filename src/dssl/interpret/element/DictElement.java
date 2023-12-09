@@ -5,13 +5,13 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import dssl.interpret.*;
 import dssl.interpret.element.iter.IterElement;
 import dssl.interpret.element.primitive.StringElement;
 
-public class DictElement extends Element implements IterableElement {
+public class DictElement extends Element {
 	
 	public final Map<@NonNull Element, @NonNull Element> value;
 	
@@ -92,10 +92,11 @@ public class DictElement extends Element implements IterableElement {
 	
 	@Override
 	public void removeAll(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof IterableElement)) {
+		@Nullable Iterable<@NonNull Element> iterable = elem.internalIterable(exec);
+		if (iterable == null) {
 			throw new IllegalArgumentException(String.format("Built-in method \"removeAll\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
-		for (@NonNull Element e : ((IterableElement) elem).internalIterable(exec)) {
+		for (@NonNull Element e : iterable) {
 			value.remove(e);
 		}
 	}
