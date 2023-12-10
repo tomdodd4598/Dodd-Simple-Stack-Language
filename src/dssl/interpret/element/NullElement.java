@@ -53,7 +53,7 @@ public class NullElement extends Element {
 	}
 	
 	@Override
-	public @NonNull String toString() {
+	public @NonNull String toString(TokenExecutor exec) {
 		return "null";
 	}
 }

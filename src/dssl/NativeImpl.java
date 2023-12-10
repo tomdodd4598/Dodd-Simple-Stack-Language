@@ -28,7 +28,7 @@ public class NativeImpl {
 			throw new IllegalArgumentException(String.format("Keyword \"native\" requires %s element as last argument!", BuiltIn.STRING));
 		}
 		
-		String str = stringElem.toString();
+		String str = stringElem.toString(exec);
 		int index = str.lastIndexOf('.');
 		List<Exception> exceptions = new ArrayList<>();
 		try {

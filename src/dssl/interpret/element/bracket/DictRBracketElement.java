@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import dssl.interpret.TokenExecutor;
 import dssl.interpret.element.Element;
 
 public class DictRBracketElement extends RBracketElement {
@@ -30,7 +31,7 @@ public class DictRBracketElement extends RBracketElement {
 	}
 	
 	@Override
-	public @NonNull String toString() {
+	public @NonNull String toString(TokenExecutor exec) {
 		return "|]";
 	}
 }

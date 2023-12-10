@@ -63,12 +63,16 @@ public abstract class Element {
 		throw castError(BuiltIn.CHAR);
 	}
 	
+	public @NonNull StringElement stringCastInternal(TokenExecutor exec) {
+		return new StringElement(toString(exec));
+	}
+	
 	public @NonNull StringElement stringCast(TokenExecutor exec) {
 		TokenResult magic = magicAction(exec, "__str__");
 		if (magic != null) {
-			return (StringElement) exec.pop();
+			return exec.pop().stringCastInternal(exec);
 		}
-		return new StringElement(toString());
+		return stringCastInternal(exec);
 	}
 	
 	public @NonNull RangeElement rangeCast(TokenExecutor exec) {
@@ -103,7 +107,7 @@ public abstract class Element {
 	
 	protected @NonNull TokenResult onConcatInternal(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof StringElement) {
-			exec.push(new StringElement(stringCast(exec).toString() + other));
+			exec.push(new StringElement(stringCast(exec).toString(exec) + other.toString(exec)));
 			return TokenResult.PASS;
 		}
 		throw binaryOpError("~", other);
@@ -610,7 +614,7 @@ public abstract class Element {
 	}
 	
 	public @NonNull String innerString(@Nullable TokenExecutor exec, @NonNull Element container) {
-		return this == container ? "this" : (exec == null ? this : stringCast(exec)).toString();
+		return this == container ? "this" : (exec == null ? this : stringCast(exec)).toString(exec);
 	}
 	
 	protected RuntimeException builtInMethodArgumentError(String name, String type, int n) {
@@ -686,10 +690,7 @@ public abstract class Element {
 	
 	public @NonNull String debug(TokenExecutor exec) {
 		TokenResult magic = magicAction(exec, "__debug__");
-		if (magic != null) {
-			return exec.pop().toString();
-		}
-		return toString();
+		return (magic == null ? this : exec.pop()).toString(exec);
 	}
 	
 	protected RuntimeException magicMethodError(String name) {
@@ -905,6 +906,10 @@ public abstract class Element {
 	
 	@Override
 	public @NonNull String toString() {
+		return toString(null);
+	}
+	
+	public @NonNull String toString(TokenExecutor exec) {
 		return clazz.fullIdentifier + "@" + Integer.toString(objectHashCode(), 16);
 	}
 }

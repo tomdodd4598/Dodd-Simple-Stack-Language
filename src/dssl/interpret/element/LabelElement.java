@@ -131,7 +131,7 @@ public class LabelElement extends Element {
 	}
 	
 	@Override
-	public @NonNull String toString() {
+	public @NonNull String toString(TokenExecutor exec) {
 		return "/" + fullIdentifier;
 	}
 }

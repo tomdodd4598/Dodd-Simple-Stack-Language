@@ -589,12 +589,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	protected @NonNull TokenResult onPrint(@NonNull Token token) {
-		interpreter.printList.add(pop().stringCast(this).toString());
+		interpreter.printList.add(pop().stringCast(this).toString(this));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onPrintln(@NonNull Token token) {
-		interpreter.printList.add(pop().stringCast(this).toString());
+		interpreter.printList.add(pop().stringCast(this).toString(this));
 		interpreter.printList.add("\n");
 		return TokenResult.PASS;
 	}
@@ -605,7 +605,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		if (stringElem == null) {
 			throw new IllegalArgumentException(String.format("Keyword \"interpret\" requires %s element as argument!", BuiltIn.STRING));
 		}
-		return new TokenExecutor(new LexerIterator(stringElem.toString()), this, false).iterate();
+		return new TokenExecutor(new LexerIterator(stringElem.toString(this)), this, false).iterate();
 	}
 	
 	protected @NonNull TokenResult onExec(@NonNull Token token) {
@@ -1633,7 +1633,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in env macro \"fromRoot\" requires %s element as argument!", BuiltIn.STRING));
 		}
 		
-		push(new StringElement(Helpers.normalizedPathString(interpreter.hooks.getRootPath(this).getParent().resolve(stringElem.toString()))));
+		push(new StringElement(Helpers.normalizedPathString(interpreter.hooks.getRootPath(this).getParent().resolve(stringElem.toString(this)))));
 		return TokenResult.PASS;
 	}
 	
@@ -1644,7 +1644,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in fs macro \"readFile\" requires %s element as argument!", BuiltIn.STRING));
 		}
 		
-		push(new StringElement(Helpers.readFile(stringElem.toString())));
+		push(new StringElement(Helpers.readFile(stringElem.toString(this))));
 		return TokenResult.PASS;
 	}
 	
@@ -1655,7 +1655,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in fs macro \"writeFile\" requires %s element as first argument!", BuiltIn.STRING));
 		}
 		
-		Helpers.writeFile(stringElem0.toString(), elem1.stringCast(this).toString());
+		Helpers.writeFile(stringElem0.toString(this), elem1.stringCast(this).toString(this));
 		return TokenResult.PASS;
 	}
 	
@@ -1666,7 +1666,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in fs macro \"readLines\" requires %s element as argument!", BuiltIn.STRING));
 		}
 		
-		push(new ListElement(Helpers.readLines(stringElem.toString()).stream().map(StringElement::new)));
+		push(new ListElement(Helpers.readLines(stringElem.toString(this)).stream().map(StringElement::new)));
 		return TokenResult.PASS;
 	}
 	
@@ -1682,7 +1682,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in fs macro \"writeLines\" requires %s element as second argument!", BuiltIn.ITERABLE));
 		}
 		
-		Helpers.writeLines(stringElem0.toString(), stream.map(x -> x.stringCast(this).toString()));
+		Helpers.writeLines(stringElem0.toString(this), stream.map(x -> x.stringCast(this).toString(this)));
 		return TokenResult.PASS;
 	}
 }

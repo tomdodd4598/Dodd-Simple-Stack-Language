@@ -194,12 +194,8 @@ public class DictElement extends Element {
 		return false;
 	}
 	
-	@Override
-	public @NonNull String toString() {
-		return toString(null);
-	}
-	
 	@SuppressWarnings("null")
+	@Override
 	public @NonNull String toString(TokenExecutor exec) {
 		Function<@NonNull Element, @NonNull String> f = x -> x.innerString(exec, this);
 		return value.entrySet().stream().map(x -> f.apply(x.getKey()) + ":" + f.apply(x.getValue())).collect(Collectors.joining(", ", "[|", "|]"));

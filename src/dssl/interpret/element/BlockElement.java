@@ -51,7 +51,7 @@ public class BlockElement extends Element implements Invokable {
 	}
 	
 	@Override
-	public @NonNull String toString() {
+	public @NonNull String toString(TokenExecutor exec) {
 		return Helpers.tokenListToString(tokens);
 	}
 }

@@ -35,7 +35,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	
 	@Override
 	public @NonNull TokenResult onConcat(TokenExecutor exec, @NonNull Element other) {
-		exec.push(new StringElement(toString() + other.stringCast(exec)));
+		exec.push(new StringElement(toString(exec) + other.stringCast(exec)));
 		return TokenResult.PASS;
 	}
 	
@@ -91,7 +91,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 		if (!(elem instanceof CharElement) && !(elem instanceof StringElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"contains\" requires %s or %s element as argument!", BuiltIn.CHAR, BuiltIn.STRING));
 		}
-		return value.raw.contains(elem.toString());
+		return value.raw.contains(elem.toString(exec));
 	}
 	
 	@Override
@@ -139,7 +139,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 		if (!(elem instanceof CharElement) && !(elem instanceof StringElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"startsWith\" requires %s or %s element as argument!", BuiltIn.CHAR, BuiltIn.STRING));
 		}
-		return new BoolElement(value.raw.startsWith(elem.toString()));
+		return new BoolElement(value.raw.startsWith(elem.toString(exec)));
 	}
 	
 	@Override
@@ -147,7 +147,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 		if (!(elem instanceof CharElement) && !(elem instanceof StringElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"endsWith\" requires %s or %s element as argument!", BuiltIn.CHAR, BuiltIn.STRING));
 		}
-		return new BoolElement(value.raw.endsWith(elem.toString()));
+		return new BoolElement(value.raw.endsWith(elem.toString(exec)));
 	}
 	
 	@Override

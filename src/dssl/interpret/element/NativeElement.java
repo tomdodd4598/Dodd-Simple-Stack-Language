@@ -6,7 +6,7 @@ import java.util.Objects;
 import org.apache.commons.lang3.SerializationUtils;
 import org.eclipse.jdt.annotation.NonNull;
 
-import dssl.interpret.BuiltIn;
+import dssl.interpret.*;
 
 public class NativeElement extends Element {
 	
@@ -43,7 +43,7 @@ public class NativeElement extends Element {
 	
 	@SuppressWarnings("null")
 	@Override
-	public @NonNull String toString() {
+	public @NonNull String toString(TokenExecutor exec) {
 		return String.valueOf(value);
 	}
 }

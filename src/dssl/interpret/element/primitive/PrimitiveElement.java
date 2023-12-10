@@ -442,7 +442,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	}
 	
 	@Override
-	public @NonNull String toString() {
+	public @NonNull String toString(TokenExecutor exec) {
 		return value.toString();
 	}
 }

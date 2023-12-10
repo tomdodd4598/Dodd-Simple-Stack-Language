@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import dssl.interpret.TokenExecutor;
 import dssl.interpret.element.Element;
 
 public class RangeLBracketElement extends LBracketElement {
@@ -30,7 +31,7 @@ public class RangeLBracketElement extends LBracketElement {
 	}
 	
 	@Override
-	public @NonNull String toString() {
+	public @NonNull String toString(TokenExecutor exec) {
 		return "(";
 	}
 }

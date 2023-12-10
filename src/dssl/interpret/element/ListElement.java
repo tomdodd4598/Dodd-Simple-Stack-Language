@@ -290,12 +290,8 @@ public class ListElement extends Element {
 		return false;
 	}
 	
-	@Override
-	public @NonNull String toString() {
-		return toString(null);
-	}
-	
 	@SuppressWarnings("null")
+	@Override
 	public @NonNull String toString(TokenExecutor exec) {
 		return value.stream().map(x -> x.innerString(exec, this)).collect(Collectors.joining(", ", "[", "]"));
 	}
