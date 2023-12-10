@@ -150,6 +150,16 @@ public class SetElement extends Element {
 	}
 	
 	@Override
+	public @NonNull Element __str__(TokenExecutor exec) {
+		return stringCast(exec);
+	}
+	
+	@Override
+	public @NonNull Element __debug__(TokenExecutor exec) {
+		return new StringElement(debug(exec));
+	}
+	
+	@Override
 	public @NonNull Element clone() {
 		return new SetElement(value);
 	}

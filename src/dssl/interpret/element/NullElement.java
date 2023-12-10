@@ -28,6 +28,16 @@ public class NullElement extends Element {
 	}
 	
 	@Override
+	public @NonNull TokenResult __eq__(TokenExecutor exec, @NonNull Element other) {
+		return onEqualTo(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __ne__(TokenExecutor exec, @NonNull Element other) {
+		return onNotEqualTo(exec, other);
+	}
+	
+	@Override
 	public @NonNull Element clone() {
 		return INSTANCE;
 	}

@@ -20,16 +20,16 @@ public interface HierarchicalScope extends Scope {
 		return getDefHierarchy().get(identifier, false);
 	}
 	
-	public default void setDef(@NonNull String identifier, @NonNull Def def, boolean shadow) {
+	public default Def setDef(@NonNull String identifier, @NonNull Def def, boolean shadow) {
 		if (shadow) {
 			checkCollision(identifier);
 		}
-		getDefHierarchy().put(identifier, def, shadow);
+		return getDefHierarchy().put(identifier, def, shadow);
 	}
 	
 	@Override
-	public default void setDef(@NonNull String identifier, @NonNull Element value, boolean shadow) {
-		setDef(identifier, new Def(identifier, value), shadow);
+	public default Def setDef(@NonNull String identifier, @NonNull Element value, boolean shadow) {
+		return setDef(identifier, new Def(identifier, value), shadow);
 	}
 	
 	@Override
@@ -47,14 +47,14 @@ public interface HierarchicalScope extends Scope {
 		return getMacroHierarchy().get(identifier, false);
 	}
 	
-	public default void setMacro(@NonNull String identifier, @NonNull Macro macro, boolean shadow) {
+	public default Macro setMacro(@NonNull String identifier, @NonNull Macro macro, boolean shadow) {
 		checkCollision(identifier);
-		getMacroHierarchy().put(identifier, macro, shadow);
+		return getMacroHierarchy().put(identifier, macro, shadow);
 	}
 	
 	@Override
-	public default void setMacro(@NonNull String identifier, @NonNull Invokable invokable) {
-		setMacro(identifier, new Macro(identifier, invokable), true);
+	public default Macro setMacro(@NonNull String identifier, @NonNull Invokable invokable) {
+		return setMacro(identifier, new Macro(identifier, invokable), true);
 	}
 	
 	@Override
@@ -72,43 +72,19 @@ public interface HierarchicalScope extends Scope {
 		return getClazzHierarchy().get(shallowIdentifier, false);
 	}
 	
-	public default void setClazz(@NonNull String shallowIdentifier, @NonNull Clazz clazz, boolean shadow) {
+	public default Clazz setClazz(@NonNull String shallowIdentifier, @NonNull Clazz clazz, boolean shadow) {
 		checkCollision(shallowIdentifier);
-		getClazzHierarchy().put(shallowIdentifier, clazz, shadow);
+		return getClazzHierarchy().put(shallowIdentifier, clazz, shadow);
 	}
 	
 	@Override
-	public default void setClazz(@NonNull String shallowIdentifier, @NonNull ClazzType type, HierarchicalScope base, ArrayList<Clazz> supers) {
-		setClazz(shallowIdentifier, new Clazz(scopeIdentifier(), shallowIdentifier, type, base, supers), true);
+	public default Clazz setClazz(@NonNull String shallowIdentifier, @NonNull ClazzType type, HierarchicalScope base, ArrayList<Clazz> supers) {
+		return setClazz(shallowIdentifier, new Clazz(scopeIdentifier(), shallowIdentifier, type, base, supers), true);
 	}
 	
 	@Override
 	public default Clazz removeClazz(@NonNull String shallowIdentifier) {
 		return getClazzHierarchy().remove(shallowIdentifier, false);
-	}
-	
-	@Override
-	public default boolean hasMagic(@NonNull String identifier, boolean shallow) {
-		return getMagicHierarchy().containsKey(identifier, shallow);
-	}
-	
-	@Override
-	public default Magic getMagic(@NonNull String identifier) {
-		return getMagicHierarchy().get(identifier, false);
-	}
-	
-	public default void setMagic(@NonNull String identifier, @NonNull Magic magic, boolean shadow) {
-		getMagicHierarchy().put(identifier, magic, shadow);
-	}
-	
-	@Override
-	public default void setMagic(@NonNull String identifier, @NonNull Invokable invokable) {
-		setMagic(identifier, new Magic(identifier, invokable), true);
-	}
-	
-	@Override
-	public default Magic removeMagic(@NonNull String identifier) {
-		return getMagicHierarchy().remove(identifier, false);
 	}
 	
 	public Hierarchy<@NonNull String, Def> getDefHierarchy();
@@ -117,19 +93,15 @@ public interface HierarchicalScope extends Scope {
 	
 	public Hierarchy<@NonNull String, Clazz> getClazzHierarchy();
 	
-	public Hierarchy<@NonNull String, Magic> getMagicHierarchy();
-	
 	public default <T> void addToScopeMap(Hierarchy<@NonNull String, T> source, Map<@NonNull Element, @NonNull Element> target) {
 		source.forEach((k, v) -> target.put(new StringElement(k), new LabelElement(this, k)), false);
 	}
 	
 	@Override
-	public default @NonNull Element scopeElement(TokenExecutor exec) {
-		Map<@NonNull Element, @NonNull Element> map = new HashMap<>();
+	public default void addToScopeMap(TokenExecutor exec, @NonNull Map<@NonNull Element, @NonNull Element> map) {
 		addToScopeMap(getDefHierarchy(), map);
 		addToScopeMap(getMacroHierarchy(), map);
 		addToScopeMap(getClazzHierarchy(), map);
-		return new DictElement(map, false);
 	}
 	
 	@SuppressWarnings("null")
@@ -137,6 +109,5 @@ public interface HierarchicalScope extends Scope {
 		from.getDefHierarchy().forEach((k, v) -> setDef(k, v, shadow), shallow);
 		from.getMacroHierarchy().forEach((k, v) -> setMacro(k, v, shadow), shallow);
 		from.getClazzHierarchy().forEach((k, v) -> setClazz(k, v, shadow), shallow);
-		from.getMagicHierarchy().forEach((k, v) -> setMagic(k, v, shadow), shallow);
 	}
 }

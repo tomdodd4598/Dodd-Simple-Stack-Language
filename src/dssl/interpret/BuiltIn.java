@@ -16,8 +16,6 @@ public class BuiltIn {
 	public static final String CLASS = "Class";
 	public static final String LABEL = "Label";
 	
-	public static final String ITERABLE = "Iterable";
-	
 	public static final String MODULE = "Module";
 	
 	public static final String BLOCK = "Block";
@@ -26,6 +24,9 @@ public class BuiltIn {
 	public static final String NULL = "Null";
 	
 	public static final String ITER = "Iter";
+	
+	public static final String PRIMITIVE = "Primitive";
+	public static final String ITERABLE = "Iterable";
 	
 	public static final String INT = "Int";
 	public static final String BOOL = "Bool";
@@ -43,11 +44,9 @@ public class BuiltIn {
 	
 	public static final @NonNull Clazz OBJECT_CLAZZ = clazz(Clazz.objectClazz());
 	
-	public static final @NonNull Clazz SCOPE_CLAZZ = clazz(new Clazz(SCOPE, ClazzType.INTERNAL));
-	public static final @NonNull Clazz CLASS_CLAZZ = clazz(new Clazz(CLASS, ClazzType.INTERNAL, SCOPE_CLAZZ));
-	public static final @NonNull Clazz LABEL_CLAZZ = clazz(new Clazz(LABEL, ClazzType.INTERNAL, SCOPE_CLAZZ));
-	
-	public static final @NonNull Clazz MODULE_CLAZZ = clazz(new Clazz(MODULE, ClazzType.INTERNAL, SCOPE_CLAZZ));
+	public static final @NonNull Clazz CLASS_CLAZZ = clazz(new Clazz(CLASS, ClazzType.INTERNAL));
+	public static final @NonNull Clazz LABEL_CLAZZ = clazz(new Clazz(LABEL, ClazzType.INTERNAL));
+	public static final @NonNull Clazz MODULE_CLAZZ = clazz(new Clazz(MODULE, ClazzType.INTERNAL));
 	
 	public static final @NonNull Clazz BLOCK_CLAZZ = clazz(new Clazz(BLOCK, ClazzType.INTERNAL));
 	public static final @NonNull Clazz BRACKET_CLAZZ = clazz(new Clazz(BRACKET, ClazzType.INTERNAL));
@@ -59,19 +58,22 @@ public class BuiltIn {
 		@Override
 		public @NonNull TokenResult instantiate(TokenExecutor exec) {
 			@NonNull Element elem = exec.pop();
-			TokenResult result = elem.memberAccess(exec, "iter");
+			TokenResult result = elem.memberAction(exec, "iter");
 			if (result == null) {
-				throw elem.memberAccessError("iter");
+				throw new IllegalArgumentException(String.format("Constructor for type \"%s\" requires %s element as argument!", ITER, ITERABLE));
 			}
 			return result;
 		}
 	});
 	
-	public static final @NonNull Clazz INT_CLAZZ = clazz(new Clazz(INT, ClazzType.FINAL) {
+	public static final @NonNull Clazz PRIMITIVE_CLAZZ = clazz(new Clazz(MODULE, ClazzType.INTERNAL));
+	public static final @NonNull Clazz ITERABLE_CLAZZ = clazz(new Clazz(MODULE, ClazzType.INTERNAL));
+	
+	public static final @NonNull Clazz INT_CLAZZ = clazz(new Clazz(INT, ClazzType.FINAL, PRIMITIVE_CLAZZ) {
 		
 		@Override
 		public @NonNull TokenResult instantiate(TokenExecutor exec) {
-			return instantiatePrimitive(exec, this);
+			return instantiateBuiltIn(exec, this);
 		}
 		
 		@Override
@@ -85,11 +87,11 @@ public class BuiltIn {
 		}
 	});
 	
-	public static final @NonNull Clazz BOOL_CLAZZ = clazz(new Clazz(BOOL, ClazzType.FINAL) {
+	public static final @NonNull Clazz BOOL_CLAZZ = clazz(new Clazz(BOOL, ClazzType.FINAL, PRIMITIVE_CLAZZ) {
 		
 		@Override
 		public @NonNull TokenResult instantiate(TokenExecutor exec) {
-			return instantiatePrimitive(exec, this);
+			return instantiateBuiltIn(exec, this);
 		}
 		
 		@Override
@@ -103,11 +105,11 @@ public class BuiltIn {
 		}
 	});
 	
-	public static final @NonNull Clazz FLOAT_CLAZZ = clazz(new Clazz(FLOAT, ClazzType.FINAL) {
+	public static final @NonNull Clazz FLOAT_CLAZZ = clazz(new Clazz(FLOAT, ClazzType.FINAL, PRIMITIVE_CLAZZ) {
 		
 		@Override
 		public @NonNull TokenResult instantiate(TokenExecutor exec) {
-			return instantiatePrimitive(exec, this);
+			return instantiateBuiltIn(exec, this);
 		}
 		
 		@Override
@@ -121,11 +123,11 @@ public class BuiltIn {
 		}
 	});
 	
-	public static final @NonNull Clazz CHAR_CLAZZ = clazz(new Clazz(CHAR, ClazzType.FINAL) {
+	public static final @NonNull Clazz CHAR_CLAZZ = clazz(new Clazz(CHAR, ClazzType.FINAL, PRIMITIVE_CLAZZ) {
 		
 		@Override
 		public @NonNull TokenResult instantiate(TokenExecutor exec) {
-			return instantiatePrimitive(exec, this);
+			return instantiateBuiltIn(exec, this);
 		}
 		
 		@Override
@@ -139,11 +141,11 @@ public class BuiltIn {
 		}
 	});
 	
-	public static final @NonNull Clazz STRING_CLAZZ = clazz(new Clazz(STRING, ClazzType.FINAL) {
+	public static final @NonNull Clazz STRING_CLAZZ = clazz(new Clazz(STRING, ClazzType.FINAL, PRIMITIVE_CLAZZ, ITERABLE_CLAZZ) {
 		
 		@Override
 		public @NonNull TokenResult instantiate(TokenExecutor exec) {
-			return instantiatePrimitive(exec, this);
+			return instantiateBuiltIn(exec, this);
 		}
 		
 		@Override
@@ -157,11 +159,11 @@ public class BuiltIn {
 		}
 	});
 	
-	public static final @NonNull Clazz RANGE_CLAZZ = clazz(new Clazz(RANGE, ClazzType.FINAL) {
+	public static final @NonNull Clazz RANGE_CLAZZ = clazz(new Clazz(RANGE, ClazzType.FINAL, ITERABLE_CLAZZ) {
 		
 		@Override
 		public @NonNull TokenResult instantiate(TokenExecutor exec) {
-			return instantiatePrimitive(exec, this);
+			return instantiateBuiltIn(exec, this);
 		}
 		
 		@Override
@@ -170,11 +172,11 @@ public class BuiltIn {
 		}
 	});
 	
-	public static final @NonNull Clazz LIST_CLAZZ = clazz(new Clazz(LIST, ClazzType.FINAL) {
+	public static final @NonNull Clazz LIST_CLAZZ = clazz(new Clazz(LIST, ClazzType.FINAL, ITERABLE_CLAZZ) {
 		
 		@Override
 		public @NonNull TokenResult instantiate(TokenExecutor exec) {
-			return instantiatePrimitive(exec, this);
+			return instantiateBuiltIn(exec, this);
 		}
 		
 		@Override
@@ -183,11 +185,11 @@ public class BuiltIn {
 		}
 	});
 	
-	public static final @NonNull Clazz SET_CLAZZ = clazz(new Clazz(SET, ClazzType.FINAL) {
+	public static final @NonNull Clazz SET_CLAZZ = clazz(new Clazz(SET, ClazzType.FINAL, ITERABLE_CLAZZ) {
 		
 		@Override
 		public @NonNull TokenResult instantiate(TokenExecutor exec) {
-			return instantiatePrimitive(exec, this);
+			return instantiateBuiltIn(exec, this);
 		}
 		
 		@Override
@@ -196,11 +198,11 @@ public class BuiltIn {
 		}
 	});
 	
-	public static final @NonNull Clazz DICT_CLAZZ = clazz(new Clazz(DICT, ClazzType.FINAL) {
+	public static final @NonNull Clazz DICT_CLAZZ = clazz(new Clazz(DICT, ClazzType.FINAL, ITERABLE_CLAZZ) {
 		
 		@Override
 		public @NonNull TokenResult instantiate(TokenExecutor exec) {
-			return instantiatePrimitive(exec, this);
+			return instantiateBuiltIn(exec, this);
 		}
 		
 		@Override
@@ -214,7 +216,7 @@ public class BuiltIn {
 		return clazz;
 	}
 	
-	static @NonNull TokenResult instantiatePrimitive(TokenExecutor exec, Clazz clazz) {
+	static @NonNull TokenResult instantiateBuiltIn(TokenExecutor exec, Clazz clazz) {
 		Element casted = clazz.as(exec, exec.pop());
 		if (casted == null) {
 			throw new IllegalArgumentException(String.format("Constructor for type \"%1$s\" requires %1$s element as argument!", clazz.fullIdentifier));
@@ -224,7 +226,7 @@ public class BuiltIn {
 	}
 	
 	static {
-		for (Clazz clazz : Arrays.asList(STRING_CLAZZ, RANGE_CLAZZ, LIST_CLAZZ, SET_CLAZZ, DICT_CLAZZ)) {
+		for (Clazz clazz : Arrays.asList(ITERABLE_CLAZZ)) {
 			clazz.setMacro("unpack", x -> {
 				x.pop().unpack(x);
 				return TokenResult.PASS;
@@ -607,7 +609,46 @@ public class BuiltIn {
 			});
 		}
 		
+		for (Clazz clazz : Arrays.asList(CLASS_CLAZZ)) {
+			clazz.setMacro("supers", x -> {
+				x.push(x.pop().supers(x));
+				return TokenResult.PASS;
+			});
+		}
+		
 		for (Clazz clazz : Arrays.asList(OBJECT_CLAZZ)) {
+			clazz.setMacro("__init__", x -> {
+				x.push(x.pop().__init__(x));
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("__str__", x -> {
+				x.push(x.pop().__str__(x));
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("__debug__", x -> {
+				x.push(x.pop().__debug__(x));
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("__fmt__", x -> {
+				x.push(x.pop().__fmt__(x));
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("__eq__", x -> {
+				return x.pop().__eq__(x, x.pop());
+			});
+			
+			clazz.setMacro("__ne__", x -> {
+				return x.pop().__ne__(x, x.pop());
+			});
+			
+			clazz.setMacro("__concat__", x -> {
+				return x.pop().__concat__(x, x.pop());
+			});
+			
 			clazz.setMacro("clone", x -> {
 				x.push(x.pop().clone(x));
 				return TokenResult.PASS;
@@ -617,18 +658,90 @@ public class BuiltIn {
 				x.push(new IntElement(x.pop().hash(x)));
 				return TokenResult.PASS;
 			});
-		}
-		
-		for (Clazz clazz : Arrays.asList(SCOPE_CLAZZ)) {
+			
 			clazz.setMacro("scope", x -> {
 				x.push(x.pop().scope(x));
 				return TokenResult.PASS;
 			});
 		}
+		
+		for (Clazz clazz : Arrays.asList(PRIMITIVE_CLAZZ)) {
+			clazz.setMacro("__lt__", x -> {
+				return x.pop().__lt__(x, x.pop());
+			});
+			
+			clazz.setMacro("__le__", x -> {
+				return x.pop().__le__(x, x.pop());
+			});
+			
+			clazz.setMacro("__gt__", x -> {
+				return x.pop().__gt__(x, x.pop());
+			});
+			
+			clazz.setMacro("__ge__", x -> {
+				return x.pop().__ge__(x, x.pop());
+			});
+			
+			clazz.setMacro("__add__", x -> {
+				return x.pop().__add__(x, x.pop());
+			});
+			
+			clazz.setMacro("__and__", x -> {
+				return x.pop().__and__(x, x.pop());
+			});
+			
+			clazz.setMacro("__or__", x -> {
+				return x.pop().__or__(x, x.pop());
+			});
+			
+			clazz.setMacro("__xor__", x -> {
+				return x.pop().__xor__(x, x.pop());
+			});
+			
+			clazz.setMacro("__sub__", x -> {
+				return x.pop().__sub__(x, x.pop());
+			});
+			
+			clazz.setMacro("__lshift__", x -> {
+				return x.pop().__lshift__(x, x.pop());
+			});
+			
+			clazz.setMacro("__rshift__", x -> {
+				return x.pop().__rshift__(x, x.pop());
+			});
+			
+			clazz.setMacro("__mul__", x -> {
+				return x.pop().__mul__(x, x.pop());
+			});
+			
+			clazz.setMacro("__div__", x -> {
+				return x.pop().__div__(x, x.pop());
+			});
+			
+			clazz.setMacro("__rem__", x -> {
+				return x.pop().__rem__(x, x.pop());
+			});
+			
+			clazz.setMacro("__pow__", x -> {
+				return x.pop().__pow__(x, x.pop());
+			});
+			
+			clazz.setMacro("__floordiv__", x -> {
+				return x.pop().__floordiv__(x, x.pop());
+			});
+			
+			clazz.setMacro("__mod__", x -> {
+				return x.pop().__mod__(x, x.pop());
+			});
+			
+			clazz.setMacro("__not__", x -> {
+				return x.pop().__not__(x);
+			});
+		}
 	}
 	
 	static @NonNull Clazz module(@NonNull String identifier) {
-		Clazz module = new Clazz(identifier, ClazzType.INTERNAL, SCOPE_CLAZZ);
+		Clazz module = new Clazz(identifier, ClazzType.INTERNAL);
 		MODULE_MAP.put(identifier, module);
 		return module;
 	}
@@ -813,7 +926,6 @@ public class BuiltIn {
 		KEYWORDS.add("def");
 		KEYWORDS.add("macro");
 		KEYWORDS.add("class");
-		KEYWORDS.add("magic");
 		
 		KEYWORDS.add("delete");
 		

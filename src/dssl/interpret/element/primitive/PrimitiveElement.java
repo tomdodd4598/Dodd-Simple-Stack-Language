@@ -321,8 +321,124 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	public abstract @NonNull TokenResult onNot(TokenExecutor exec);
 	
 	@Override
-	public Object formatted(TokenExecutor exec) {
+	protected Object formattedInternal(TokenExecutor exec) {
 		return value.raw;
+	}
+	
+	@Override
+	public Object formatted(TokenExecutor exec) {
+		return formattedInternal(exec);
+	}
+	
+	@Override
+	public @NonNull Element __str__(TokenExecutor exec) {
+		String stringValue = value.stringValue(true);
+		return stringValue == null ? super.__str__(exec) : new StringElement(stringValue);
+	}
+	
+	@Override
+	public @NonNull TokenResult __eq__(TokenExecutor exec, @NonNull Element other) {
+		return onEqualTo(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __ne__(TokenExecutor exec, @NonNull Element other) {
+		return onNotEqualTo(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __lt__(TokenExecutor exec, @NonNull Element other) {
+		return onLessThan(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __le__(TokenExecutor exec, @NonNull Element other) {
+		return onLessOrEqual(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __gt__(TokenExecutor exec, @NonNull Element other) {
+		return onMoreThan(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __ge__(TokenExecutor exec, @NonNull Element other) {
+		return onMoreOrEqual(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __add__(TokenExecutor exec, @NonNull Element other) {
+		return onPlus(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __and__(TokenExecutor exec, @NonNull Element other) {
+		return onAnd(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __or__(TokenExecutor exec, @NonNull Element other) {
+		return onOr(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __xor__(TokenExecutor exec, @NonNull Element other) {
+		return onXor(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __sub__(TokenExecutor exec, @NonNull Element other) {
+		return onMinus(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __concat__(TokenExecutor exec, @NonNull Element other) {
+		return onConcat(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __lshift__(TokenExecutor exec, @NonNull Element other) {
+		return onLeftShift(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __rshift__(TokenExecutor exec, @NonNull Element other) {
+		return onRightShift(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __mul__(TokenExecutor exec, @NonNull Element other) {
+		return onMultiply(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __div__(TokenExecutor exec, @NonNull Element other) {
+		return onDivide(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __rem__(TokenExecutor exec, @NonNull Element other) {
+		return onRemainder(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __pow__(TokenExecutor exec, @NonNull Element other) {
+		return onPower(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __floordiv__(TokenExecutor exec, @NonNull Element other) {
+		return onIdivide(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __mod__(TokenExecutor exec, @NonNull Element other) {
+		return onModulo(exec, other);
+	}
+	
+	@Override
+	public @NonNull TokenResult __not__(TokenExecutor exec) {
+		return onNot(exec);
 	}
 	
 	@Override

@@ -19,12 +19,11 @@ public class Clazz implements HierarchicalScope {
 	
 	protected Element elem;
 	
-	protected final List<Clazz> supers;
+	public final List<Clazz> supers;
 	
 	protected final Hierarchy<@NonNull String, Def> defHierarchy;
 	protected final Hierarchy<@NonNull String, Macro> macroHierarchy;
 	protected final Hierarchy<@NonNull String, Clazz> clazzHierarchy;
-	protected final Hierarchy<@NonNull String, Magic> magicHierarchy;
 	
 	public Clazz(@NonNull String identifier, @NonNull ClazzType type, Clazz... supers) {
 		this(null, identifier, type, null, new ArrayList<>(Arrays.asList(supers)));
@@ -43,7 +42,6 @@ public class Clazz implements HierarchicalScope {
 		defHierarchy = getHierarchy(base, HierarchicalScope::getDefHierarchy);
 		macroHierarchy = getHierarchy(base, HierarchicalScope::getMacroHierarchy);
 		clazzHierarchy = getHierarchy(base, HierarchicalScope::getClazzHierarchy);
-		magicHierarchy = getHierarchy(base, HierarchicalScope::getMagicHierarchy);
 	}
 	
 	protected <K, V> Hierarchy<K, V> getHierarchy(HierarchicalScope base, Function<HierarchicalScope, Hierarchy<K, V>> function) {
@@ -73,6 +71,16 @@ public class Clazz implements HierarchicalScope {
 	}
 	
 	@Override
+	public boolean canShadow() {
+		return type.canExtend();
+	}
+	
+	@Override
+	public boolean canDelete() {
+		return type.canExtend();
+	}
+	
+	@Override
 	public Hierarchy<@NonNull String, Def> getDefHierarchy() {
 		return defHierarchy;
 	}
@@ -87,18 +95,13 @@ public class Clazz implements HierarchicalScope {
 		return clazzHierarchy;
 	}
 	
-	@Override
-	public Hierarchy<@NonNull String, Magic> getMagicHierarchy() {
-		return magicHierarchy;
-	}
-	
 	public @NonNull TokenResult instantiate(TokenExecutor exec) {
 		if (!type.canInstantiate()) {
 			throw new IllegalArgumentException(String.format("Can not instantiate instance of class \"%s\"!", fullIdentifier));
 		}
 		
 		InstanceElement instance = new InstanceElement(this);
-		TokenResult init = instance.magicAction(exec, "init");
+		TokenResult init = instance.magicAction(exec, "__init__");
 		if (init == null) {
 			exec.push(instance);
 			return TokenResult.PASS;

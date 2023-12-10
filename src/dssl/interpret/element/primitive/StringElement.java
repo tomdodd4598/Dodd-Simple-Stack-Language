@@ -213,6 +213,16 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	}
 	
 	@Override
+	public @NonNull Element __str__(TokenExecutor exec) {
+		return this;
+	}
+	
+	@Override
+	public @NonNull Element __debug__(TokenExecutor exec) {
+		return new StringElement(debug(exec));
+	}
+	
+	@Override
 	public @NonNull Element clone() {
 		return new StringElement(value.raw);
 	}

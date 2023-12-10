@@ -3,8 +3,8 @@ Package dssl;
 Helpers
 	all = [0 .. 127];
 	digit = ['0' .. '9'];
-	letter = [['a' .. 'z'] + ['A' .. 'Z']];
-	name = letter (digit | letter | '_')*;
+	letter = ['_' + [['a' .. 'z'] + ['A' .. 'Z']]];
+	name = letter (digit | letter)*;
 	sign = '+' | '-';
 	
 	tab = 9;
@@ -60,7 +60,6 @@ Tokens
 	def = 'def';
 	macro = 'macro';
 	class = 'class';
-	magic = 'magic';
 	
 	deref = 'deref';
 	

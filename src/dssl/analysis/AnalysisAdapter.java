@@ -177,12 +177,6 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTMagic(TMagic node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
     public void caseTDeref(TDeref node)
     {
         defaultCase(node);

@@ -49,7 +49,10 @@ public class LabelElement extends Element {
 	}
 	
 	public void setDef(@NonNull Element value, boolean shadow) {
-		scope.setDef(shallowIdentifier, value, shadow);
+		Def prev = scope.setDef(shallowIdentifier, value, shadow);
+		if (prev != null && !scope.canShadow()) {
+			throw shadowError("variable");
+		}
 	}
 	
 	public Macro getMacro() {
@@ -57,7 +60,10 @@ public class LabelElement extends Element {
 	}
 	
 	public void setMacro(@NonNull BlockElement block) {
-		scope.setMacro(shallowIdentifier, block);
+		Macro prev = scope.setMacro(shallowIdentifier, block);
+		if (prev != null && !scope.canShadow()) {
+			throw shadowError("macro");
+		}
 	}
 	
 	public Clazz getClazz() {
@@ -65,37 +71,44 @@ public class LabelElement extends Element {
 	}
 	
 	public void setClazz(@NonNull ClazzType type, HierarchicalScope base, ArrayList<Clazz> supers) {
-		scope.setClazz(shallowIdentifier, type, base, supers);
+		Clazz prev = scope.setClazz(shallowIdentifier, type, base, supers);
+		if (prev != null && !scope.canShadow()) {
+			throw shadowError("class");
+		}
 	}
 	
-	public Magic getMagic() {
-		return scope.getMagic(shallowIdentifier);
-	}
-	
-	public void setMagic(@NonNull BlockElement block) {
-		scope.setMagic(shallowIdentifier, block);
+	protected RuntimeException shadowError(@NonNull String type) {
+		return new IllegalArgumentException(String.format("Can not shadow %s \"%s\" in %s!", type, shallowIdentifier, scope.scopeIdentifier()));
 	}
 	
 	public @NonNull TokenResult delete() {
 		if (scope.removeDef(shallowIdentifier) != null) {
+			if (!scope.canDelete()) {
+				throw deleteError("variable");
+			}
 			return TokenResult.PASS;
 		}
 		else if (scope.removeMacro(shallowIdentifier) != null) {
+			if (!scope.canDelete()) {
+				throw deleteError("macro");
+			}
 			return TokenResult.PASS;
 		}
 		else if (scope.removeClazz(shallowIdentifier) != null) {
+			if (!scope.canDelete()) {
+				throw deleteError("class");
+			}
 			return TokenResult.PASS;
 		}
 		throw Helpers.defError(fullIdentifier);
 	}
 	
-	public @NonNull LabelElement extended(@NonNull String extension) {
-		return new LabelElement(this, extension);
+	protected RuntimeException deleteError(@NonNull String type) {
+		return new IllegalArgumentException(String.format("Can not delete %s \"%s\" in %s!", type, shallowIdentifier, scope.scopeIdentifier()));
 	}
 	
-	@Override
-	public @NonNull Element scope(TokenExecutor exec) {
-		return scope.scopeElement(exec);
+	public @NonNull LabelElement extended(@NonNull String extension) {
+		return new LabelElement(this, extension);
 	}
 	
 	@Override

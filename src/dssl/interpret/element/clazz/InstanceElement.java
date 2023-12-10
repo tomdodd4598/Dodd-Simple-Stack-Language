@@ -14,26 +14,34 @@ public class InstanceElement extends Element implements Scope {
 	protected final Map<@NonNull String, Def> defMap;
 	protected final Map<@NonNull String, Macro> macroMap;
 	protected final Map<@NonNull String, Clazz> clazzMap;
-	protected final Map<@NonNull String, Magic> magicMap;
 	
 	public final @NonNull String scopeIdentifier;
 	
 	public InstanceElement(@NonNull Clazz clazz) {
-		this(clazz, new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
+		this(clazz, new HashMap<>(), new HashMap<>(), new HashMap<>());
 	}
 	
-	protected InstanceElement(@NonNull Clazz clazz, Map<@NonNull String, Def> defMap, Map<@NonNull String, Macro> macroMap, Map<@NonNull String, Clazz> clazzMap, Map<@NonNull String, Magic> magicMap) {
+	protected InstanceElement(@NonNull Clazz clazz, Map<@NonNull String, Def> defMap, Map<@NonNull String, Macro> macroMap, Map<@NonNull String, Clazz> clazzMap) {
 		super(clazz);
 		this.defMap = defMap;
 		this.macroMap = macroMap;
 		this.clazzMap = clazzMap;
-		this.magicMap = magicMap;
 		scopeIdentifier = toString();
 	}
 	
 	@Override
 	public @Nullable String scopeIdentifier() {
 		return scopeIdentifier;
+	}
+	
+	@Override
+	public boolean canShadow() {
+		return true;
+	}
+	
+	@Override
+	public boolean canDelete() {
+		return true;
 	}
 	
 	@Override
@@ -47,11 +55,11 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public void setDef(@NonNull String identifier, @NonNull Element value, boolean shadow) {
+	public Def setDef(@NonNull String identifier, @NonNull Element value, boolean shadow) {
 		if (shadow) {
 			checkCollision(identifier);
 		}
-		defMap.put(identifier, new Def(identifier, value));
+		return defMap.put(identifier, new Def(identifier, value));
 	}
 	
 	@Override
@@ -70,9 +78,9 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public void setMacro(@NonNull String identifier, @NonNull Invokable invokable) {
+	public Macro setMacro(@NonNull String identifier, @NonNull Invokable invokable) {
 		checkCollision(identifier);
-		macroMap.put(identifier, new Macro(identifier, invokable));
+		return macroMap.put(identifier, new Macro(identifier, invokable));
 	}
 	
 	@Override
@@ -91,9 +99,9 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public void setClazz(@NonNull String shallowIdentifier, @NonNull ClazzType type, HierarchicalScope base, ArrayList<Clazz> supers) {
+	public Clazz setClazz(@NonNull String shallowIdentifier, @NonNull ClazzType type, HierarchicalScope base, ArrayList<Clazz> supers) {
 		checkCollision(shallowIdentifier);
-		clazzMap.put(shallowIdentifier, new Clazz(scopeIdentifier, shallowIdentifier, type, base, supers));
+		return clazzMap.put(shallowIdentifier, new Clazz(scopeIdentifier, shallowIdentifier, type, base, supers));
 	}
 	
 	@Override
@@ -102,28 +110,8 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public boolean hasMagic(@NonNull String identifier, boolean shallow) {
-		return magicMap.containsKey(identifier);
-	}
-	
-	@Override
-	public Magic getMagic(@NonNull String identifier) {
-		return magicMap.get(identifier);
-	}
-	
-	@Override
-	public void setMagic(@NonNull String identifier, @NonNull Invokable invokable) {
-		magicMap.put(identifier, new Magic(identifier, invokable));
-	}
-	
-	@Override
-	public Magic removeMagic(@NonNull String identifier) {
-		return magicMap.remove(identifier);
-	}
-	
-	@Override
 	public @Nullable IterElement iterator(TokenExecutor exec) {
-		TokenResult result = memberAccess(exec, "iter");
+		TokenResult result = memberAction(exec, "iter");
 		return result == null ? null : (IterElement) exec.pop();
 	}
 	
@@ -134,12 +122,10 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public @NonNull Element scopeElement(TokenExecutor exec) {
-		Map<@NonNull Element, @NonNull Element> map = new HashMap<>();
+	public void addToScopeMap(TokenExecutor exec, @NonNull Map<@NonNull Element, @NonNull Element> map) {
 		addToScopeMap(defMap, map);
 		addToScopeMap(macroMap, map);
 		addToScopeMap(clazzMap, map);
-		return new DictElement(map, false);
 	}
 	
 	@Override
@@ -148,25 +134,20 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public @NonNull Element scope(TokenExecutor exec) {
-		return scopeElement(exec);
-	}
-	
-	@Override
 	public @NonNull Element clone() {
-		return new InstanceElement(clazz, new HashMap<>(defMap), new HashMap<>(macroMap), new HashMap<>(clazzMap), new HashMap<>(magicMap));
+		return new InstanceElement(clazz, new HashMap<>(defMap), new HashMap<>(macroMap), new HashMap<>(clazzMap));
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash("instance", clazz, defMap, clazzMap, magicMap);
+		return Objects.hash("instance", clazz, defMap, clazzMap);
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof InstanceElement) {
 			InstanceElement other = (InstanceElement) obj;
-			return clazz.equals(other.clazz) && defMap.equals(other.defMap) && clazzMap.equals(other.clazzMap) && magicMap.equals(other.magicMap);
+			return clazz.equals(other.clazz) && defMap.equals(other.defMap) && clazzMap.equals(other.clazzMap);
 		}
 		return false;
 	}

@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.translate.*;
 import org.eclipse.jdt.annotation.*;
 
+import dssl.interpret.BuiltIn;
 import dssl.lexer.*;
 import dssl.node.*;
 
@@ -108,6 +109,8 @@ public class Helpers {
 	public static @NonNull String upperCase(@NonNull String str) {
 		return str.toUpperCase(Locale.ROOT);
 	}
+	
+	public static final String NON_NEGATIVE_INT = "non-negative " + BuiltIn.INT;
 	
 	public static @NonNull String ordinal(int n) {
 		switch (n) {

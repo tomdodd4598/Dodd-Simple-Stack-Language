@@ -22,14 +22,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	protected final Hierarchy<@NonNull String, Def> defHierarchy;
 	protected final Hierarchy<@NonNull String, Macro> macroHierarchy;
 	protected final Hierarchy<@NonNull String, Clazz> clazzHierarchy;
-	protected final Hierarchy<@NonNull String, Magic> magicHierarchy;
 	
 	protected TokenExecutor(Interpreter interpreter, TokenIterator iterator) {
 		super(interpreter, iterator);
 		defHierarchy = new Hierarchy<>();
 		macroHierarchy = new Hierarchy<>();
 		clazzHierarchy = new Hierarchy<>();
-		magicHierarchy = new Hierarchy<>();
 		prelude();
 	}
 	
@@ -38,7 +36,6 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		defHierarchy = prev.defHierarchy.copy(child);
 		macroHierarchy = prev.macroHierarchy.copy(child);
 		clazzHierarchy = prev.clazzHierarchy.copy(child);
-		magicHierarchy = prev.magicHierarchy.copy(child);
 	}
 	
 	protected void prelude() {
@@ -88,6 +85,16 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	@Override
+	public boolean canShadow() {
+		return true;
+	}
+	
+	@Override
+	public boolean canDelete() {
+		return true;
+	}
+	
+	@Override
 	public void checkCollision(@NonNull String identifier) {
 		if (BuiltIn.KEYWORDS.contains(identifier)) {
 			throw new IllegalArgumentException(String.format("Identifier \"%s\" already used for keyword!", identifier));
@@ -108,11 +115,6 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	@Override
 	public Hierarchy<@NonNull String, Clazz> getClazzHierarchy() {
 		return clazzHierarchy;
-	}
-	
-	@Override
-	public Hierarchy<@NonNull String, Magic> getMagicHierarchy() {
-		return magicHierarchy;
 	}
 	
 	public boolean isRoot() {
@@ -252,7 +254,6 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		TOKEN_FUNCTION_MAP.put(TDef.class, TokenExecutor::onDef);
 		TOKEN_FUNCTION_MAP.put(TMacro.class, TokenExecutor::onMacro);
 		TOKEN_FUNCTION_MAP.put(TClass.class, TokenExecutor::onClass);
-		TOKEN_FUNCTION_MAP.put(TMagic.class, TokenExecutor::onMagic);
 		
 		TOKEN_FUNCTION_MAP.put(TDeref.class, TokenExecutor::onDeref);
 		
@@ -454,6 +455,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		while ((elem0 = pop()) instanceof ClassElement) {
 			supers.add(((ClassElement) elem0).internal);
 		}
+		Collections.reverse(supers);
 		
 		if (!(elem0 instanceof LabelElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"class\" requires %s element as first argument!", BuiltIn.LABEL));
@@ -466,21 +468,11 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 				throw new IllegalArgumentException(String.format("Class \"%s\" can not extend class \"%s\"!", label.fullIdentifier, clazz.fullIdentifier));
 			}
 		}
-		supers.add(BuiltIn.SCOPE_CLAZZ);
+		// supers.add(BuiltIn.SCOPE_CLAZZ);
 		
 		TokenExecutor clazzExec = ((BlockElement) elem1).executor(this);
 		label.setClazz(ClazzType.STANDARD, clazzExec, supers);
 		return clazzExec.iterate();
-	}
-	
-	protected @NonNull TokenResult onMagic(@NonNull Token token) {
-		@NonNull Element elem1 = pop(), elem0 = pop();
-		if (!(elem0 instanceof LabelElement)) {
-			throw new IllegalArgumentException(String.format("Keyword \"magic\" requires %s element as first argument!", BuiltIn.LABEL));
-		}
-		
-		((LabelElement) elem0).setMagic((BlockElement) elem1);
-		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onDeref(@NonNull Token token) {
@@ -554,12 +546,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		@NonNull Element elem1 = pop(), elem0 = pop();
 		IntElement intElem0 = elem0.asInt(this);
 		if (intElem0 == null) {
-			throw new IllegalArgumentException(String.format("Keyword \"roll\" requires non-negative %s element as first argument!", BuiltIn.INT));
+			throw new IllegalArgumentException(String.format("Keyword \"roll\" requires %s element as first argument!", Helpers.NON_NEGATIVE_INT));
 		}
 		
 		int count = intElem0.primitiveInt();
 		if (count < 0) {
-			throw new IllegalArgumentException(String.format("Keyword \"roll\" requires non-negative %s element as first argument!", BuiltIn.INT));
+			throw new IllegalArgumentException(String.format("Keyword \"roll\" requires %s element as first argument!", Helpers.NON_NEGATIVE_INT));
 		}
 		
 		IntElement intElem1 = elem1.asInt(this);
@@ -680,12 +672,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		@NonNull Element elem1 = pop(), elem0 = pop();
 		IntElement intElem = elem0.asInt(this);
 		if (intElem == null) {
-			throw new IllegalArgumentException(String.format("Keyword \"repeat\" requires non-negative %s element as first argument!", BuiltIn.INT));
+			throw new IllegalArgumentException(String.format("Keyword \"repeat\" requires %s element as first argument!", Helpers.NON_NEGATIVE_INT));
 		}
 		
 		int primitiveInt = intElem.primitiveInt();
 		if (primitiveInt < 0) {
-			throw new IllegalArgumentException(String.format("Keyword \"repeat\" requires non-negative %s element as first argument!", BuiltIn.INT));
+			throw new IllegalArgumentException(String.format("Keyword \"repeat\" requires %s element as first argument!", Helpers.NON_NEGATIVE_INT));
 		}
 		if (!(elem1 instanceof BlockElement)) {
 			throw new IllegalArgumentException(String.format("Keyword \"repeat\" requires %s element as second argument!", BuiltIn.BLOCK));
@@ -1020,7 +1012,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			return TokenResult.PASS;
 		}
 		
-		TokenResult result = elem.memberAccess(this, member);
+		TokenResult result = elem.memberAction(this, member);
 		if (result == null) {
 			throw elem.memberAccessError(member);
 		}
@@ -1126,19 +1118,49 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		Macro macro;
 		Clazz clazz;
 		if ((def = getDef.get()) != null) {
-			push(def.elem);
-			return TokenResult.PASS;
+			return defAction(def);
 		}
 		else if ((macro = getMacro.get()) != null) {
-			return macro.invokable.invoke(this);
+			return macroAction(macro);
 		}
 		else if ((clazz = getClazz.get()) != null) {
-			push(clazz.clazzElement());
-			return TokenResult.PASS;
+			return clazzAction(clazz);
 		}
 		else {
 			return null;
 		}
+	}
+	
+	public @Nullable Supplier<@NonNull TokenResult> scopeInvokable(Supplier<Def> getDef, Supplier<Macro> getMacro, Supplier<Clazz> getClazz) {
+		Def def;
+		Macro macro;
+		Clazz clazz;
+		if ((def = getDef.get()) != null) {
+			return () -> defAction(def);
+		}
+		else if ((macro = getMacro.get()) != null) {
+			return () -> macroAction(macro);
+		}
+		else if ((clazz = getClazz.get()) != null) {
+			return () -> clazzAction(clazz);
+		}
+		else {
+			return null;
+		}
+	}
+	
+	public @NonNull TokenResult defAction(@NonNull Def def) {
+		push(def.elem);
+		return TokenResult.PASS;
+	}
+	
+	public @NonNull TokenResult macroAction(@NonNull Macro macro) {
+		return macro.invokable.invoke(this);
+	}
+	
+	public @NonNull TokenResult clazzAction(@NonNull Clazz clazz) {
+		push(clazz.clazzElement());
+		return TokenResult.PASS;
 	}
 	
 	// BUILT-INS

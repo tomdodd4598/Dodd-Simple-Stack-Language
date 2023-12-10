@@ -7,14 +7,14 @@ public enum TokenResult {
 	BREAK("break"),
 	QUIT("quit");
 	
-	private final String string;
+	private final String str;
 	
-	private TokenResult(String string) {
-		this.string = string;
+	private TokenResult(String str) {
+		this.str = str;
 	}
 	
 	@Override
 	public String toString() {
-		return string;
+		return str;
 	}
 }

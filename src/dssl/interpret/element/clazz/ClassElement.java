@@ -5,7 +5,7 @@ import java.util.Objects;
 import org.eclipse.jdt.annotation.*;
 
 import dssl.interpret.*;
-import dssl.interpret.element.Element;
+import dssl.interpret.element.*;
 
 public class ClassElement extends Element {
 	
@@ -22,8 +22,8 @@ public class ClassElement extends Element {
 	}
 	
 	@Override
-	public @NonNull Element scope(TokenExecutor exec) {
-		return internal.scopeElement(exec);
+	public @NonNull Element supers(TokenExecutor exec) {
+		return new ListElement(internal.supers.stream().map(Clazz::clazzElement));
 	}
 	
 	@Override

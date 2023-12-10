@@ -1,6 +1,7 @@
 package dssl.interpret;
 
-import java.util.ArrayList;
+import java.util.*;
+import java.util.function.Supplier;
 
 import org.eclipse.jdt.annotation.*;
 
@@ -10,8 +11,16 @@ public interface Scope {
 	
 	public @Nullable String scopeIdentifier();
 	
+	public boolean canShadow();
+	
+	public boolean canDelete();
+	
 	public default @Nullable TokenResult scopeAction(TokenExecutor exec, @NonNull String identifier) {
 		return exec.scopeAction(() -> getDef(identifier), () -> getMacro(identifier), () -> getClazz(identifier));
+	}
+	
+	public default @Nullable Supplier<@NonNull TokenResult> scopeInvokable(TokenExecutor exec, @NonNull String identifier) {
+		return exec.scopeInvokable(() -> getDef(identifier), () -> getMacro(identifier), () -> getClazz(identifier));
 	}
 	
 	public default void checkCollision(@NonNull String identifier) {
@@ -30,7 +39,7 @@ public interface Scope {
 	
 	public Def getDef(@NonNull String identifier);
 	
-	public void setDef(@NonNull String identifier, @NonNull Element value, boolean shadow);
+	public Def setDef(@NonNull String identifier, @NonNull Element value, boolean shadow);
 	
 	public Def removeDef(@NonNull String identifier);
 	
@@ -38,7 +47,7 @@ public interface Scope {
 	
 	public Macro getMacro(@NonNull String identifier);
 	
-	public void setMacro(@NonNull String identifier, @NonNull Invokable invokable);
+	public Macro setMacro(@NonNull String identifier, @NonNull Invokable invokable);
 	
 	public Macro removeMacro(@NonNull String identifier);
 	
@@ -46,17 +55,9 @@ public interface Scope {
 	
 	public Clazz getClazz(@NonNull String shallowIdentifier);
 	
-	public void setClazz(@NonNull String shallowIdentifier, @NonNull ClazzType type, HierarchicalScope base, ArrayList<Clazz> supers);
+	public Clazz setClazz(@NonNull String shallowIdentifier, @NonNull ClazzType type, HierarchicalScope base, ArrayList<Clazz> supers);
 	
 	public Clazz removeClazz(@NonNull String shallowIdentifier);
 	
-	public boolean hasMagic(@NonNull String identifier, boolean shallow);
-	
-	public Magic getMagic(@NonNull String identifier);
-	
-	public void setMagic(@NonNull String identifier, @NonNull Invokable invokable);
-	
-	public Magic removeMagic(@NonNull String identifier);
-	
-	public @NonNull Element scopeElement(TokenExecutor exec);
+	public void addToScopeMap(TokenExecutor exec, @NonNull Map<@NonNull Element, @NonNull Element> map);
 }

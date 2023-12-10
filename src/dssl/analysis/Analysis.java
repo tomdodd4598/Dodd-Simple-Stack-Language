@@ -29,7 +29,6 @@ public interface Analysis extends Switch
     void caseTDef(TDef node);
     void caseTMacro(TMacro node);
     void caseTClass(TClass node);
-    void caseTMagic(TMagic node);
     void caseTDeref(TDeref node);
     void caseTDelete(TDelete node);
     void caseTNew(TNew node);
