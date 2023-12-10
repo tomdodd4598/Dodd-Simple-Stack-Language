@@ -81,11 +81,6 @@ public class DictElement extends Element {
 	}
 	
 	@Override
-	public @NonNull Element iter(TokenExecutor exec) {
-		return iterator(exec);
-	}
-	
-	@Override
 	public void remove(TokenExecutor exec, @NonNull Element elem) {
 		value.remove(elem);
 	}
@@ -174,6 +169,11 @@ public class DictElement extends Element {
 	@Override
 	public @NonNull Element __debug__(TokenExecutor exec) {
 		return new StringElement(debug(exec));
+	}
+	
+	@Override
+	public @NonNull Element __iter__(TokenExecutor exec) {
+		return iterator(exec);
 	}
 	
 	@Override

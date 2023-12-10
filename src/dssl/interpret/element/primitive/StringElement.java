@@ -82,11 +82,6 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	}
 	
 	@Override
-	public @NonNull Element iter(TokenExecutor exec) {
-		return iterator(exec);
-	}
-	
-	@Override
 	public boolean contains(TokenExecutor exec, @NonNull Element elem) {
 		if (!(elem instanceof CharElement) && !(elem instanceof StringElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"contains\" requires %s or %s element as argument!", BuiltIn.CHAR, BuiltIn.STRING));
@@ -220,6 +215,11 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	@Override
 	public @NonNull Element __debug__(TokenExecutor exec) {
 		return new StringElement(debug(exec));
+	}
+	
+	@Override
+	public @NonNull Element __iter__(TokenExecutor exec) {
+		return iterator(exec);
 	}
 	
 	@Override

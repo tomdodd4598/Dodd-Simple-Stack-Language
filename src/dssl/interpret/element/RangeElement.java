@@ -142,11 +142,6 @@ public class RangeElement extends Element {
 	}
 	
 	@Override
-	public @NonNull Element iter(TokenExecutor exec) {
-		return iterator(exec);
-	}
-	
-	@Override
 	public boolean contains(TokenExecutor exec, @NonNull Element elem) {
 		IntElement intElem = elem.asInt(exec);
 		if (intElem == null) {
@@ -224,6 +219,11 @@ public class RangeElement extends Element {
 	@Override
 	public @NonNull String debug(TokenExecutor exec) {
 		return "(...)";
+	}
+	
+	@Override
+	public @NonNull Element __iter__(TokenExecutor exec) {
+		return iterator(exec);
 	}
 	
 	@Override

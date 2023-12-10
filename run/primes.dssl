@@ -7,12 +7,12 @@ $math include
 # Check divisors up to sqrt(n)
 /isPrime {
 	/n exch def
-	n 2 < { false } { { n exch % 0 == } ( 2 n isqrt 1 + ) .iter .filter .count 0 == } ifelse
+	n 2 < { false } { { n exch % 0 == } ( 2 n isqrt 1 + ) Iter new .filter .count 0 == } ifelse
 } macro
 
 /primes {
 	/n exch def
-	{ isPrime } ( 1 1 n + ) .iter .filter
+	{ isPrime } ( 1 1 n + ) Iter new .filter
 } macro
 
 # Print primes up to 100

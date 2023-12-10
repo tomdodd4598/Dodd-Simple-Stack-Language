@@ -92,11 +92,6 @@ public class ListElement extends Element {
 	}
 	
 	@Override
-	public @NonNull Element iter(TokenExecutor exec) {
-		return iterator(exec);
-	}
-	
-	@Override
 	public boolean contains(TokenExecutor exec, @NonNull Element elem) {
 		return value.contains(elem);
 	}
@@ -270,6 +265,11 @@ public class ListElement extends Element {
 	@Override
 	public @NonNull Element __debug__(TokenExecutor exec) {
 		return new StringElement(debug(exec));
+	}
+	
+	@Override
+	public @NonNull Element __iter__(TokenExecutor exec) {
+		return iterator(exec);
 	}
 	
 	@Override

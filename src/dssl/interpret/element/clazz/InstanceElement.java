@@ -111,7 +111,7 @@ public class InstanceElement extends Element implements Scope {
 	
 	@Override
 	public @Nullable IterElement iterator(TokenExecutor exec) {
-		TokenResult result = memberAction(exec, "iter");
+		TokenResult result = memberAction(exec, "__iter__");
 		return result == null ? null : (IterElement) exec.pop();
 	}
 	

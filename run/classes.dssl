@@ -3,12 +3,12 @@
 # ----------------- #
 
 /Container {
-	/init {
+	/__init__ {
 		/this exch def
 		/this .counter 0 def
 		this
 		"Made a Container!" println
-	} magic
+	} macro
 	
 	/increment {
 		/this exch def
@@ -33,12 +33,12 @@ cont .shout
 # ---------------- #
 
 /Item {
-	/init {
+	/__init__ {
 		/this exch def
 		/this .value exch def
 		/this .next null def
 		this
-	} magic
+	} macro
 	
 	/addNext {
 		/curr exch def
@@ -87,33 +87,25 @@ item .printRecursive
 
 /Person {
 	/talk {
-		"Person talked." println
+		type " talked." ~ println
 	} macro
 } class
 
 /Worker Person {
 	/work {
-		"Worker worked." println
+		type " worked." ~ println
 	} macro
 } class
 
 /Miner Worker {
-	/talk {
-		"Miner talked." println
-	} macro
-	
 	/mine {
-		"Miner mined." println
+		type " mined." ~ println
 	} macro
 } class
 
 /Programmer Worker {
-	/work {
-		"Programmer worked." println
-	} macro
-	
 	/code {
-		"Programmer coded." println
+		type " coded." ~ println
 	} macro
 } class
 

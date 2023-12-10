@@ -315,10 +315,6 @@ public abstract class Element {
 		throw builtInMethodError("isEmpty");
 	}
 	
-	public @NonNull Element iter(TokenExecutor exec) {
-		throw builtInMethodError("iter");
-	}
-	
 	public boolean contains(TokenExecutor exec, @NonNull Element elem) {
 		throw builtInMethodError("contains");
 	}
@@ -720,25 +716,14 @@ public abstract class Element {
 	}
 	
 	public @Nullable TokenResult magicAction(TokenExecutor exec, @NonNull String identifier, @NonNull Element... args) {
-		@Nullable Scope memberScope = getMemberScope(MemberAccessType.STATIC);
+		@Nullable Scope memberScope = getMemberScope(MemberAccessType.INSTANCE);
 		if (memberScope != null) {
 			@Nullable Supplier<@NonNull TokenResult> invokable = memberScope.scopeInvokable(exec, identifier);
 			if (invokable != null) {
-				for (@NonNull Element arg : args) {
-					exec.push(arg);
+				for (int i = args.length - 1; i >= 0; --i) {
+					exec.push(args[i]);
 				}
-				return invokable.get();
-			}
-		}
-		
-		memberScope = getMemberScope(MemberAccessType.INSTANCE);
-		if (memberScope != null) {
-			@Nullable Supplier<@NonNull TokenResult> invokable = memberScope.scopeInvokable(exec, identifier);
-			if (invokable != null) {
 				exec.push(this);
-				for (@NonNull Element arg : args) {
-					exec.push(arg);
-				}
 				return invokable.get();
 			}
 		}
@@ -801,6 +786,10 @@ public abstract class Element {
 	
 	public @NonNull Element __fmt__(TokenExecutor exec) {
 		return this;
+	}
+	
+	public @NonNull Element __iter__(TokenExecutor exec) {
+		throw builtInMethodError("__iter__");
 	}
 	
 	public @NonNull TokenResult __eq__(TokenExecutor exec, @NonNull Element other) {
