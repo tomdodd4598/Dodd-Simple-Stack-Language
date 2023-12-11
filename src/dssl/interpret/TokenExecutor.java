@@ -272,6 +272,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		TOKEN_FUNCTION_MAP.put(TDup.class, TokenExecutor::onDup);
 		
 		TOKEN_FUNCTION_MAP.put(TStacksize.class, TokenExecutor::onStacksize);
+		TOKEN_FUNCTION_MAP.put(TStackindex.class, TokenExecutor::onStackindex);
 		
 		TOKEN_FUNCTION_MAP.put(TRead.class, TokenExecutor::onRead);
 		TOKEN_FUNCTION_MAP.put(TPrint.class, TokenExecutor::onPrint);
@@ -579,6 +580,22 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected @NonNull TokenResult onStacksize(@NonNull Token token) {
 		push(new IntElement(stackSize()));
+		return TokenResult.PASS;
+	}
+	
+	protected @NonNull TokenResult onStackindex(@NonNull Token token) {
+		@NonNull Element elem = pop();
+		IntElement intElem = elem.asInt(this);
+		if (intElem == null) {
+			throw new IllegalArgumentException(String.format("Keyword \"stackindex\" requires %s element as argument!", Helpers.NON_NEGATIVE_INT));
+		}
+		
+		int primitiveInt = intElem.primitiveInt();
+		if (primitiveInt < 0) {
+			throw new IllegalArgumentException(String.format("Keyword \"stackindex\" requires %s element as argument!", Helpers.NON_NEGATIVE_INT));
+		}
+		
+		push(peekAt(primitiveInt));
 		return TokenResult.PASS;
 	}
 	

@@ -42,7 +42,7 @@ public class BuiltIn {
 	public static final Map<@NonNull String, Clazz> CLAZZ_MAP = new HashMap<>();
 	public static final Map<@NonNull String, Clazz> MODULE_MAP = new HashMap<>();
 	
-	public static final @NonNull Clazz OBJECT_CLAZZ = clazz(Clazz.objectClazz());
+	public static final @NonNull Clazz OBJECT_CLAZZ = clazz(new Clazz(null, OBJECT, ClazzType.INTERNAL, null, null));
 	
 	public static final @NonNull Clazz CLASS_CLAZZ = clazz(new Clazz(CLASS, ClazzType.INTERNAL));
 	public static final @NonNull Clazz LABEL_CLAZZ = clazz(new Clazz(LABEL, ClazzType.INTERNAL));

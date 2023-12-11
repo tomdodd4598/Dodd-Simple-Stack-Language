@@ -41,6 +41,7 @@ public interface Analysis extends Switch
     void caseTPop(TPop node);
     void caseTDup(TDup node);
     void caseTStacksize(TStacksize node);
+    void caseTStackindex(TStackindex node);
     void caseTRead(TRead node);
     void caseTPrint(TPrint node);
     void caseTPrintln(TPrintln node);

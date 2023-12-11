@@ -70,7 +70,7 @@ public class LabelElement extends Element {
 		return scope.getClazz(shallowIdentifier);
 	}
 	
-	public void setClazz(@NonNull ClazzType type, HierarchicalScope base, ArrayList<Clazz> supers) {
+	public void setClazz(@NonNull ClazzType type, @Nullable HierarchicalScope base, @NonNull ArrayList<Clazz> supers) {
 		Clazz prev = scope.setClazz(shallowIdentifier, type, base, supers);
 		if (prev != null && !scope.canShadow()) {
 			throw shadowError("class");

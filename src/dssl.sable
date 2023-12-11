@@ -78,6 +78,7 @@ Tokens
 	dup = 'dup';
 	
 	stacksize = 'stacksize';
+	stackindex = 'stackindex';
 	
 	read = 'read';
 	print = 'print';

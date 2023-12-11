@@ -2,7 +2,7 @@ package dssl.interpret;
 
 import java.util.*;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import dssl.Hierarchy;
 import dssl.interpret.element.*;
@@ -78,7 +78,7 @@ public interface HierarchicalScope extends Scope {
 	}
 	
 	@Override
-	public default Clazz setClazz(@NonNull String shallowIdentifier, @NonNull ClazzType type, HierarchicalScope base, ArrayList<Clazz> supers) {
+	public default Clazz setClazz(@NonNull String shallowIdentifier, @NonNull ClazzType type, @Nullable HierarchicalScope base, @NonNull ArrayList<Clazz> supers) {
 		return setClazz(shallowIdentifier, new Clazz(scopeIdentifier(), shallowIdentifier, type, base, supers), true);
 	}
 	

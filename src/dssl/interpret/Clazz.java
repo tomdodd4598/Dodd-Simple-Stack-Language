@@ -29,32 +29,28 @@ public class Clazz implements HierarchicalScope {
 		this(null, identifier, type, null, new ArrayList<>(Arrays.asList(supers)));
 	}
 	
-	public Clazz(String prev, @NonNull String extension, @NonNull ClazzType type, HierarchicalScope base, ArrayList<Clazz> supers) {
+	public Clazz(String prev, @NonNull String extension, @NonNull ClazzType type, @Nullable HierarchicalScope base, @Nullable ArrayList<Clazz> supers) {
 		fullIdentifier = Helpers.extendedIdentifier(prev, extension);
 		shallowIdentifier = extension;
 		this.type = type;
 		
-		if (!objectClazzInit) {
-			supers.add(BuiltIn.OBJECT_CLAZZ);
+		if (supers == null) {
+			this.supers = new ArrayList<>();
 		}
-		this.supers = supers.stream().distinct().collect(Collectors.toList());
+		else {
+			if (supers.isEmpty()) {
+				supers.add(BuiltIn.OBJECT_CLAZZ);
+			}
+			this.supers = supers.stream().distinct().collect(Collectors.toList());
+		}
 		
 		defHierarchy = getHierarchy(base, HierarchicalScope::getDefHierarchy);
 		macroHierarchy = getHierarchy(base, HierarchicalScope::getMacroHierarchy);
 		clazzHierarchy = getHierarchy(base, HierarchicalScope::getClazzHierarchy);
 	}
 	
-	protected <K, V> Hierarchy<K, V> getHierarchy(HierarchicalScope base, Function<HierarchicalScope, Hierarchy<K, V>> function) {
+	protected <K, V> Hierarchy<K, V> getHierarchy(@Nullable HierarchicalScope base, Function<HierarchicalScope, Hierarchy<K, V>> function) {
 		return (base == null ? new Hierarchy<K, V>() : function.apply(base)).branch(Helpers.map(supers, function));
-	}
-	
-	private static boolean objectClazzInit = false;
-	
-	public static @NonNull Clazz objectClazz() {
-		objectClazzInit = true;
-		@NonNull Clazz clazz = new Clazz(BuiltIn.OBJECT, ClazzType.INTERNAL);
-		objectClazzInit = false;
-		return clazz;
 	}
 	
 	@SuppressWarnings("null")

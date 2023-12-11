@@ -99,7 +99,7 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public Clazz setClazz(@NonNull String shallowIdentifier, @NonNull ClazzType type, HierarchicalScope base, ArrayList<Clazz> supers) {
+	public Clazz setClazz(@NonNull String shallowIdentifier, @NonNull ClazzType type, @Nullable HierarchicalScope base, @NonNull ArrayList<Clazz> supers) {
 		checkCollision(shallowIdentifier);
 		return clazzMap.put(shallowIdentifier, new Clazz(scopeIdentifier, shallowIdentifier, type, base, supers));
 	}

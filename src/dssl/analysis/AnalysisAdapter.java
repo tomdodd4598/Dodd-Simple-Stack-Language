@@ -249,6 +249,12 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseTStackindex(TStackindex node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseTRead(TRead node)
     {
         defaultCase(node);

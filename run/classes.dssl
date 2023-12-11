@@ -86,32 +86,60 @@ item .printRecursive
 # ------------------- #
 
 /Person {
+	/__init__ {
+		"Constructing Person!" println
+		Person .supers { .__init__ } foreach
+	} macro
+	
 	/talk {
 		type " talked." ~ println
 	} macro
 } class
 
 /Worker Person {
+	/__init__ {
+		"Constructing Worker!" println
+		Worker .supers { .__init__ } foreach
+	} macro
+	
 	/work {
 		type " worked." ~ println
 	} macro
 } class
 
 /Miner Worker {
+	/__init__ {
+		"Constructing Miner!" println
+		Miner .supers { .__init__ } foreach
+	} macro
+	
 	/mine {
 		type " mined." ~ println
 	} macro
 } class
 
 /Programmer Worker {
+	/__init__ {
+		"Constructing Programmer!" println
+		Programmer .supers { .__init__ } foreach
+	} macro
+	
 	/code {
 		type " coded." ~ println
 	} macro
 } class
 
-/Satoshi Miner Programmer { } class
+/Satoshi Programmer Miner {
+	/__init__ {
+		"Constructing Satoshi!" println
+		Satoshi .supers { .__init__ } foreach
+	} macro
+} class
 
 /satoshi Satoshi new def
+
+'\n' print
+
 satoshi .talk
 satoshi .work
 satoshi .mine
