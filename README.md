@@ -4,7 +4,7 @@ Dodd Simple Stack Language
 Summary
 -------
 
-The Dodd Simple Stack Language (DSSL) is a stack-based language, inspired primarily by Postscript, Python and Java. The lexing component is generated with the [SableCC](https://sablecc.org/) parser generator. The language syntax specification can be found [here](https://github.com/tomdodd4598/Dodd-Simple-Stack-Language/blob/main/src/dssl.sable).
+The Dodd Simple Stack Language (DSSL) is a stack-based language, inspired primarily by PostScript, Python and Java. The lexing component is generated with the [SableCC](https://sablecc.org/) parser generator. The language syntax specification can be found [here](https://github.com/tomdodd4598/Dodd-Simple-Stack-Language/blob/main/src/dssl.sable).
 
 If you have any questions, feel free to post an issue or ping me in the [eVault](https://discord.gg/KCPYgWw) Discord server!
 
