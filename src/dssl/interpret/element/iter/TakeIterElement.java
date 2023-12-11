@@ -2,7 +2,7 @@ package dssl.interpret.element.iter;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import dssl.interpret.TokenExecutor;
+import dssl.interpret.*;
 import dssl.interpret.element.Element;
 
 public class TakeIterElement extends IterElement {
@@ -10,8 +10,8 @@ public class TakeIterElement extends IterElement {
 	protected final IterElement internal;
 	protected long take;
 	
-	public TakeIterElement(IterElement internal, long take) {
-		super();
+	public TakeIterElement(Interpreter interpreter, IterElement internal, long take) {
+		super(interpreter);
 		this.internal = internal;
 		this.take = take;
 	}

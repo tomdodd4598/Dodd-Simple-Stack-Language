@@ -17,12 +17,12 @@ public class InstanceElement extends Element implements Scope {
 	
 	public final @NonNull String scopeIdentifier;
 	
-	public InstanceElement(@NonNull Clazz clazz) {
-		this(clazz, new HashMap<>(), new HashMap<>(), new HashMap<>());
+	public InstanceElement(Interpreter interpreter, @NonNull Clazz clazz) {
+		this(interpreter, clazz, new HashMap<>(), new HashMap<>(), new HashMap<>());
 	}
 	
-	protected InstanceElement(@NonNull Clazz clazz, Map<@NonNull String, Def> defMap, Map<@NonNull String, Macro> macroMap, Map<@NonNull String, Clazz> clazzMap) {
-		super(clazz);
+	protected InstanceElement(Interpreter interpreter, @NonNull Clazz clazz, Map<@NonNull String, Def> defMap, Map<@NonNull String, Macro> macroMap, Map<@NonNull String, Clazz> clazzMap) {
+		super(interpreter, clazz);
 		this.defMap = defMap;
 		this.macroMap = macroMap;
 		this.clazzMap = clazzMap;
@@ -99,9 +99,9 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public Clazz setClazz(@NonNull String shallowIdentifier, @NonNull ClazzType type, @Nullable HierarchicalScope base, @NonNull ArrayList<Clazz> supers) {
+	public Clazz setClazz(Interpreter interpreter, @NonNull String shallowIdentifier, @NonNull ClazzType type, @Nullable HierarchicalScope base, @NonNull ArrayList<Clazz> supers) {
 		checkCollision(shallowIdentifier);
-		return clazzMap.put(shallowIdentifier, new Clazz(scopeIdentifier, shallowIdentifier, type, base, supers));
+		return clazzMap.put(shallowIdentifier, new Clazz(interpreter, scopeIdentifier, shallowIdentifier, type, base, supers));
 	}
 	
 	@Override
@@ -117,7 +117,7 @@ public class InstanceElement extends Element implements Scope {
 	
 	protected <T> void addToScopeMap(Map<@NonNull String, T> source, Map<@NonNull Element, @NonNull Element> target) {
 		for (String key : source.keySet()) {
-			target.put(new StringElement(key), new LabelElement(this, key));
+			target.put(new StringElement(interpreter, key), new LabelElement(interpreter, this, key));
 		}
 	}
 	
@@ -135,7 +135,7 @@ public class InstanceElement extends Element implements Scope {
 	
 	@Override
 	public @NonNull Element clone() {
-		return new InstanceElement(clazz, new HashMap<>(defMap), new HashMap<>(macroMap), new HashMap<>(clazzMap));
+		return new InstanceElement(interpreter, clazz, new HashMap<>(defMap), new HashMap<>(macroMap), new HashMap<>(clazzMap));
 	}
 	
 	@Override

@@ -4,20 +4,18 @@ import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import dssl.interpret.TokenExecutor;
+import dssl.interpret.*;
 import dssl.interpret.element.Element;
 
 public class DictRBracketElement extends RBracketElement {
 	
-	public static final @NonNull DictRBracketElement INSTANCE = new DictRBracketElement();
-	
-	private DictRBracketElement() {
-		super();
+	public DictRBracketElement(Interpreter interpreter) {
+		super(interpreter);
 	}
 	
 	@Override
 	public @NonNull Element clone() {
-		return INSTANCE;
+		return interpreter.builtIn.dictRBracketElement;
 	}
 	
 	@Override
@@ -27,7 +25,7 @@ public class DictRBracketElement extends RBracketElement {
 	
 	@Override
 	public boolean equals(Object obj) {
-		return obj == INSTANCE;
+		return obj == interpreter.builtIn.dictRBracketElement;
 	}
 	
 	@Override

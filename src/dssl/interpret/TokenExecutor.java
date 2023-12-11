@@ -39,7 +39,8 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	protected void prelude() {
-		BuiltIn.CLAZZ_MAP.forEach((k, v) -> getClazzHierarchy().put(k, v, true));
+		interpreter.builtIn.init();
+		interpreter.builtIn.clazzMap.forEach((k, v) -> getClazzHierarchy().put(k, v, true));
 	}
 	
 	@Override
@@ -368,7 +369,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	protected @NonNull TokenResult onLBrace(@NonNull Token token) {
 		TokenCollector collector = new TokenCollector(interpreter, iterator);
 		collector.iterate();
-		push(new BlockElement(collector.listStack.pop()));
+		push(new BlockElement(interpreter, collector.listStack.pop()));
 		return TokenResult.PASS;
 	}
 	
@@ -377,42 +378,42 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	protected @NonNull TokenResult onDictLBracket(@NonNull Token token) {
-		push(DictLBracketElement.INSTANCE);
+		push(interpreter.builtIn.dictLBracketElement);
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onDictRBracket(@NonNull Token token) {
-		push(new DictElement(this, getElemsToLBracket(DictLBracketElement.INSTANCE, DictRBracketElement.INSTANCE)));
+		push(new DictElement(interpreter, getElemsToLBracket(interpreter.builtIn.dictLBracketElement, interpreter.builtIn.dictRBracketElement)));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onSetLBracket(@NonNull Token token) {
-		push(SetLBracketElement.INSTANCE);
+		push(interpreter.builtIn.setLBracketElement);
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onSetRBracket(@NonNull Token token) {
-		push(new SetElement(getElemsToLBracket(SetLBracketElement.INSTANCE, SetRBracketElement.INSTANCE)));
+		push(new SetElement(interpreter, getElemsToLBracket(interpreter.builtIn.setLBracketElement, interpreter.builtIn.setRBracketElement)));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onListLBracket(@NonNull Token token) {
-		push(ListLBracketElement.INSTANCE);
+		push(interpreter.builtIn.listLBracketElement);
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onListRBracket(@NonNull Token token) {
-		push(new ListElement(getElemsToLBracket(ListLBracketElement.INSTANCE, ListRBracketElement.INSTANCE)));
+		push(new ListElement(interpreter, getElemsToLBracket(interpreter.builtIn.listLBracketElement, interpreter.builtIn.listRBracketElement)));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onRangeLBracket(@NonNull Token token) {
-		push(RangeLBracketElement.INSTANCE);
+		push(interpreter.builtIn.rangeLBracketElement);
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onRangeRBracket(@NonNull Token token) {
-		push(new RangeElement(this, getElemsToLBracket(RangeLBracketElement.INSTANCE, RangeRBracketElement.INSTANCE)));
+		push(new RangeElement(this, getElemsToLBracket(interpreter.builtIn.rangeLBracketElement, interpreter.builtIn.rangeRBracketElement)));
 		return TokenResult.PASS;
 	}
 	
@@ -469,7 +470,6 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 				throw new IllegalArgumentException(String.format("Class \"%s\" can not extend class \"%s\"!", label.fullIdentifier, clazz.fullIdentifier));
 			}
 		}
-		// supers.add(BuiltIn.SCOPE_CLAZZ);
 		
 		TokenExecutor clazzExec = ((BlockElement) elem1).executor(this);
 		label.setClazz(ClazzType.STANDARD, clazzExec, supers);
@@ -507,12 +507,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	protected @NonNull TokenResult onNull(@NonNull Token token) {
-		push(NullElement.INSTANCE);
+		push(interpreter.builtIn.nullElement);
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onType(@NonNull Token token) {
-		push(pop().clazz.clazzElement());
+		push(pop().clazz.clazzElement(interpreter));
 		return TokenResult.PASS;
 	}
 	
@@ -532,7 +532,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Keyword \"is\" requires %s element as second argument!", BuiltIn.CLASS));
 		}
 		
-		push(new BoolElement(elem0.clazz.is(((ClassElement) elem1).internal)));
+		push(new BoolElement(interpreter, elem0.clazz.is(((ClassElement) elem1).internal)));
 		return TokenResult.PASS;
 	}
 	
@@ -579,7 +579,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	protected @NonNull TokenResult onStacksize(@NonNull Token token) {
-		push(new IntElement(stackSize()));
+		push(new IntElement(interpreter, stackSize()));
 		return TokenResult.PASS;
 	}
 	
@@ -601,7 +601,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected @NonNull TokenResult onRead(@NonNull Token token) {
 		String str = interpreter.hooks.read();
-		push(str == null ? NullElement.INSTANCE : new StringElement(str));
+		push(str == null ? interpreter.builtIn.nullElement : new StringElement(interpreter, str));
 		return TokenResult.PASS;
 	}
 	
@@ -776,7 +776,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw Helpers.variableError(label.fullIdentifier);
 		}
 		
-		return opAssign(def.elem.onPlus(this, new IntElement(BigInteger.ONE)));
+		return opAssign(def.elem.onPlus(this, new IntElement(interpreter, BigInteger.ONE)));
 	}
 	
 	protected @NonNull TokenResult onDecrement(@NonNull Token token) {
@@ -791,7 +791,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw Helpers.variableError(label.fullIdentifier);
 		}
 		
-		return opAssign(def.elem.onMinus(this, new IntElement(BigInteger.ONE)));
+		return opAssign(def.elem.onMinus(this, new IntElement(interpreter, BigInteger.ONE)));
 	}
 	
 	protected @NonNull TokenResult onPlusEquals(@NonNull Token token) {
@@ -969,35 +969,35 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	protected @NonNull TokenResult onIntValue(@NonNull Token token) {
-		push(new IntElement(new BigInteger(token.getText())));
+		push(new IntElement(interpreter, new BigInteger(token.getText())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onBoolValue(@NonNull Token token) {
-		push(new BoolElement(Boolean.parseBoolean(token.getText())));
+		push(new BoolElement(interpreter, Boolean.parseBoolean(token.getText())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onFloatValue(@NonNull Token token) {
-		push(new FloatElement(Double.parseDouble(token.getText())));
+		push(new FloatElement(interpreter, Double.parseDouble(token.getText())));
 		return TokenResult.PASS;
 	}
 	
 	@SuppressWarnings("null")
 	protected @NonNull TokenResult onCharValue(@NonNull Token token) {
-		push(new CharElement(Helpers.parseChar(token.getText())));
+		push(new CharElement(interpreter, Helpers.parseChar(token.getText())));
 		return TokenResult.PASS;
 	}
 	
 	@SuppressWarnings("null")
 	protected @NonNull TokenResult onBlockStringValue(@NonNull Token token) {
-		push(new StringElement(Helpers.parseBlockString(token.getText())));
+		push(new StringElement(interpreter, Helpers.parseBlockString(token.getText())));
 		return TokenResult.PASS;
 	}
 	
 	@SuppressWarnings("null")
 	protected @NonNull TokenResult onLineStringValue(@NonNull Token token) {
-		push(new StringElement(Helpers.parseLineString(token.getText())));
+		push(new StringElement(interpreter, Helpers.parseLineString(token.getText())));
 		return TokenResult.PASS;
 	}
 	
@@ -1015,7 +1015,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	protected @NonNull TokenResult onLabel(@NonNull Token token) {
 		@SuppressWarnings("null") @NonNull String identifier = token.getText().substring(1);
 		checkKeyword(identifier, "a label identifier");
-		push(new LabelElement(this, identifier));
+		push(new LabelElement(interpreter, this, identifier));
 		return TokenResult.PASS;
 	}
 	
@@ -1039,12 +1039,12 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	protected @NonNull TokenResult onModule(@NonNull Token token) {
 		@SuppressWarnings("null") @NonNull String identifier = token.getText().substring(1);
 		// checkKeyword(identifier, "a module identifier");
-		push(new ModuleElement(identifier));
+		push(new ModuleElement(interpreter, identifier));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onBlock(@NonNull Token token) {
-		push(new BlockElement(((BlockToken) token).tokens));
+		push(new BlockElement(interpreter, ((BlockToken) token).tokens));
 		return TokenResult.PASS;
 	}
 	
@@ -1176,7 +1176,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	public @NonNull TokenResult clazzAction(@NonNull Clazz clazz) {
-		push(clazz.clazzElement());
+		push(clazz.clazzElement(interpreter));
 		return TokenResult.PASS;
 	}
 	
@@ -1184,19 +1184,19 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected @NonNull TokenResult finite() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("finite");
-		push(new BoolElement(Double.isFinite(floatElem.primitiveFloat())));
+		push(new BoolElement(interpreter, Double.isFinite(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult infinite() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("infinite");
-		push(new BoolElement(Double.isInfinite(floatElem.primitiveFloat())));
+		push(new BoolElement(interpreter, Double.isInfinite(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult inv() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("inv");
-		push(new FloatElement(1.0 / floatElem.primitiveFloat()));
+		push(new FloatElement(interpreter, 1.0 / floatElem.primitiveFloat()));
 		return TokenResult.PASS;
 	}
 	
@@ -1204,13 +1204,13 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		@NonNull Element elem = pop();
 		IntElement intElem = elem.asInt(this);
 		if (intElem != null) {
-			push(new IntElement(intElem.value.raw.negate()));
+			push(new IntElement(interpreter, intElem.value.raw.negate()));
 			return TokenResult.PASS;
 		}
 		
 		FloatElement floatElem = elem.asFloat(this);
 		if (floatElem != null) {
-			push(new FloatElement(-floatElem.primitiveFloat()));
+			push(new FloatElement(interpreter, -floatElem.primitiveFloat()));
 			return TokenResult.PASS;
 		}
 		
@@ -1221,13 +1221,13 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		@NonNull Element elem = pop();
 		IntElement intElem = elem.asInt(this);
 		if (intElem != null) {
-			push(new IntElement(intElem.value.raw.abs()));
+			push(new IntElement(interpreter, intElem.value.raw.abs()));
 			return TokenResult.PASS;
 		}
 		
 		FloatElement floatElem = elem.asFloat(this);
 		if (floatElem != null) {
-			push(new FloatElement(Math.abs(floatElem.primitiveFloat())));
+			push(new FloatElement(interpreter, Math.abs(floatElem.primitiveFloat())));
 			return TokenResult.PASS;
 		}
 		
@@ -1238,13 +1238,13 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		@NonNull Element elem = pop();
 		IntElement intElem = elem.asInt(this);
 		if (intElem != null) {
-			push(new IntElement(intElem.value.raw.signum()));
+			push(new IntElement(interpreter, intElem.value.raw.signum()));
 			return TokenResult.PASS;
 		}
 		
 		FloatElement floatElem = elem.asFloat(this);
 		if (floatElem != null) {
-			push(new FloatElement(Math.signum(floatElem.primitiveFloat())));
+			push(new FloatElement(interpreter, Math.signum(floatElem.primitiveFloat())));
 			return TokenResult.PASS;
 		}
 		
@@ -1253,32 +1253,32 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected @NonNull TokenResult floor() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("floor");
-		push(new IntElement(floatElem.bigFloat().setScale(0, RoundingMode.FLOOR).toBigInteger()));
+		push(new IntElement(interpreter, floatElem.bigFloat().setScale(0, RoundingMode.FLOOR).toBigInteger()));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult ceil() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("ceil");
-		push(new IntElement(floatElem.bigFloat().setScale(0, RoundingMode.CEILING).toBigInteger()));
+		push(new IntElement(interpreter, floatElem.bigFloat().setScale(0, RoundingMode.CEILING).toBigInteger()));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult trunc() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("trunc");
-		push(new IntElement(floatElem.bigFloat().toBigInteger()));
+		push(new IntElement(interpreter, floatElem.bigFloat().toBigInteger()));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult fract() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("fract");
 		@NonNull BigDecimal bd = floatElem.bigFloat();
-		push(new FloatElement(bd.subtract(new BigDecimal(bd.toBigInteger())).doubleValue()));
+		push(new FloatElement(interpreter, bd.subtract(new BigDecimal(bd.toBigInteger())).doubleValue()));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult round() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("round");
-		push(new IntElement(floatElem.bigFloat().round(MathContext.UNLIMITED).toBigInteger()));
+		push(new IntElement(interpreter, floatElem.bigFloat().round(MathContext.UNLIMITED).toBigInteger()));
 		return TokenResult.PASS;
 	}
 	
@@ -1294,50 +1294,50 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in math macro \"places\" requires %s element as second argument!", BuiltIn.INT));
 		}
 		
-		push(new FloatElement(floatElem.bigFloat().setScale(intElem.primitiveInt(), BigDecimal.ROUND_HALF_UP).doubleValue()));
+		push(new FloatElement(interpreter, floatElem.bigFloat().setScale(intElem.primitiveInt(), BigDecimal.ROUND_HALF_UP).doubleValue()));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult sin() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("sin");
-		push(new FloatElement(Math.sin(floatElem.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.sin(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult cos() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("cos");
-		push(new FloatElement(Math.cos(floatElem.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.cos(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult tan() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("tan");
-		push(new FloatElement(Math.tan(floatElem.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.tan(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult asin() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("asin");
-		push(new FloatElement(Math.asin(floatElem.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.asin(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult acos() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("acos");
-		push(new FloatElement(Math.acos(floatElem.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.acos(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult atan() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("atan");
-		push(new FloatElement(Math.atan(floatElem.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.atan(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult sinc() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("sinc");
 		double f = floatElem.primitiveFloat();
-		push(new FloatElement(f == 0.0 ? 1.0 : Math.sin(f) / f));
+		push(new FloatElement(interpreter, f == 0.0 ? 1.0 : Math.sin(f) / f));
 		return TokenResult.PASS;
 	}
 	
@@ -1353,7 +1353,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in math macro \"atan2\" requires %s element as second argument!", BuiltIn.FLOAT));
 		}
 		
-		push(new FloatElement(Math.atan2(floatElem0.primitiveFloat(), floatElem1.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.atan2(floatElem0.primitiveFloat(), floatElem1.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
@@ -1369,43 +1369,43 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in math macro \"hypot\" requires %s element as second argument!", BuiltIn.FLOAT));
 		}
 		
-		push(new FloatElement(Math.hypot(floatElem0.primitiveFloat(), floatElem1.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.hypot(floatElem0.primitiveFloat(), floatElem1.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult rads() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("rads");
-		push(new FloatElement(Math.toRadians(floatElem.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.toRadians(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult degs() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("degs");
-		push(new FloatElement(Math.toDegrees(floatElem.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.toDegrees(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult exp() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("exp");
-		push(new FloatElement(Math.exp(floatElem.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.exp(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult ln() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("ln");
-		push(new FloatElement(Math.log(floatElem.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.log(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult log2() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("log2");
-		push(new FloatElement(Math.log(floatElem.primitiveFloat()) / Constants.LN_2));
+		push(new FloatElement(interpreter, Math.log(floatElem.primitiveFloat()) / Constants.LN_2));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult log10() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("log10");
-		push(new FloatElement(Math.log10(floatElem.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.log10(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
@@ -1421,31 +1421,31 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in math macro \"log\" requires %s element as second argument!", BuiltIn.FLOAT));
 		}
 		
-		push(new FloatElement(Math.log(floatElem0.primitiveFloat()) / Math.log(floatElem1.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.log(floatElem0.primitiveFloat()) / Math.log(floatElem1.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult expm1() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("expm1");
-		push(new FloatElement(Math.expm1(floatElem.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.expm1(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult ln1p() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("ln1p");
-		push(new FloatElement(Math.log1p(floatElem.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.log1p(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult sqrt() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("sqrt");
-		push(new FloatElement(Math.sqrt(floatElem.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.sqrt(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult cbrt() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("cbrt");
-		push(new FloatElement(Math.cbrt(floatElem.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.cbrt(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
@@ -1461,19 +1461,19 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in math macro \"root\" requires %s element as second argument!", BuiltIn.FLOAT));
 		}
 		
-		push(new FloatElement(Math.pow(floatElem0.primitiveFloat(), 1.0 / floatElem1.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.pow(floatElem0.primitiveFloat(), 1.0 / floatElem1.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult isqrt() {
 		@NonNull IntElement intElem = builtInSingleInt("isqrt");
-		push(new IntElement(Helpers.iroot(intElem.value.raw, 2)));
+		push(new IntElement(interpreter, Helpers.iroot(intElem.value.raw, 2)));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult icbrt() {
 		@NonNull IntElement intElem = builtInSingleInt("icbrt");
-		push(new IntElement(Helpers.iroot(intElem.value.raw, 3)));
+		push(new IntElement(interpreter, Helpers.iroot(intElem.value.raw, 3)));
 		return TokenResult.PASS;
 	}
 	
@@ -1489,46 +1489,46 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in math macro \"iroot\" requires %s element as second argument!", BuiltIn.INT));
 		}
 		
-		push(new IntElement(Helpers.iroot(intElem0.value.raw, intElem1.primitiveInt())));
+		push(new IntElement(interpreter, Helpers.iroot(intElem0.value.raw, intElem1.primitiveInt())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult sinh() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("sinh");
-		push(new FloatElement(Math.sinh(floatElem.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.sinh(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult cosh() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("cosh");
-		push(new FloatElement(Math.cosh(floatElem.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.cosh(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult tanh() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("tanh");
-		push(new FloatElement(Math.tanh(floatElem.primitiveFloat())));
+		push(new FloatElement(interpreter, Math.tanh(floatElem.primitiveFloat())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult asinh() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("asinh");
 		double f = floatElem.primitiveFloat();
-		push(new FloatElement(Math.log(f + Math.sqrt(f * f + 1.0))));
+		push(new FloatElement(interpreter, Math.log(f + Math.sqrt(f * f + 1.0))));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult acosh() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("acosh");
 		double f = floatElem.primitiveFloat();
-		push(new FloatElement(Math.log(f + Math.sqrt(f * f - 1.0))));
+		push(new FloatElement(interpreter, Math.log(f + Math.sqrt(f * f - 1.0))));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult atanh() {
 		@NonNull FloatElement floatElem = builtInSingleFloat("atanh");
 		double f = floatElem.primitiveFloat();
-		push(new FloatElement(0.5 * Math.log((1.0 + f) / (1.0 - f))));
+		push(new FloatElement(interpreter, 0.5 * Math.log((1.0 + f) / (1.0 - f))));
 		return TokenResult.PASS;
 	}
 	
@@ -1537,13 +1537,13 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		IntElement intElem0 = elem0.asInt(this), intElem1 = elem1.asInt(this);
 		boolean firstValid = false;
 		if ((firstValid |= intElem0 != null) && intElem1 != null) {
-			push(new IntElement(intElem0.value.raw.min(intElem1.value.raw)));
+			push(new IntElement(interpreter, intElem0.value.raw.min(intElem1.value.raw)));
 			return TokenResult.PASS;
 		}
 		
 		FloatElement floatElem0 = elem0.asFloat(this), floatElem1 = elem1.asFloat(this);
 		if ((firstValid |= floatElem0 != null) && floatElem1 != null) {
-			push(new FloatElement(Math.min(floatElem0.primitiveFloat(), floatElem1.primitiveFloat())));
+			push(new FloatElement(interpreter, Math.min(floatElem0.primitiveFloat(), floatElem1.primitiveFloat())));
 			return TokenResult.PASS;
 		}
 		
@@ -1555,13 +1555,13 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		IntElement intElem0 = elem0.asInt(this), intElem1 = elem1.asInt(this);
 		boolean firstValid = false;
 		if ((firstValid |= intElem0 != null) && intElem1 != null) {
-			push(new IntElement(intElem0.value.raw.max(intElem1.value.raw)));
+			push(new IntElement(interpreter, intElem0.value.raw.max(intElem1.value.raw)));
 			return TokenResult.PASS;
 		}
 		
 		FloatElement floatElem0 = elem0.asFloat(this), floatElem1 = elem1.asFloat(this);
 		if ((firstValid |= floatElem0 != null) && floatElem1 != null) {
-			push(new FloatElement(Math.max(floatElem0.primitiveFloat(), floatElem1.primitiveFloat())));
+			push(new FloatElement(interpreter, Math.max(floatElem0.primitiveFloat(), floatElem1.primitiveFloat())));
 			return TokenResult.PASS;
 		}
 		
@@ -1573,13 +1573,13 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		IntElement intElem0 = elem0.asInt(this), intElem1 = elem1.asInt(this), intElem2 = elem2.asInt(this);
 		boolean firstValid = false, secondValid = false;
 		if ((firstValid |= intElem0 != null) && (secondValid |= intElem1 != null) && intElem2 != null) {
-			push(new IntElement(Helpers.clamp(intElem0.value.raw, intElem1.value.raw, intElem2.value.raw)));
+			push(new IntElement(interpreter, Helpers.clamp(intElem0.value.raw, intElem1.value.raw, intElem2.value.raw)));
 			return TokenResult.PASS;
 		}
 		
 		FloatElement floatElem0 = elem0.asFloat(this), floatElem1 = elem1.asFloat(this), floatElem2 = elem2.asFloat(this);
 		if ((firstValid |= floatElem0 != null) && (secondValid |= floatElem1 != null) && floatElem2 != null) {
-			push(new FloatElement(Helpers.clamp(floatElem0.primitiveFloat(), floatElem1.primitiveFloat(), floatElem2.primitiveFloat())));
+			push(new FloatElement(interpreter, Helpers.clamp(floatElem0.primitiveFloat(), floatElem1.primitiveFloat(), floatElem2.primitiveFloat())));
 			return TokenResult.PASS;
 		}
 		
@@ -1588,25 +1588,25 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected @NonNull TokenResult clamp8() {
 		@NonNull IntElement intElem = builtInSingleInt("clamp8");
-		push(new IntElement(Helpers.clamp(intElem.value.raw, Constants.MIN_INT_8, Constants.MAX_INT_8)));
+		push(new IntElement(interpreter, Helpers.clamp(intElem.value.raw, Constants.MIN_INT_8, Constants.MAX_INT_8)));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult clamp16() {
 		@NonNull IntElement intElem = builtInSingleInt("clamp16");
-		push(new IntElement(Helpers.clamp(intElem.value.raw, Constants.MIN_INT_16, Constants.MAX_INT_16)));
+		push(new IntElement(interpreter, Helpers.clamp(intElem.value.raw, Constants.MIN_INT_16, Constants.MAX_INT_16)));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult clamp32() {
 		@NonNull IntElement intElem = builtInSingleInt("clamp32");
-		push(new IntElement(Helpers.clamp(intElem.value.raw, Constants.MIN_INT_32, Constants.MAX_INT_32)));
+		push(new IntElement(interpreter, Helpers.clamp(intElem.value.raw, Constants.MIN_INT_32, Constants.MAX_INT_32)));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult clamp64() {
 		@NonNull IntElement intElem = builtInSingleInt("clamp64");
-		push(new IntElement(Helpers.clamp(intElem.value.raw, Constants.MIN_INT_64, Constants.MAX_INT_64)));
+		push(new IntElement(interpreter, Helpers.clamp(intElem.value.raw, Constants.MIN_INT_64, Constants.MAX_INT_64)));
 		return TokenResult.PASS;
 	}
 	
@@ -1629,17 +1629,17 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	protected @NonNull TokenResult args() {
-		push(new ListElement(interpreter.args.stream().map(StringElement::new)));
+		push(new ListElement(interpreter, interpreter.args.stream().map(x -> new StringElement(interpreter, x))));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult rootPath() {
-		push(new StringElement(Helpers.normalizedPathString(interpreter.hooks.getRootPath(this))));
+		push(new StringElement(interpreter, Helpers.normalizedPathString(interpreter.hooks.getRootPath(this))));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult rootDir() {
-		push(new StringElement(Helpers.normalizedPathString(interpreter.hooks.getRootPath(this).getParent())));
+		push(new StringElement(interpreter, Helpers.normalizedPathString(interpreter.hooks.getRootPath(this).getParent())));
 		return TokenResult.PASS;
 	}
 	
@@ -1650,7 +1650,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in env macro \"fromRoot\" requires %s element as argument!", BuiltIn.STRING));
 		}
 		
-		push(new StringElement(Helpers.normalizedPathString(interpreter.hooks.getRootPath(this).getParent().resolve(stringElem.toString(this)))));
+		push(new StringElement(interpreter, Helpers.normalizedPathString(interpreter.hooks.getRootPath(this).getParent().resolve(stringElem.toString(this)))));
 		return TokenResult.PASS;
 	}
 	
@@ -1661,7 +1661,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in fs macro \"readFile\" requires %s element as argument!", BuiltIn.STRING));
 		}
 		
-		push(new StringElement(Helpers.readFile(stringElem.toString(this))));
+		push(new StringElement(interpreter, Helpers.readFile(stringElem.toString(this))));
 		return TokenResult.PASS;
 	}
 	
@@ -1683,7 +1683,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in fs macro \"readLines\" requires %s element as argument!", BuiltIn.STRING));
 		}
 		
-		push(new ListElement(Helpers.readLines(stringElem.toString(this)).stream().map(StringElement::new)));
+		push(new ListElement(interpreter, Helpers.readLines(stringElem.toString(this)).stream().map(x -> new StringElement(interpreter, x))));
 		return TokenResult.PASS;
 	}
 	

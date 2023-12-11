@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
-import dssl.interpret.TokenExecutor;
+import dssl.interpret.*;
 import dssl.interpret.element.*;
 
 public class ChunksIterElement extends IterElement {
@@ -15,8 +15,8 @@ public class ChunksIterElement extends IterElement {
 	protected @Nullable ListElement next = null;
 	protected boolean end = false;
 	
-	public ChunksIterElement(IterElement internal, long size) {
-		super();
+	public ChunksIterElement(Interpreter interpreter, IterElement internal, long size) {
+		super(interpreter);
 		this.internal = internal;
 		this.size = size;
 	}
@@ -28,7 +28,7 @@ public class ChunksIterElement extends IterElement {
 			
 			while (internal.hasNext(exec)) {
 				if (count++ >= size) {
-					next = new ListElement(list);
+					next = new ListElement(interpreter, list);
 					return;
 				}
 				list.add(internal.next(exec));

@@ -9,21 +9,19 @@ import dssl.interpret.element.primitive.BoolElement;
 
 public class NullElement extends Element {
 	
-	public static final @NonNull NullElement INSTANCE = new NullElement();
-	
-	private NullElement() {
-		super(BuiltIn.NULL_CLAZZ);
+	public NullElement(Interpreter interpreter) {
+		super(interpreter, interpreter.builtIn.nullClazz);
 	}
 	
 	@Override
 	public @NonNull TokenResult onEqualTo(TokenExecutor exec, @NonNull Element other) {
-		exec.push(new BoolElement(INSTANCE.equals(other)));
+		exec.push(new BoolElement(interpreter, interpreter.builtIn.nullElement.equals(other)));
 		return TokenResult.PASS;
 	}
 	
 	@Override
 	public @NonNull TokenResult onNotEqualTo(TokenExecutor exec, @NonNull Element other) {
-		exec.push(new BoolElement(!INSTANCE.equals(other)));
+		exec.push(new BoolElement(interpreter, !interpreter.builtIn.nullElement.equals(other)));
 		return TokenResult.PASS;
 	}
 	
@@ -39,7 +37,7 @@ public class NullElement extends Element {
 	
 	@Override
 	public @NonNull Element clone() {
-		return INSTANCE;
+		return interpreter.builtIn.nullElement;
 	}
 	
 	@Override
@@ -49,7 +47,7 @@ public class NullElement extends Element {
 	
 	@Override
 	public boolean equals(Object obj) {
-		return obj == INSTANCE;
+		return obj == interpreter.builtIn.nullElement;
 	}
 	
 	@Override

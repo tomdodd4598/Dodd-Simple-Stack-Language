@@ -16,7 +16,7 @@ public class RangeElement extends Element {
 	
 	@SuppressWarnings("null")
 	public <T extends Element> RangeElement(TokenExecutor exec, Reverse<@NonNull T> elems) {
-		super(BuiltIn.RANGE_CLAZZ);
+		super(exec.interpreter, exec.interpreter.builtIn.rangeClazz);
 		int elemCount = elems.size();
 		if (elemCount < 1 || elemCount > 3) {
 			throw new IllegalArgumentException(String.format("Constructor for type \"%s\" requires one to three %s elements as arguments but received %s!", BuiltIn.RANGE, BuiltIn.INT, elemCount));
@@ -68,8 +68,8 @@ public class RangeElement extends Element {
 		size = diff.divide(step).longValueExact();
 	}
 	
-	public RangeElement(@NonNull BigInteger start, @NonNull BigInteger stop, @NonNull BigInteger step, long size) {
-		super(BuiltIn.RANGE_CLAZZ);
+	public RangeElement(Interpreter interpreter, @NonNull BigInteger start, @NonNull BigInteger stop, @NonNull BigInteger step, long size) {
+		super(interpreter, interpreter.builtIn.rangeClazz);
 		
 		if (step.equals(BigInteger.ZERO)) {
 			throw new IllegalArgumentException(String.format("Range element constructed with zero step size!"));
@@ -92,17 +92,17 @@ public class RangeElement extends Element {
 	
 	@Override
 	public @NonNull ListElement listCast(TokenExecutor exec) {
-		return new ListElement(internalIterable(exec));
+		return new ListElement(interpreter, internalIterable(exec));
 	}
 	
 	@Override
 	public @NonNull SetElement setCast(TokenExecutor exec) {
-		return new SetElement(internalIterable(exec));
+		return new SetElement(interpreter, internalIterable(exec));
 	}
 	
 	@Override
 	public @NonNull IterElement iterator(TokenExecutor exec) {
-		return new IterElement() {
+		return new IterElement(interpreter) {
 			
 			long index = 0;
 			
@@ -113,7 +113,7 @@ public class RangeElement extends Element {
 			
 			@Override
 			public @NonNull Element next(TokenExecutor exec) {
-				return new IntElement(at(index++));
+				return new IntElement(interpreter, at(index++));
 			}
 		};
 	}
@@ -122,7 +122,7 @@ public class RangeElement extends Element {
 	public void unpack(TokenExecutor exec) {
 		long index = 0;
 		while (index < size) {
-			exec.push(new IntElement(at(index++)));
+			exec.push(new IntElement(interpreter, at(index++)));
 		}
 	}
 	
@@ -173,7 +173,7 @@ public class RangeElement extends Element {
 	public @NonNull Element get(TokenExecutor exec, @NonNull Element elem) {
 		long primitiveLong = methodLongIndex(exec, elem, "get");
 		methodIndexBoundsCheck(primitiveLong, "get");
-		return new IntElement(at(primitiveLong));
+		return new IntElement(interpreter, at(primitiveLong));
 	}
 	
 	@SuppressWarnings("null")
@@ -185,25 +185,25 @@ public class RangeElement extends Element {
 		long end = methodLongIndex(exec, elem1, "slice", 2);
 		methodIndexBoundsCheck(end, "slice");
 		
-		return new RangeElement(at(begin), at(end), step, end - begin);
+		return new RangeElement(interpreter, at(begin), at(end), step, end - begin);
 	}
 	
 	@Override
 	public @NonNull Element fst(TokenExecutor exec) {
 		methodIndexBoundsCheck(0, "fst");
-		return new IntElement(start);
+		return new IntElement(interpreter, start);
 	}
 	
 	@Override
 	public @NonNull Element snd(TokenExecutor exec) {
 		methodIndexBoundsCheck(1, "snd");
-		return new IntElement(start.add(step));
+		return new IntElement(interpreter, start.add(step));
 	}
 	
 	@Override
 	public @NonNull Element last(TokenExecutor exec) {
 		methodIndexBoundsCheck(size - 1, "last");
-		return new IntElement(at(size - 1));
+		return new IntElement(interpreter, at(size - 1));
 	}
 	
 	protected BigInteger at(long index) {
@@ -228,7 +228,7 @@ public class RangeElement extends Element {
 	
 	@Override
 	public @NonNull Element clone() {
-		return new RangeElement(start, stop, step, size);
+		return new RangeElement(interpreter, start, stop, step, size);
 	}
 	
 	@Override

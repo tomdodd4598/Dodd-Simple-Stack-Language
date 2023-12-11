@@ -2,7 +2,7 @@ package dssl.interpret.element.iter;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import dssl.interpret.TokenExecutor;
+import dssl.interpret.*;
 import dssl.interpret.element.Element;
 
 public class SkipIterElement extends IterElement {
@@ -10,8 +10,8 @@ public class SkipIterElement extends IterElement {
 	protected final IterElement internal;
 	protected long skip;
 	
-	public SkipIterElement(IterElement internal, long skip) {
-		super();
+	public SkipIterElement(Interpreter interpreter, IterElement internal, long skip) {
+		super(interpreter);
 		this.internal = internal;
 		this.skip = skip;
 	}

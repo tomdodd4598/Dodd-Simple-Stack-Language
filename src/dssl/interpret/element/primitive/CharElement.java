@@ -11,8 +11,8 @@ import dssl.interpret.value.CharValue;
 
 public class CharElement extends PrimitiveElement<@NonNull Character, @NonNull CharValue> {
 	
-	public CharElement(@NonNull Character rawValue) {
-		super(BuiltIn.CHAR_CLAZZ, new CharValue(rawValue));
+	public CharElement(Interpreter interpreter, @NonNull Character rawValue) {
+		super(interpreter, interpreter.builtIn.charClazz, new CharValue(rawValue));
 	}
 	
 	@Override
@@ -36,7 +36,7 @@ public class CharElement extends PrimitiveElement<@NonNull Character, @NonNull C
 	
 	@Override
 	public @NonNull Element clone() {
-		return new CharElement(primitiveChar());
+		return new CharElement(interpreter, primitiveChar());
 	}
 	
 	@Override

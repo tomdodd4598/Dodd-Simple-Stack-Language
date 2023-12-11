@@ -5,25 +5,22 @@ import java.util.*;
 import org.eclipse.jdt.annotation.*;
 
 import dssl.Constants;
-import dssl.interpret.element.Element;
+import dssl.interpret.element.*;
+import dssl.interpret.element.bracket.*;
 import dssl.interpret.element.primitive.*;
 
 public class BuiltIn {
 	
 	public static final String OBJECT = "Object";
 	
-	public static final String SCOPE = "Scope";
 	public static final String CLASS = "Class";
 	public static final String LABEL = "Label";
-	
 	public static final String MODULE = "Module";
 	
 	public static final String BLOCK = "Block";
 	public static final String BRACKET = "Bracket";
 	public static final String NATIVE = "Native";
 	public static final String NULL = "Null";
-	
-	public static final String ITER = "Iter";
 	
 	public static final String PRIMITIVE = "Primitive";
 	public static final String ITERABLE = "Iterable";
@@ -39,194 +36,383 @@ public class BuiltIn {
 	public static final String SET = "Set";
 	public static final String DICT = "Dict";
 	
-	public static final Map<@NonNull String, Clazz> CLAZZ_MAP = new HashMap<>();
-	public static final Map<@NonNull String, Clazz> MODULE_MAP = new HashMap<>();
+	public static final String ITER = "Iter";
 	
-	public static final @NonNull Clazz OBJECT_CLAZZ = clazz(new Clazz(null, OBJECT, ClazzType.INTERNAL, null, null));
+	protected final Interpreter interpreter;
 	
-	public static final @NonNull Clazz CLASS_CLAZZ = clazz(new Clazz(CLASS, ClazzType.INTERNAL));
-	public static final @NonNull Clazz LABEL_CLAZZ = clazz(new Clazz(LABEL, ClazzType.INTERNAL));
-	public static final @NonNull Clazz MODULE_CLAZZ = clazz(new Clazz(MODULE, ClazzType.INTERNAL));
+	public final Map<@NonNull String, Clazz> clazzMap = new HashMap<>();
+	public final Map<@NonNull String, Clazz> moduleMap = new HashMap<>();
 	
-	public static final @NonNull Clazz BLOCK_CLAZZ = clazz(new Clazz(BLOCK, ClazzType.INTERNAL));
-	public static final @NonNull Clazz BRACKET_CLAZZ = clazz(new Clazz(BRACKET, ClazzType.INTERNAL));
-	public static final @NonNull Clazz NATIVE_CLAZZ = clazz(new Clazz(NATIVE, ClazzType.INTERNAL));
-	public static final @NonNull Clazz NULL_CLAZZ = clazz(new Clazz(NULL, ClazzType.INTERNAL));
+	public @NonNull Clazz objectClazz;
 	
-	public static final @NonNull Clazz ITER_CLAZZ = clazz(new Clazz(ITER, ClazzType.FINAL) {
+	public @NonNull Clazz classClazz;
+	public @NonNull Clazz labelClazz;
+	public @NonNull Clazz moduleClazz;
+	
+	public @NonNull Clazz blockClazz;
+	public @NonNull Clazz bracketClazz;
+	public @NonNull Clazz nativeClazz;
+	public @NonNull Clazz nullClazz;
+	
+	public @NonNull Clazz primitiveClazz;
+	public @NonNull Clazz iterableClazz;
+	
+	public @NonNull Clazz intClazz;
+	public @NonNull Clazz boolClazz;
+	public @NonNull Clazz floatClazz;
+	public @NonNull Clazz charClazz;
+	public @NonNull Clazz stringClazz;
+	
+	public @NonNull Clazz rangeClazz;
+	public @NonNull Clazz listClazz;
+	public @NonNull Clazz setClazz;
+	public @NonNull Clazz dictClazz;
+	public @NonNull Clazz iterClazz;
+	
+	public @NonNull RangeLBracketElement rangeLBracketElement;
+	public @NonNull RangeRBracketElement rangeRBracketElement;
+	
+	public @NonNull ListLBracketElement listLBracketElement;
+	public @NonNull ListRBracketElement listRBracketElement;
+	
+	public @NonNull SetLBracketElement setLBracketElement;
+	public @NonNull SetRBracketElement setRBracketElement;
+	
+	public @NonNull DictLBracketElement dictLBracketElement;
+	public @NonNull DictRBracketElement dictRBracketElement;
+	
+	public @NonNull NullElement nullElement;
+	
+	public @NonNull Clazz mathModule;
+	public @NonNull Clazz constsModule;
+	public @NonNull Clazz envModule;
+	public @NonNull Clazz fsModule;
+	
+	@SuppressWarnings("null")
+	protected BuiltIn(Interpreter interpreter) {
+		this.interpreter = interpreter;
+	}
+	
+	protected void init() {
+		objectClazz = clazz(new Clazz(interpreter, null, OBJECT, ClazzType.INTERNAL, null, null));
 		
-		@Override
-		public @NonNull TokenResult instantiate(TokenExecutor exec) {
-			@NonNull Element elem = exec.pop();
-			TokenResult result = elem.memberAction(exec, "__iter__");
-			if (result == null) {
-				throw new IllegalArgumentException(String.format("Constructor for type \"%s\" requires %s element as argument!", ITER, ITERABLE));
+		classClazz = clazz(new Clazz(interpreter, CLASS, ClazzType.INTERNAL));
+		labelClazz = clazz(new Clazz(interpreter, LABEL, ClazzType.INTERNAL));
+		moduleClazz = clazz(new Clazz(interpreter, MODULE, ClazzType.INTERNAL));
+		
+		blockClazz = clazz(new Clazz(interpreter, BLOCK, ClazzType.INTERNAL));
+		bracketClazz = clazz(new Clazz(interpreter, BRACKET, ClazzType.INTERNAL));
+		nativeClazz = clazz(new Clazz(interpreter, NATIVE, ClazzType.INTERNAL));
+		nullClazz = clazz(new Clazz(interpreter, NULL, ClazzType.INTERNAL));
+		
+		primitiveClazz = clazz(new Clazz(interpreter, MODULE, ClazzType.INTERNAL));
+		iterableClazz = clazz(new Clazz(interpreter, MODULE, ClazzType.INTERNAL));
+		
+		intClazz = clazz(new Clazz(interpreter, INT, ClazzType.FINAL, primitiveClazz) {
+			
+			@Override
+			public @NonNull TokenResult instantiate(TokenExecutor exec) {
+				return instantiateBuiltIn(exec, this);
 			}
-			return result;
-		}
-	});
-	
-	public static final @NonNull Clazz PRIMITIVE_CLAZZ = clazz(new Clazz(MODULE, ClazzType.INTERNAL));
-	public static final @NonNull Clazz ITERABLE_CLAZZ = clazz(new Clazz(MODULE, ClazzType.INTERNAL));
-	
-	public static final @NonNull Clazz INT_CLAZZ = clazz(new Clazz(INT, ClazzType.FINAL, PRIMITIVE_CLAZZ) {
+			
+			@Override
+			public @Nullable Element as(TokenExecutor exec, @NonNull Element elem) {
+				return elem.asInt(exec);
+			}
+			
+			@Override
+			public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
+				return elem.intCast(exec);
+			}
+		});
 		
-		@Override
-		public @NonNull TokenResult instantiate(TokenExecutor exec) {
-			return instantiateBuiltIn(exec, this);
+		boolClazz = clazz(new Clazz(interpreter, BOOL, ClazzType.FINAL, primitiveClazz) {
+			
+			@Override
+			public @NonNull TokenResult instantiate(TokenExecutor exec) {
+				return instantiateBuiltIn(exec, this);
+			}
+			
+			@Override
+			public @Nullable Element as(TokenExecutor exec, @NonNull Element elem) {
+				return elem.asBool(exec);
+			}
+			
+			@Override
+			public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
+				return elem.boolCast(exec);
+			}
+		});
+		
+		floatClazz = clazz(new Clazz(interpreter, FLOAT, ClazzType.FINAL, primitiveClazz) {
+			
+			@Override
+			public @NonNull TokenResult instantiate(TokenExecutor exec) {
+				return instantiateBuiltIn(exec, this);
+			}
+			
+			@Override
+			public @Nullable Element as(TokenExecutor exec, @NonNull Element elem) {
+				return elem.asFloat(exec);
+			}
+			
+			@Override
+			public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
+				return elem.floatCast(exec);
+			}
+		});
+		
+		charClazz = clazz(new Clazz(interpreter, CHAR, ClazzType.FINAL, primitiveClazz) {
+			
+			@Override
+			public @NonNull TokenResult instantiate(TokenExecutor exec) {
+				return instantiateBuiltIn(exec, this);
+			}
+			
+			@Override
+			public @Nullable Element as(TokenExecutor exec, @NonNull Element elem) {
+				return elem.asChar(exec);
+			}
+			
+			@Override
+			public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
+				return elem.charCast(exec);
+			}
+		});
+		
+		stringClazz = clazz(new Clazz(interpreter, STRING, ClazzType.FINAL, primitiveClazz, iterableClazz) {
+			
+			@Override
+			public @NonNull TokenResult instantiate(TokenExecutor exec) {
+				return instantiateBuiltIn(exec, this);
+			}
+			
+			@Override
+			public @Nullable Element as(TokenExecutor exec, @NonNull Element elem) {
+				return elem.asString(exec);
+			}
+			
+			@Override
+			public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
+				return elem.stringCast(exec);
+			}
+		});
+		
+		rangeClazz = clazz(new Clazz(interpreter, RANGE, ClazzType.FINAL, iterableClazz) {
+			
+			@Override
+			public @NonNull TokenResult instantiate(TokenExecutor exec) {
+				return instantiateBuiltIn(exec, this);
+			}
+			
+			@Override
+			public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
+				return elem.rangeCast(exec);
+			}
+		});
+		
+		listClazz = clazz(new Clazz(interpreter, LIST, ClazzType.FINAL, iterableClazz) {
+			
+			@Override
+			public @NonNull TokenResult instantiate(TokenExecutor exec) {
+				return instantiateBuiltIn(exec, this);
+			}
+			
+			@Override
+			public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
+				return elem.listCast(exec);
+			}
+		});
+		
+		setClazz = clazz(new Clazz(interpreter, SET, ClazzType.FINAL, iterableClazz) {
+			
+			@Override
+			public @NonNull TokenResult instantiate(TokenExecutor exec) {
+				return instantiateBuiltIn(exec, this);
+			}
+			
+			@Override
+			public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
+				return elem.setCast(exec);
+			}
+		});
+		
+		dictClazz = clazz(new Clazz(interpreter, DICT, ClazzType.FINAL, iterableClazz) {
+			
+			@Override
+			public @NonNull TokenResult instantiate(TokenExecutor exec) {
+				return instantiateBuiltIn(exec, this);
+			}
+			
+			@Override
+			public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
+				return elem.dictCast(exec);
+			}
+		});
+		
+		iterClazz = clazz(new Clazz(interpreter, ITER, ClazzType.FINAL) {
+			
+			@Override
+			public @NonNull TokenResult instantiate(TokenExecutor exec) {
+				@NonNull Element elem = exec.pop();
+				TokenResult result = elem.memberAction(exec, "__iter__");
+				if (result == null) {
+					throw new IllegalArgumentException(String.format("Constructor for type \"%s\" requires %s element as argument!", ITER, ITERABLE));
+				}
+				return result;
+			}
+		});
+		
+		rangeLBracketElement = new RangeLBracketElement(interpreter);
+		rangeRBracketElement = new RangeRBracketElement(interpreter);
+		
+		listLBracketElement = new ListLBracketElement(interpreter);
+		listRBracketElement = new ListRBracketElement(interpreter);
+		
+		setLBracketElement = new SetLBracketElement(interpreter);
+		setRBracketElement = new SetRBracketElement(interpreter);
+		
+		dictLBracketElement = new DictLBracketElement(interpreter);
+		dictRBracketElement = new DictRBracketElement(interpreter);
+		
+		nullElement = new NullElement(interpreter);
+		
+		mathModule = module("math");
+		constsModule = module("consts");
+		envModule = module("env");
+		fsModule = module("fs");
+		
+		for (Clazz clazz : Arrays.asList(objectClazz)) {
+			clazz.setMacro("__init__", x -> {
+				x.push(x.pop().__init__(x));
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("__str__", x -> {
+				x.push(x.pop().__str__(x));
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("__debug__", x -> {
+				x.push(x.pop().__debug__(x));
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("__fmt__", x -> {
+				x.push(x.pop().__fmt__(x));
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("__eq__", x -> {
+				return x.pop().__eq__(x, x.pop());
+			});
+			
+			clazz.setMacro("__ne__", x -> {
+				return x.pop().__ne__(x, x.pop());
+			});
+			
+			clazz.setMacro("__concat__", x -> {
+				return x.pop().__concat__(x, x.pop());
+			});
+			
+			clazz.setMacro("clone", x -> {
+				x.push(x.pop().clone(x));
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("hash", x -> {
+				x.push(new IntElement(interpreter, x.pop().hash(x)));
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("scope", x -> {
+				x.push(x.pop().scope(x));
+				return TokenResult.PASS;
+			});
 		}
 		
-		@Override
-		public @Nullable Element as(TokenExecutor exec, @NonNull Element elem) {
-			return elem.asInt(exec);
+		for (Clazz clazz : Arrays.asList(classClazz)) {
+			clazz.setMacro("supers", x -> {
+				x.push(x.pop().supers(x));
+				return TokenResult.PASS;
+			});
 		}
 		
-		@Override
-		public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
-			return elem.intCast(exec);
-		}
-	});
-	
-	public static final @NonNull Clazz BOOL_CLAZZ = clazz(new Clazz(BOOL, ClazzType.FINAL, PRIMITIVE_CLAZZ) {
-		
-		@Override
-		public @NonNull TokenResult instantiate(TokenExecutor exec) {
-			return instantiateBuiltIn(exec, this);
-		}
-		
-		@Override
-		public @Nullable Element as(TokenExecutor exec, @NonNull Element elem) {
-			return elem.asBool(exec);
-		}
-		
-		@Override
-		public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
-			return elem.boolCast(exec);
-		}
-	});
-	
-	public static final @NonNull Clazz FLOAT_CLAZZ = clazz(new Clazz(FLOAT, ClazzType.FINAL, PRIMITIVE_CLAZZ) {
-		
-		@Override
-		public @NonNull TokenResult instantiate(TokenExecutor exec) {
-			return instantiateBuiltIn(exec, this);
-		}
-		
-		@Override
-		public @Nullable Element as(TokenExecutor exec, @NonNull Element elem) {
-			return elem.asFloat(exec);
-		}
-		
-		@Override
-		public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
-			return elem.floatCast(exec);
-		}
-	});
-	
-	public static final @NonNull Clazz CHAR_CLAZZ = clazz(new Clazz(CHAR, ClazzType.FINAL, PRIMITIVE_CLAZZ) {
-		
-		@Override
-		public @NonNull TokenResult instantiate(TokenExecutor exec) {
-			return instantiateBuiltIn(exec, this);
-		}
-		
-		@Override
-		public @Nullable Element as(TokenExecutor exec, @NonNull Element elem) {
-			return elem.asChar(exec);
-		}
-		
-		@Override
-		public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
-			return elem.charCast(exec);
-		}
-	});
-	
-	public static final @NonNull Clazz STRING_CLAZZ = clazz(new Clazz(STRING, ClazzType.FINAL, PRIMITIVE_CLAZZ, ITERABLE_CLAZZ) {
-		
-		@Override
-		public @NonNull TokenResult instantiate(TokenExecutor exec) {
-			return instantiateBuiltIn(exec, this);
-		}
-		
-		@Override
-		public @Nullable Element as(TokenExecutor exec, @NonNull Element elem) {
-			return elem.asString(exec);
-		}
-		
-		@Override
-		public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
-			return elem.stringCast(exec);
-		}
-	});
-	
-	public static final @NonNull Clazz RANGE_CLAZZ = clazz(new Clazz(RANGE, ClazzType.FINAL, ITERABLE_CLAZZ) {
-		
-		@Override
-		public @NonNull TokenResult instantiate(TokenExecutor exec) {
-			return instantiateBuiltIn(exec, this);
+		for (Clazz clazz : Arrays.asList(primitiveClazz)) {
+			clazz.setMacro("__lt__", x -> {
+				return x.pop().__lt__(x, x.pop());
+			});
+			
+			clazz.setMacro("__le__", x -> {
+				return x.pop().__le__(x, x.pop());
+			});
+			
+			clazz.setMacro("__gt__", x -> {
+				return x.pop().__gt__(x, x.pop());
+			});
+			
+			clazz.setMacro("__ge__", x -> {
+				return x.pop().__ge__(x, x.pop());
+			});
+			
+			clazz.setMacro("__add__", x -> {
+				return x.pop().__add__(x, x.pop());
+			});
+			
+			clazz.setMacro("__and__", x -> {
+				return x.pop().__and__(x, x.pop());
+			});
+			
+			clazz.setMacro("__or__", x -> {
+				return x.pop().__or__(x, x.pop());
+			});
+			
+			clazz.setMacro("__xor__", x -> {
+				return x.pop().__xor__(x, x.pop());
+			});
+			
+			clazz.setMacro("__sub__", x -> {
+				return x.pop().__sub__(x, x.pop());
+			});
+			
+			clazz.setMacro("__lshift__", x -> {
+				return x.pop().__lshift__(x, x.pop());
+			});
+			
+			clazz.setMacro("__rshift__", x -> {
+				return x.pop().__rshift__(x, x.pop());
+			});
+			
+			clazz.setMacro("__mul__", x -> {
+				return x.pop().__mul__(x, x.pop());
+			});
+			
+			clazz.setMacro("__div__", x -> {
+				return x.pop().__div__(x, x.pop());
+			});
+			
+			clazz.setMacro("__rem__", x -> {
+				return x.pop().__rem__(x, x.pop());
+			});
+			
+			clazz.setMacro("__pow__", x -> {
+				return x.pop().__pow__(x, x.pop());
+			});
+			
+			clazz.setMacro("__floordiv__", x -> {
+				return x.pop().__floordiv__(x, x.pop());
+			});
+			
+			clazz.setMacro("__mod__", x -> {
+				return x.pop().__mod__(x, x.pop());
+			});
+			
+			clazz.setMacro("__not__", x -> {
+				return x.pop().__not__(x);
+			});
 		}
 		
-		@Override
-		public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
-			return elem.rangeCast(exec);
-		}
-	});
-	
-	public static final @NonNull Clazz LIST_CLAZZ = clazz(new Clazz(LIST, ClazzType.FINAL, ITERABLE_CLAZZ) {
-		
-		@Override
-		public @NonNull TokenResult instantiate(TokenExecutor exec) {
-			return instantiateBuiltIn(exec, this);
-		}
-		
-		@Override
-		public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
-			return elem.listCast(exec);
-		}
-	});
-	
-	public static final @NonNull Clazz SET_CLAZZ = clazz(new Clazz(SET, ClazzType.FINAL, ITERABLE_CLAZZ) {
-		
-		@Override
-		public @NonNull TokenResult instantiate(TokenExecutor exec) {
-			return instantiateBuiltIn(exec, this);
-		}
-		
-		@Override
-		public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
-			return elem.setCast(exec);
-		}
-	});
-	
-	public static final @NonNull Clazz DICT_CLAZZ = clazz(new Clazz(DICT, ClazzType.FINAL, ITERABLE_CLAZZ) {
-		
-		@Override
-		public @NonNull TokenResult instantiate(TokenExecutor exec) {
-			return instantiateBuiltIn(exec, this);
-		}
-		
-		@Override
-		public @NonNull Element cast(TokenExecutor exec, @NonNull Element elem) {
-			return elem.dictCast(exec);
-		}
-	});
-	
-	static @NonNull Clazz clazz(@NonNull Clazz clazz) {
-		CLAZZ_MAP.put(clazz.fullIdentifier, clazz);
-		return clazz;
-	}
-	
-	static @NonNull TokenResult instantiateBuiltIn(TokenExecutor exec, Clazz clazz) {
-		Element casted = clazz.as(exec, exec.pop());
-		if (casted == null) {
-			throw new IllegalArgumentException(String.format("Constructor for type \"%1$s\" requires %1$s element as argument!", clazz.fullIdentifier));
-		}
-		exec.push(casted);
-		return TokenResult.PASS;
-	}
-	
-	static {
-		for (Clazz clazz : Arrays.asList(ITERABLE_CLAZZ)) {
+		for (Clazz clazz : Arrays.asList(iterableClazz)) {
 			clazz.setMacro("__iter__", x -> {
 				x.push(x.pop().__iter__(x));
 				return TokenResult.PASS;
@@ -238,36 +424,36 @@ public class BuiltIn {
 			});
 			
 			clazz.setMacro("size", x -> {
-				x.push(new IntElement(x.pop().size(x)));
+				x.push(new IntElement(interpreter, x.pop().size(x)));
 				return TokenResult.PASS;
 			});
 			
 			clazz.setMacro("isEmpty", x -> {
-				x.push(new BoolElement(x.pop().isEmpty(x)));
+				x.push(new BoolElement(interpreter, x.pop().isEmpty(x)));
 				return TokenResult.PASS;
 			});
 		}
 		
-		for (Clazz clazz : Arrays.asList(STRING_CLAZZ, RANGE_CLAZZ, LIST_CLAZZ, SET_CLAZZ)) {
+		for (Clazz clazz : Arrays.asList(stringClazz, rangeClazz, listClazz, setClazz)) {
 			clazz.setMacro("contains", x -> {
-				x.push(new BoolElement(x.pop().contains(x, x.pop())));
+				x.push(new BoolElement(interpreter, x.pop().contains(x, x.pop())));
 				return TokenResult.PASS;
 			});
 			
 			clazz.setMacro("containsAll", x -> {
-				x.push(new BoolElement(x.pop().containsAll(x, x.pop())));
+				x.push(new BoolElement(interpreter, x.pop().containsAll(x, x.pop())));
 				return TokenResult.PASS;
 			});
 		}
 		
-		for (Clazz clazz : Arrays.asList(STRING_CLAZZ, RANGE_CLAZZ, LIST_CLAZZ, DICT_CLAZZ)) {
+		for (Clazz clazz : Arrays.asList(stringClazz, rangeClazz, listClazz, dictClazz)) {
 			clazz.setMacro("get", x -> {
 				x.push(x.pop().get(x, x.pop()));
 				return TokenResult.PASS;
 			});
 		}
 		
-		for (Clazz clazz : Arrays.asList(STRING_CLAZZ, RANGE_CLAZZ, LIST_CLAZZ)) {
+		for (Clazz clazz : Arrays.asList(stringClazz, rangeClazz, listClazz)) {
 			clazz.setMacro("slice", x -> {
 				@NonNull Element elem2 = x.pop(), elem1 = x.pop(), elem0 = x.pop();
 				x.push(elem2.slice(x, elem0, elem1));
@@ -290,7 +476,7 @@ public class BuiltIn {
 			});
 		}
 		
-		for (Clazz clazz : Arrays.asList(STRING_CLAZZ)) {
+		for (Clazz clazz : Arrays.asList(stringClazz)) {
 			clazz.setMacro("startsWith", x -> {
 				x.push(x.pop().startsWith(x, x.pop()));
 				return TokenResult.PASS;
@@ -338,7 +524,7 @@ public class BuiltIn {
 			});
 		}
 		
-		for (Clazz clazz : Arrays.asList(LIST_CLAZZ, SET_CLAZZ, DICT_CLAZZ)) {
+		for (Clazz clazz : Arrays.asList(listClazz, setClazz, dictClazz)) {
 			clazz.setMacro("remove", x -> {
 				x.pop().remove(x, x.pop());
 				return TokenResult.PASS;
@@ -355,7 +541,7 @@ public class BuiltIn {
 			});
 		}
 		
-		for (Clazz clazz : Arrays.asList(LIST_CLAZZ)) {
+		for (Clazz clazz : Arrays.asList(listClazz)) {
 			clazz.setMacro("push", x -> {
 				x.pop().push(x, x.pop());
 				return TokenResult.PASS;
@@ -415,7 +601,7 @@ public class BuiltIn {
 			});
 		}
 		
-		for (Clazz clazz : Arrays.asList(SET_CLAZZ)) {
+		for (Clazz clazz : Arrays.asList(setClazz)) {
 			clazz.setMacro("add", x -> {
 				x.pop().add(x, x.pop());
 				return TokenResult.PASS;
@@ -427,7 +613,7 @@ public class BuiltIn {
 			});
 		}
 		
-		for (Clazz clazz : Arrays.asList(DICT_CLAZZ)) {
+		for (Clazz clazz : Arrays.asList(dictClazz)) {
 			clazz.setMacro("put", x -> {
 				@NonNull Element elem2 = x.pop(), elem1 = x.pop(), elem0 = x.pop();
 				elem2.put(x, elem0, elem1);
@@ -446,18 +632,18 @@ public class BuiltIn {
 			});
 			
 			clazz.setMacro("containsKey", x -> {
-				x.push(new BoolElement(x.pop().containsKey(x, x.pop())));
+				x.push(new BoolElement(interpreter, x.pop().containsKey(x, x.pop())));
 				return TokenResult.PASS;
 			});
 			
 			clazz.setMacro("containsValue", x -> {
-				x.push(new BoolElement(x.pop().containsValue(x, x.pop())));
+				x.push(new BoolElement(interpreter, x.pop().containsValue(x, x.pop())));
 				return TokenResult.PASS;
 			});
 			
 			clazz.setMacro("containsEntry", x -> {
 				@NonNull Element elem2 = x.pop(), elem1 = x.pop(), elem0 = x.pop();
-				x.push(new BoolElement(elem2.containsEntry(x, elem0, elem1)));
+				x.push(new BoolElement(interpreter, elem2.containsEntry(x, elem0, elem1)));
 				return TokenResult.PASS;
 			});
 			
@@ -477,7 +663,7 @@ public class BuiltIn {
 			});
 		}
 		
-		for (Clazz clazz : Arrays.asList(ITER_CLAZZ)) {
+		for (Clazz clazz : Arrays.asList(iterClazz)) {
 			clazz.setMacro("collectString", x -> {
 				x.push(x.pop().collectString(x));
 				return TokenResult.PASS;
@@ -569,7 +755,7 @@ public class BuiltIn {
 			});
 			
 			clazz.setMacro("count", x -> {
-				x.push(new IntElement(x.pop().count(x)));
+				x.push(new IntElement(interpreter, x.pop().count(x)));
 				return TokenResult.PASS;
 			});
 			
@@ -579,12 +765,12 @@ public class BuiltIn {
 			});
 			
 			clazz.setMacro("all", x -> {
-				x.push(new BoolElement(x.pop().all(x)));
+				x.push(new BoolElement(interpreter, x.pop().all(x)));
 				return TokenResult.PASS;
 			});
 			
 			clazz.setMacro("any", x -> {
-				x.push(new BoolElement(x.pop().any(x)));
+				x.push(new BoolElement(interpreter, x.pop().any(x)));
 				return TokenResult.PASS;
 			});
 			
@@ -609,295 +795,163 @@ public class BuiltIn {
 			});
 		}
 		
-		for (Clazz clazz : Arrays.asList(CLASS_CLAZZ)) {
-			clazz.setMacro("supers", x -> {
-				x.push(x.pop().supers(x));
-				return TokenResult.PASS;
-			});
-		}
+		mathModule.setMacro("finite", TokenExecutor::finite);
+		mathModule.setMacro("infinite", TokenExecutor::infinite);
 		
-		for (Clazz clazz : Arrays.asList(OBJECT_CLAZZ)) {
-			clazz.setMacro("__init__", x -> {
-				x.push(x.pop().__init__(x));
-				return TokenResult.PASS;
-			});
-			
-			clazz.setMacro("__str__", x -> {
-				x.push(x.pop().__str__(x));
-				return TokenResult.PASS;
-			});
-			
-			clazz.setMacro("__debug__", x -> {
-				x.push(x.pop().__debug__(x));
-				return TokenResult.PASS;
-			});
-			
-			clazz.setMacro("__fmt__", x -> {
-				x.push(x.pop().__fmt__(x));
-				return TokenResult.PASS;
-			});
-			
-			clazz.setMacro("__eq__", x -> {
-				return x.pop().__eq__(x, x.pop());
-			});
-			
-			clazz.setMacro("__ne__", x -> {
-				return x.pop().__ne__(x, x.pop());
-			});
-			
-			clazz.setMacro("__concat__", x -> {
-				return x.pop().__concat__(x, x.pop());
-			});
-			
-			clazz.setMacro("clone", x -> {
-				x.push(x.pop().clone(x));
-				return TokenResult.PASS;
-			});
-			
-			clazz.setMacro("hash", x -> {
-				x.push(new IntElement(x.pop().hash(x)));
-				return TokenResult.PASS;
-			});
-			
-			clazz.setMacro("scope", x -> {
-				x.push(x.pop().scope(x));
-				return TokenResult.PASS;
-			});
-		}
+		mathModule.setMacro("inv", TokenExecutor::inv);
+		mathModule.setMacro("neg", TokenExecutor::neg);
+		mathModule.setMacro("abs", TokenExecutor::abs);
+		mathModule.setMacro("sgn", TokenExecutor::sgn);
 		
-		for (Clazz clazz : Arrays.asList(PRIMITIVE_CLAZZ)) {
-			clazz.setMacro("__lt__", x -> {
-				return x.pop().__lt__(x, x.pop());
-			});
-			
-			clazz.setMacro("__le__", x -> {
-				return x.pop().__le__(x, x.pop());
-			});
-			
-			clazz.setMacro("__gt__", x -> {
-				return x.pop().__gt__(x, x.pop());
-			});
-			
-			clazz.setMacro("__ge__", x -> {
-				return x.pop().__ge__(x, x.pop());
-			});
-			
-			clazz.setMacro("__add__", x -> {
-				return x.pop().__add__(x, x.pop());
-			});
-			
-			clazz.setMacro("__and__", x -> {
-				return x.pop().__and__(x, x.pop());
-			});
-			
-			clazz.setMacro("__or__", x -> {
-				return x.pop().__or__(x, x.pop());
-			});
-			
-			clazz.setMacro("__xor__", x -> {
-				return x.pop().__xor__(x, x.pop());
-			});
-			
-			clazz.setMacro("__sub__", x -> {
-				return x.pop().__sub__(x, x.pop());
-			});
-			
-			clazz.setMacro("__lshift__", x -> {
-				return x.pop().__lshift__(x, x.pop());
-			});
-			
-			clazz.setMacro("__rshift__", x -> {
-				return x.pop().__rshift__(x, x.pop());
-			});
-			
-			clazz.setMacro("__mul__", x -> {
-				return x.pop().__mul__(x, x.pop());
-			});
-			
-			clazz.setMacro("__div__", x -> {
-				return x.pop().__div__(x, x.pop());
-			});
-			
-			clazz.setMacro("__rem__", x -> {
-				return x.pop().__rem__(x, x.pop());
-			});
-			
-			clazz.setMacro("__pow__", x -> {
-				return x.pop().__pow__(x, x.pop());
-			});
-			
-			clazz.setMacro("__floordiv__", x -> {
-				return x.pop().__floordiv__(x, x.pop());
-			});
-			
-			clazz.setMacro("__mod__", x -> {
-				return x.pop().__mod__(x, x.pop());
-			});
-			
-			clazz.setMacro("__not__", x -> {
-				return x.pop().__not__(x);
-			});
-		}
+		mathModule.setMacro("floor", TokenExecutor::floor);
+		mathModule.setMacro("ceil", TokenExecutor::ceil);
+		mathModule.setMacro("trunc", TokenExecutor::trunc);
+		mathModule.setMacro("fract", TokenExecutor::fract);
+		
+		mathModule.setMacro("round", TokenExecutor::round);
+		mathModule.setMacro("places", TokenExecutor::places);
+		
+		mathModule.setMacro("sin", TokenExecutor::sin);
+		mathModule.setMacro("cos", TokenExecutor::cos);
+		mathModule.setMacro("tan", TokenExecutor::tan);
+		mathModule.setMacro("asin", TokenExecutor::asin);
+		mathModule.setMacro("acos", TokenExecutor::acos);
+		mathModule.setMacro("atan", TokenExecutor::atan);
+		
+		mathModule.setMacro("sinc", TokenExecutor::sinc);
+		mathModule.setMacro("atan2", TokenExecutor::atan2);
+		
+		mathModule.setMacro("hypot", TokenExecutor::hypot);
+		
+		mathModule.setMacro("rads", TokenExecutor::rads);
+		mathModule.setMacro("degs", TokenExecutor::degs);
+		
+		mathModule.setMacro("exp", TokenExecutor::exp);
+		mathModule.setMacro("ln", TokenExecutor::ln);
+		mathModule.setMacro("log2", TokenExecutor::log2);
+		mathModule.setMacro("log10", TokenExecutor::log10);
+		mathModule.setMacro("log", TokenExecutor::log);
+		
+		mathModule.setMacro("expm1", TokenExecutor::expm1);
+		mathModule.setMacro("ln1p", TokenExecutor::ln1p);
+		
+		mathModule.setMacro("sqrt", TokenExecutor::sqrt);
+		mathModule.setMacro("cbrt", TokenExecutor::cbrt);
+		mathModule.setMacro("root", TokenExecutor::root);
+		
+		mathModule.setMacro("isqrt", TokenExecutor::isqrt);
+		mathModule.setMacro("icbrt", TokenExecutor::icbrt);
+		mathModule.setMacro("iroot", TokenExecutor::iroot);
+		
+		mathModule.setMacro("sinh", TokenExecutor::sinh);
+		mathModule.setMacro("cosh", TokenExecutor::cosh);
+		mathModule.setMacro("tanh", TokenExecutor::tanh);
+		mathModule.setMacro("asinh", TokenExecutor::asinh);
+		mathModule.setMacro("acosh", TokenExecutor::acosh);
+		mathModule.setMacro("atanh", TokenExecutor::atanh);
+		
+		mathModule.setMacro("min", TokenExecutor::min);
+		mathModule.setMacro("max", TokenExecutor::max);
+		mathModule.setMacro("clamp", TokenExecutor::clamp);
+		
+		mathModule.setMacro("clamp8", TokenExecutor::clamp8);
+		mathModule.setMacro("clamp16", TokenExecutor::clamp16);
+		mathModule.setMacro("clamp32", TokenExecutor::clamp32);
+		mathModule.setMacro("clamp64", TokenExecutor::clamp64);
+		
+		constsModule.setDef("MIN_INT_8", new IntElement(interpreter, Constants.MIN_INT_8), true);
+		constsModule.setDef("MAX_INT_8", new IntElement(interpreter, Constants.MAX_INT_8), true);
+		
+		constsModule.setDef("MIN_INT_16", new IntElement(interpreter, Constants.MIN_INT_16), true);
+		constsModule.setDef("MAX_INT_16", new IntElement(interpreter, Constants.MAX_INT_16), true);
+		
+		constsModule.setDef("MIN_INT_32", new IntElement(interpreter, Constants.MIN_INT_32), true);
+		constsModule.setDef("MAX_INT_32", new IntElement(interpreter, Constants.MAX_INT_32), true);
+		
+		constsModule.setDef("MIN_INT_64", new IntElement(interpreter, Constants.MIN_INT_64), true);
+		constsModule.setDef("MAX_INT_64", new IntElement(interpreter, Constants.MAX_INT_64), true);
+		
+		constsModule.setDef("INF", new FloatElement(interpreter, Constants.INF), true);
+		constsModule.setDef("NAN", new FloatElement(interpreter, Constants.NAN), true);
+		constsModule.setDef("MIN_F", new FloatElement(interpreter, Constants.MIN_F), true);
+		constsModule.setDef("MAX_F", new FloatElement(interpreter, Constants.MAX_F), true);
+		constsModule.setDef("EPSILON", new FloatElement(interpreter, Constants.EPSILON), true);
+		
+		constsModule.setDef("E", new FloatElement(interpreter, Constants.E), true);
+		
+		constsModule.setDef("PI", new FloatElement(interpreter, Constants.PI), true);
+		constsModule.setDef("TAU", new FloatElement(interpreter, Constants.TAU), true);
+		
+		constsModule.setDef("INV_PI", new FloatElement(interpreter, Constants.INV_PI), true);
+		constsModule.setDef("INV_TAU", new FloatElement(interpreter, Constants.INV_TAU), true);
+		
+		constsModule.setDef("SQRT_PI", new FloatElement(interpreter, Constants.SQRT_PI), true);
+		constsModule.setDef("SQRT_TAU", new FloatElement(interpreter, Constants.SQRT_TAU), true);
+		
+		constsModule.setDef("INV_SQRT_PI", new FloatElement(interpreter, Constants.INV_SQRT_PI), true);
+		constsModule.setDef("INV_SQRT_TAU", new FloatElement(interpreter, Constants.INV_SQRT_TAU), true);
+		
+		constsModule.setDef("INV_3", new FloatElement(interpreter, Constants.INV_3), true);
+		constsModule.setDef("INV_6", new FloatElement(interpreter, Constants.INV_6), true);
+		
+		constsModule.setDef("SQRT_2", new FloatElement(interpreter, Constants.SQRT_2), true);
+		constsModule.setDef("SQRT_3", new FloatElement(interpreter, Constants.SQRT_3), true);
+		constsModule.setDef("SQRT_6", new FloatElement(interpreter, Constants.SQRT_6), true);
+		constsModule.setDef("SQRT_8", new FloatElement(interpreter, Constants.SQRT_8), true);
+		
+		constsModule.setDef("INV_SQRT_2", new FloatElement(interpreter, Constants.INV_SQRT_2), true);
+		constsModule.setDef("INV_SQRT_3", new FloatElement(interpreter, Constants.INV_SQRT_3), true);
+		constsModule.setDef("INV_SQRT_6", new FloatElement(interpreter, Constants.INV_SQRT_6), true);
+		constsModule.setDef("INV_SQRT_8", new FloatElement(interpreter, Constants.INV_SQRT_8), true);
+		
+		constsModule.setDef("FRAC_PI_2", new FloatElement(interpreter, Constants.FRAC_PI_2), true);
+		constsModule.setDef("FRAC_PI_3", new FloatElement(interpreter, Constants.FRAC_PI_3), true);
+		constsModule.setDef("FRAC_PI_4", new FloatElement(interpreter, Constants.FRAC_PI_4), true);
+		constsModule.setDef("FRAC_PI_6", new FloatElement(interpreter, Constants.FRAC_PI_6), true);
+		constsModule.setDef("FRAC_PI_8", new FloatElement(interpreter, Constants.FRAC_PI_8), true);
+		
+		constsModule.setDef("FRAC_2_PI", new FloatElement(interpreter, Constants.FRAC_2_PI), true);
+		constsModule.setDef("FRAC_2_SQRT_PI", new FloatElement(interpreter, Constants.FRAC_2_SQRT_PI), true);
+		
+		constsModule.setDef("LN_2", new FloatElement(interpreter, Constants.LN_2), true);
+		constsModule.setDef("LN_10", new FloatElement(interpreter, Constants.LN_10), true);
+		constsModule.setDef("LOG2_E", new FloatElement(interpreter, Constants.LOG2_E), true);
+		constsModule.setDef("LOG2_10", new FloatElement(interpreter, Constants.LOG2_10), true);
+		constsModule.setDef("LOG10_E", new FloatElement(interpreter, Constants.LOG10_E), true);
+		constsModule.setDef("LOG10_2", new FloatElement(interpreter, Constants.LOG10_2), true);
+		
+		envModule.setMacro("args", TokenExecutor::args);
+		
+		envModule.setMacro("rootPath", TokenExecutor::rootPath);
+		envModule.setMacro("rootDir", TokenExecutor::rootDir);
+		
+		envModule.setMacro("fromRoot", TokenExecutor::fromRoot);
+		
+		fsModule.setMacro("readFile", TokenExecutor::readFile);
+		fsModule.setMacro("writeFile", TokenExecutor::writeFile);
+		
+		fsModule.setMacro("readLines", TokenExecutor::readLines);
+		fsModule.setMacro("writeLines", TokenExecutor::writeLines);
 	}
 	
-	static @NonNull Clazz module(@NonNull String identifier) {
-		Clazz module = new Clazz(identifier, ClazzType.INTERNAL);
-		MODULE_MAP.put(identifier, module);
+	protected @NonNull Clazz clazz(@NonNull Clazz clazz) {
+		clazzMap.put(clazz.fullIdentifier, clazz);
+		return clazz;
+	}
+	
+	protected @NonNull Clazz module(@NonNull String identifier) {
+		Clazz module = new Clazz(interpreter, identifier, ClazzType.INTERNAL);
+		moduleMap.put(identifier, module);
 		return module;
 	}
 	
-	public static final @NonNull Clazz MATH_MODULE = module("math");
-	
-	static {
-		MATH_MODULE.setMacro("finite", TokenExecutor::finite);
-		MATH_MODULE.setMacro("infinite", TokenExecutor::infinite);
-		
-		MATH_MODULE.setMacro("inv", TokenExecutor::inv);
-		MATH_MODULE.setMacro("neg", TokenExecutor::neg);
-		MATH_MODULE.setMacro("abs", TokenExecutor::abs);
-		MATH_MODULE.setMacro("sgn", TokenExecutor::sgn);
-		
-		MATH_MODULE.setMacro("floor", TokenExecutor::floor);
-		MATH_MODULE.setMacro("ceil", TokenExecutor::ceil);
-		MATH_MODULE.setMacro("trunc", TokenExecutor::trunc);
-		MATH_MODULE.setMacro("fract", TokenExecutor::fract);
-		
-		MATH_MODULE.setMacro("round", TokenExecutor::round);
-		MATH_MODULE.setMacro("places", TokenExecutor::places);
-		
-		MATH_MODULE.setMacro("sin", TokenExecutor::sin);
-		MATH_MODULE.setMacro("cos", TokenExecutor::cos);
-		MATH_MODULE.setMacro("tan", TokenExecutor::tan);
-		MATH_MODULE.setMacro("asin", TokenExecutor::asin);
-		MATH_MODULE.setMacro("acos", TokenExecutor::acos);
-		MATH_MODULE.setMacro("atan", TokenExecutor::atan);
-		
-		MATH_MODULE.setMacro("sinc", TokenExecutor::sinc);
-		MATH_MODULE.setMacro("atan2", TokenExecutor::atan2);
-		
-		MATH_MODULE.setMacro("hypot", TokenExecutor::hypot);
-		
-		MATH_MODULE.setMacro("rads", TokenExecutor::rads);
-		MATH_MODULE.setMacro("degs", TokenExecutor::degs);
-		
-		MATH_MODULE.setMacro("exp", TokenExecutor::exp);
-		MATH_MODULE.setMacro("ln", TokenExecutor::ln);
-		MATH_MODULE.setMacro("log2", TokenExecutor::log2);
-		MATH_MODULE.setMacro("log10", TokenExecutor::log10);
-		MATH_MODULE.setMacro("log", TokenExecutor::log);
-		
-		MATH_MODULE.setMacro("expm1", TokenExecutor::expm1);
-		MATH_MODULE.setMacro("ln1p", TokenExecutor::ln1p);
-		
-		MATH_MODULE.setMacro("sqrt", TokenExecutor::sqrt);
-		MATH_MODULE.setMacro("cbrt", TokenExecutor::cbrt);
-		MATH_MODULE.setMacro("root", TokenExecutor::root);
-		
-		MATH_MODULE.setMacro("isqrt", TokenExecutor::isqrt);
-		MATH_MODULE.setMacro("icbrt", TokenExecutor::icbrt);
-		MATH_MODULE.setMacro("iroot", TokenExecutor::iroot);
-		
-		MATH_MODULE.setMacro("sinh", TokenExecutor::sinh);
-		MATH_MODULE.setMacro("cosh", TokenExecutor::cosh);
-		MATH_MODULE.setMacro("tanh", TokenExecutor::tanh);
-		MATH_MODULE.setMacro("asinh", TokenExecutor::asinh);
-		MATH_MODULE.setMacro("acosh", TokenExecutor::acosh);
-		MATH_MODULE.setMacro("atanh", TokenExecutor::atanh);
-		
-		MATH_MODULE.setMacro("min", TokenExecutor::min);
-		MATH_MODULE.setMacro("max", TokenExecutor::max);
-		MATH_MODULE.setMacro("clamp", TokenExecutor::clamp);
-		
-		MATH_MODULE.setMacro("clamp8", TokenExecutor::clamp8);
-		MATH_MODULE.setMacro("clamp16", TokenExecutor::clamp16);
-		MATH_MODULE.setMacro("clamp32", TokenExecutor::clamp32);
-		MATH_MODULE.setMacro("clamp64", TokenExecutor::clamp64);
-	}
-	
-	public static final @NonNull Clazz CONSTS_MODULE = module("consts");
-	
-	static {
-		CONSTS_MODULE.setDef("MIN_INT_8", new IntElement(Constants.MIN_INT_8), true);
-		CONSTS_MODULE.setDef("MAX_INT_8", new IntElement(Constants.MAX_INT_8), true);
-		
-		CONSTS_MODULE.setDef("MIN_INT_16", new IntElement(Constants.MIN_INT_16), true);
-		CONSTS_MODULE.setDef("MAX_INT_16", new IntElement(Constants.MAX_INT_16), true);
-		
-		CONSTS_MODULE.setDef("MIN_INT_32", new IntElement(Constants.MIN_INT_32), true);
-		CONSTS_MODULE.setDef("MAX_INT_32", new IntElement(Constants.MAX_INT_32), true);
-		
-		CONSTS_MODULE.setDef("MIN_INT_64", new IntElement(Constants.MIN_INT_64), true);
-		CONSTS_MODULE.setDef("MAX_INT_64", new IntElement(Constants.MAX_INT_64), true);
-		
-		CONSTS_MODULE.setDef("INF", new FloatElement(Constants.INF), true);
-		CONSTS_MODULE.setDef("NAN", new FloatElement(Constants.NAN), true);
-		CONSTS_MODULE.setDef("MIN_F", new FloatElement(Constants.MIN_F), true);
-		CONSTS_MODULE.setDef("MAX_F", new FloatElement(Constants.MAX_F), true);
-		CONSTS_MODULE.setDef("EPSILON", new FloatElement(Constants.EPSILON), true);
-		
-		CONSTS_MODULE.setDef("E", new FloatElement(Constants.E), true);
-		
-		CONSTS_MODULE.setDef("PI", new FloatElement(Constants.PI), true);
-		CONSTS_MODULE.setDef("TAU", new FloatElement(Constants.TAU), true);
-		
-		CONSTS_MODULE.setDef("INV_PI", new FloatElement(Constants.INV_PI), true);
-		CONSTS_MODULE.setDef("INV_TAU", new FloatElement(Constants.INV_TAU), true);
-		
-		CONSTS_MODULE.setDef("SQRT_PI", new FloatElement(Constants.SQRT_PI), true);
-		CONSTS_MODULE.setDef("SQRT_TAU", new FloatElement(Constants.SQRT_TAU), true);
-		
-		CONSTS_MODULE.setDef("INV_SQRT_PI", new FloatElement(Constants.INV_SQRT_PI), true);
-		CONSTS_MODULE.setDef("INV_SQRT_TAU", new FloatElement(Constants.INV_SQRT_TAU), true);
-		
-		CONSTS_MODULE.setDef("INV_3", new FloatElement(Constants.INV_3), true);
-		CONSTS_MODULE.setDef("INV_6", new FloatElement(Constants.INV_6), true);
-		
-		CONSTS_MODULE.setDef("SQRT_2", new FloatElement(Constants.SQRT_2), true);
-		CONSTS_MODULE.setDef("SQRT_3", new FloatElement(Constants.SQRT_3), true);
-		CONSTS_MODULE.setDef("SQRT_6", new FloatElement(Constants.SQRT_6), true);
-		CONSTS_MODULE.setDef("SQRT_8", new FloatElement(Constants.SQRT_8), true);
-		
-		CONSTS_MODULE.setDef("INV_SQRT_2", new FloatElement(Constants.INV_SQRT_2), true);
-		CONSTS_MODULE.setDef("INV_SQRT_3", new FloatElement(Constants.INV_SQRT_3), true);
-		CONSTS_MODULE.setDef("INV_SQRT_6", new FloatElement(Constants.INV_SQRT_6), true);
-		CONSTS_MODULE.setDef("INV_SQRT_8", new FloatElement(Constants.INV_SQRT_8), true);
-		
-		CONSTS_MODULE.setDef("FRAC_PI_2", new FloatElement(Constants.FRAC_PI_2), true);
-		CONSTS_MODULE.setDef("FRAC_PI_3", new FloatElement(Constants.FRAC_PI_3), true);
-		CONSTS_MODULE.setDef("FRAC_PI_4", new FloatElement(Constants.FRAC_PI_4), true);
-		CONSTS_MODULE.setDef("FRAC_PI_6", new FloatElement(Constants.FRAC_PI_6), true);
-		CONSTS_MODULE.setDef("FRAC_PI_8", new FloatElement(Constants.FRAC_PI_8), true);
-		
-		CONSTS_MODULE.setDef("FRAC_2_PI", new FloatElement(Constants.FRAC_2_PI), true);
-		CONSTS_MODULE.setDef("FRAC_2_SQRT_PI", new FloatElement(Constants.FRAC_2_SQRT_PI), true);
-		
-		CONSTS_MODULE.setDef("LN_2", new FloatElement(Constants.LN_2), true);
-		CONSTS_MODULE.setDef("LN_10", new FloatElement(Constants.LN_10), true);
-		CONSTS_MODULE.setDef("LOG2_E", new FloatElement(Constants.LOG2_E), true);
-		CONSTS_MODULE.setDef("LOG2_10", new FloatElement(Constants.LOG2_10), true);
-		CONSTS_MODULE.setDef("LOG10_E", new FloatElement(Constants.LOG10_E), true);
-		CONSTS_MODULE.setDef("LOG10_2", new FloatElement(Constants.LOG10_2), true);
-	}
-	
-	public static final @NonNull Clazz ENV_MODULE = module("env");
-	
-	static {
-		ENV_MODULE.setMacro("args", TokenExecutor::args);
-		
-		ENV_MODULE.setMacro("rootPath", TokenExecutor::rootPath);
-		ENV_MODULE.setMacro("rootDir", TokenExecutor::rootDir);
-		
-		ENV_MODULE.setMacro("fromRoot", TokenExecutor::fromRoot);
-	}
-	
-	public static final @NonNull Clazz FS_MODULE = module("fs");
-	
-	static {
-		FS_MODULE.setMacro("readFile", TokenExecutor::readFile);
-		FS_MODULE.setMacro("writeFile", TokenExecutor::writeFile);
-		
-		FS_MODULE.setMacro("readLines", TokenExecutor::readLines);
-		FS_MODULE.setMacro("writeLines", TokenExecutor::writeLines);
+	protected @NonNull TokenResult instantiateBuiltIn(TokenExecutor exec, Clazz clazz) {
+		Element casted = clazz.as(exec, exec.pop());
+		if (casted == null) {
+			throw new IllegalArgumentException(String.format("Constructor for type \"%1$s\" requires %1$s element as argument!", clazz.fullIdentifier));
+		}
+		exec.push(casted);
+		return TokenResult.PASS;
 	}
 	
 	public static final Set<String> KEYWORDS = new HashSet<>();
@@ -906,17 +960,17 @@ public class BuiltIn {
 		KEYWORDS.add("{");
 		KEYWORDS.add("}");
 		
-		KEYWORDS.add("[|");
-		KEYWORDS.add("|]");
-		
-		KEYWORDS.add("(|");
-		KEYWORDS.add("|)");
+		KEYWORDS.add("(");
+		KEYWORDS.add(")");
 		
 		KEYWORDS.add("[");
 		KEYWORDS.add("]");
 		
-		KEYWORDS.add("(");
-		KEYWORDS.add(")");
+		KEYWORDS.add("(|");
+		KEYWORDS.add("|)");
+		
+		KEYWORDS.add("[|");
+		KEYWORDS.add("|]");
 		
 		KEYWORDS.add("include");
 		KEYWORDS.add("import");

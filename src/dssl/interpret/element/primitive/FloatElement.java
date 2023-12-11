@@ -11,8 +11,8 @@ import dssl.interpret.value.FloatValue;
 
 public class FloatElement extends PrimitiveElement<@NonNull Double, @NonNull FloatValue> {
 	
-	public FloatElement(@NonNull Double rawValue) {
-		super(BuiltIn.FLOAT_CLAZZ, new FloatValue(rawValue));
+	public FloatElement(Interpreter interpreter, @NonNull Double rawValue) {
+		super(interpreter, interpreter.builtIn.floatClazz, new FloatValue(rawValue));
 	}
 	
 	@Override
@@ -35,7 +35,7 @@ public class FloatElement extends PrimitiveElement<@NonNull Double, @NonNull Flo
 	
 	@Override
 	public @NonNull Element clone() {
-		return new FloatElement(primitiveFloat());
+		return new FloatElement(interpreter, primitiveFloat());
 	}
 	
 	@Override

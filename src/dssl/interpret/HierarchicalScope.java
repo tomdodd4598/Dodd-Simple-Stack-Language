@@ -78,8 +78,8 @@ public interface HierarchicalScope extends Scope {
 	}
 	
 	@Override
-	public default Clazz setClazz(@NonNull String shallowIdentifier, @NonNull ClazzType type, @Nullable HierarchicalScope base, @NonNull ArrayList<Clazz> supers) {
-		return setClazz(shallowIdentifier, new Clazz(scopeIdentifier(), shallowIdentifier, type, base, supers), true);
+	public default Clazz setClazz(Interpreter interpreter, @NonNull String shallowIdentifier, @NonNull ClazzType type, @Nullable HierarchicalScope base, @NonNull ArrayList<Clazz> supers) {
+		return setClazz(shallowIdentifier, new Clazz(interpreter, scopeIdentifier(), shallowIdentifier, type, base, supers), true);
 	}
 	
 	@Override
@@ -93,15 +93,15 @@ public interface HierarchicalScope extends Scope {
 	
 	public Hierarchy<@NonNull String, Clazz> getClazzHierarchy();
 	
-	public default <T> void addToScopeMap(Hierarchy<@NonNull String, T> source, Map<@NonNull Element, @NonNull Element> target) {
-		source.forEach((k, v) -> target.put(new StringElement(k), new LabelElement(this, k)), false);
+	public default <T> void addToScopeMap(Interpreter interpreter, Hierarchy<@NonNull String, T> source, Map<@NonNull Element, @NonNull Element> target) {
+		source.forEach((k, v) -> target.put(new StringElement(interpreter, k), new LabelElement(interpreter, this, k)), false);
 	}
 	
 	@Override
 	public default void addToScopeMap(TokenExecutor exec, @NonNull Map<@NonNull Element, @NonNull Element> map) {
-		addToScopeMap(getDefHierarchy(), map);
-		addToScopeMap(getMacroHierarchy(), map);
-		addToScopeMap(getClazzHierarchy(), map);
+		addToScopeMap(exec.interpreter, getDefHierarchy(), map);
+		addToScopeMap(exec.interpreter, getMacroHierarchy(), map);
+		addToScopeMap(exec.interpreter, getClazzHierarchy(), map);
 	}
 	
 	@SuppressWarnings("null")

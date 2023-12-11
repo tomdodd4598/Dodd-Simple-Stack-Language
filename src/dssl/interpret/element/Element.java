@@ -13,9 +13,13 @@ import dssl.interpret.element.primitive.*;
 
 public abstract class Element {
 	
+	public final Interpreter interpreter;
+	
 	public final @NonNull Clazz clazz;
 	
-	protected Element(@NonNull Clazz clazz) {
+	protected Element(Interpreter interpreter, @NonNull Clazz clazz) {
+		this.interpreter = interpreter;
+		
 		this.clazz = clazz;
 	}
 	
@@ -64,7 +68,7 @@ public abstract class Element {
 	}
 	
 	public @NonNull StringElement stringCastInternal(TokenExecutor exec) {
-		return new StringElement(toString(exec));
+		return new StringElement(interpreter, toString(exec));
 	}
 	
 	public @NonNull StringElement stringCast(TokenExecutor exec) {
@@ -96,18 +100,18 @@ public abstract class Element {
 	}
 	
 	protected @NonNull TokenResult onEqualToInternal(TokenExecutor exec, @NonNull Element other) {
-		exec.push(new BoolElement(NullElement.INSTANCE.equals(other) ? false : equals(other)));
+		exec.push(new BoolElement(interpreter, interpreter.builtIn.nullElement.equals(other) ? false : equals(other)));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onNotEqualToInternal(TokenExecutor exec, @NonNull Element other) {
-		exec.push(new BoolElement(NullElement.INSTANCE.equals(other) ? true : !equals(other)));
+		exec.push(new BoolElement(interpreter, interpreter.builtIn.nullElement.equals(other) ? true : !equals(other)));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onConcatInternal(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof StringElement) {
-			exec.push(new StringElement(stringCast(exec).toString(exec) + other.toString(exec)));
+			exec.push(new StringElement(interpreter, stringCast(exec).toString(exec) + other.toString(exec)));
 			return TokenResult.PASS;
 		}
 		throw binaryOpError("~", other);
@@ -681,7 +685,7 @@ public abstract class Element {
 			memberScope.addToScopeMap(exec, map);
 		}
 		
-		return new DictElement(map, false);
+		return new DictElement(interpreter, map, false);
 	}
 	
 	public @NonNull String debug(TokenExecutor exec) {

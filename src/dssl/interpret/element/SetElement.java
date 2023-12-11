@@ -14,32 +14,32 @@ public class SetElement extends Element {
 	
 	public final Set<@NonNull Element> value;
 	
-	public <T extends Element> SetElement(Consumer<Consumer<@NonNull T>> forEach) {
-		super(BuiltIn.SET_CLAZZ);
+	public <T extends Element> SetElement(Interpreter interpreter, Consumer<Consumer<@NonNull T>> forEach) {
+		super(interpreter, interpreter.builtIn.setClazz);
 		value = new HashSet<>();
 		forEach.accept(value::add);
 	}
 	
-	public <T extends Element> SetElement(Iterable<@NonNull T> elems) {
-		this(elems::forEach);
+	public <T extends Element> SetElement(Interpreter interpreter, Iterable<@NonNull T> elems) {
+		this(interpreter, elems::forEach);
 	}
 	
-	public <T extends Element> SetElement(Iterator<@NonNull T> elems) {
-		this(elems::forEachRemaining);
+	public <T extends Element> SetElement(Interpreter interpreter, Iterator<@NonNull T> elems) {
+		this(interpreter, elems::forEachRemaining);
 	}
 	
-	public <T extends Element> SetElement(Stream<@NonNull T> elems) {
-		this(elems::forEach);
+	public <T extends Element> SetElement(Interpreter interpreter, Stream<@NonNull T> elems) {
+		this(interpreter, elems::forEach);
 	}
 	
 	@Override
 	public @NonNull StringElement stringCast(TokenExecutor exec) {
-		return new StringElement(toString(exec));
+		return new StringElement(interpreter, toString(exec));
 	}
 	
 	@Override
 	public @NonNull ListElement listCast(TokenExecutor exec) {
-		return new ListElement(value);
+		return new ListElement(interpreter, value);
 	}
 	
 	@Override
@@ -49,7 +49,7 @@ public class SetElement extends Element {
 	
 	@Override
 	public @NonNull IterElement iterator(TokenExecutor exec) {
-		return new IterElement() {
+		return new IterElement(interpreter) {
 			
 			final Iterator<@NonNull Element> internal = value.iterator();
 			
@@ -151,7 +151,7 @@ public class SetElement extends Element {
 	
 	@Override
 	public @NonNull Element __debug__(TokenExecutor exec) {
-		return new StringElement(debug(exec));
+		return new StringElement(interpreter, debug(exec));
 	}
 	
 	@Override
@@ -161,7 +161,7 @@ public class SetElement extends Element {
 	
 	@Override
 	public @NonNull Element clone() {
-		return new SetElement(value);
+		return new SetElement(interpreter, value);
 	}
 	
 	@Override

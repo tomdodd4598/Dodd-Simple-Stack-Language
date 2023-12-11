@@ -14,8 +14,8 @@ public class TakeWhileIterElement extends IterElement {
 	protected @Nullable Element next = null;
 	protected boolean end = false;
 	
-	public TakeWhileIterElement(IterElement internal, Invokable invokable) {
-		super();
+	public TakeWhileIterElement(Interpreter interpreter, IterElement internal, Invokable invokable) {
+		super(interpreter);
 		this.internal = internal;
 		this.invokable = invokable;
 	}

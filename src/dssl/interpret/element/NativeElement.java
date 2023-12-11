@@ -12,15 +12,15 @@ public class NativeElement extends Element {
 	
 	public final Object value;
 	
-	public NativeElement(Object value) {
-		super(BuiltIn.NATIVE_CLAZZ);
+	public NativeElement(Interpreter interpreter, Object value) {
+		super(interpreter, interpreter.builtIn.nativeClazz);
 		this.value = value;
 	}
 	
 	@Override
 	public @NonNull Element clone() {
 		if (value instanceof Serializable) {
-			return new NativeElement(SerializationUtils.clone((Serializable) value));
+			return new NativeElement(interpreter, SerializationUtils.clone((Serializable) value));
 		}
 		else {
 			throw new IllegalArgumentException(String.format("Non-serializable %s element can not be cloned!", BuiltIn.NATIVE));

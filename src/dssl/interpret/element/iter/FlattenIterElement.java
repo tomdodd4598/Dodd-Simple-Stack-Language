@@ -12,8 +12,8 @@ public class FlattenIterElement extends IterElement {
 	protected @Nullable IterElement current = null;
 	protected boolean end = false;
 	
-	public FlattenIterElement(IterElement internal) {
-		super();
+	public FlattenIterElement(Interpreter interpreter, IterElement internal) {
+		super(interpreter);
 		this.internal = internal;
 	}
 	

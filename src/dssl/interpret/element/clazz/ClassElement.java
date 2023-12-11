@@ -11,8 +11,8 @@ public class ClassElement extends Element {
 	
 	public final @NonNull Clazz internal;
 	
-	public ClassElement(@NonNull Clazz internal) {
-		super(BuiltIn.CLASS_CLAZZ);
+	public ClassElement(Interpreter interpreter, @NonNull Clazz internal) {
+		super(interpreter, interpreter.builtIn.classClazz);
 		this.internal = internal;
 	}
 	
@@ -23,12 +23,12 @@ public class ClassElement extends Element {
 	
 	@Override
 	public @NonNull Element supers(TokenExecutor exec) {
-		return new ListElement(internal.supers.stream().map(Clazz::clazzElement));
+		return new ListElement(interpreter, internal.supers.stream().map(x -> x.clazzElement(interpreter)));
 	}
 	
 	@Override
 	public @NonNull Element clone() {
-		return new ClassElement(internal);
+		return new ClassElement(interpreter, internal);
 	}
 	
 	@Override

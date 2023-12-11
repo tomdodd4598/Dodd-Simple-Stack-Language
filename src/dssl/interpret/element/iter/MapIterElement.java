@@ -10,8 +10,8 @@ public class MapIterElement extends IterElement {
 	protected final IterElement internal;
 	protected final Invokable invokable;
 	
-	public MapIterElement(IterElement internal, Invokable invokable) {
-		super();
+	public MapIterElement(Interpreter interpreter, IterElement internal, Invokable invokable) {
+		super(interpreter);
 		this.internal = internal;
 		this.invokable = invokable;
 	}

@@ -14,8 +14,8 @@ import dssl.interpret.value.StringValue;
 
 public class StringElement extends PrimitiveElement<@NonNull String, @NonNull StringValue> {
 	
-	public StringElement(@NonNull String rawValue) {
-		super(BuiltIn.STRING_CLAZZ, new StringValue(rawValue));
+	public StringElement(Interpreter interpreter, @NonNull String rawValue) {
+		super(interpreter, interpreter.builtIn.stringClazz, new StringValue(rawValue));
 	}
 	
 	@Override
@@ -25,17 +25,17 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	
 	@Override
 	public @NonNull ListElement listCast(TokenExecutor exec) {
-		return new ListElement(internalIterable(exec));
+		return new ListElement(interpreter, internalIterable(exec));
 	}
 	
 	@Override
 	public @NonNull SetElement setCast(TokenExecutor exec) {
-		return new SetElement(internalIterable(exec));
+		return new SetElement(interpreter, internalIterable(exec));
 	}
 	
 	@Override
 	public @NonNull TokenResult onConcat(TokenExecutor exec, @NonNull Element other) {
-		exec.push(new StringElement(toString(exec) + other.stringCast(exec)));
+		exec.push(new StringElement(interpreter, toString(exec) + other.stringCast(exec)));
 		return TokenResult.PASS;
 	}
 	
@@ -46,7 +46,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	
 	@Override
 	public @NonNull IterElement iterator(TokenExecutor exec) {
-		return new IterElement() {
+		return new IterElement(interpreter) {
 			
 			int index = 0;
 			final int length = value.raw.length();
@@ -58,7 +58,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 			
 			@Override
 			public @NonNull Element next(TokenExecutor exec) {
-				return new CharElement(value.raw.charAt(index++));
+				return new CharElement(interpreter, value.raw.charAt(index++));
 			}
 		};
 	}
@@ -67,7 +67,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	public void unpack(TokenExecutor exec) {
 		int length = value.raw.length();
 		for (int i = 0; i < length; ++i) {
-			exec.push(new CharElement(value.raw.charAt(i)));
+			exec.push(new CharElement(interpreter, value.raw.charAt(i)));
 		}
 	}
 	
@@ -105,28 +105,28 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	
 	@Override
 	public @NonNull Element get(TokenExecutor exec, @NonNull Element elem) {
-		return new CharElement(value.raw.charAt(methodIndex(exec, elem, "get")));
+		return new CharElement(interpreter, value.raw.charAt(methodIndex(exec, elem, "get")));
 	}
 	
 	@SuppressWarnings("null")
 	@Override
 	public @NonNull Element slice(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
-		return new StringElement(value.raw.substring(methodIndex(exec, elem0, "slice", 1), methodIndex(exec, elem1, "slice", 2)));
+		return new StringElement(interpreter, value.raw.substring(methodIndex(exec, elem0, "slice", 1), methodIndex(exec, elem1, "slice", 2)));
 	}
 	
 	@Override
 	public @NonNull Element fst(TokenExecutor exec) {
-		return new CharElement(value.raw.charAt(0));
+		return new CharElement(interpreter, value.raw.charAt(0));
 	}
 	
 	@Override
 	public @NonNull Element snd(TokenExecutor exec) {
-		return new CharElement(value.raw.charAt(1));
+		return new CharElement(interpreter, value.raw.charAt(1));
 	}
 	
 	@Override
 	public @NonNull Element last(TokenExecutor exec) {
-		return new CharElement(value.raw.charAt(value.raw.length() - 1));
+		return new CharElement(interpreter, value.raw.charAt(value.raw.length() - 1));
 	}
 	
 	@Override
@@ -134,7 +134,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 		if (!(elem instanceof CharElement) && !(elem instanceof StringElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"startsWith\" requires %s or %s element as argument!", BuiltIn.CHAR, BuiltIn.STRING));
 		}
-		return new BoolElement(value.raw.startsWith(elem.toString(exec)));
+		return new BoolElement(interpreter, value.raw.startsWith(elem.toString(exec)));
 	}
 	
 	@Override
@@ -142,7 +142,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 		if (!(elem instanceof CharElement) && !(elem instanceof StringElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"endsWith\" requires %s or %s element as argument!", BuiltIn.CHAR, BuiltIn.STRING));
 		}
-		return new BoolElement(value.raw.endsWith(elem.toString(exec)));
+		return new BoolElement(interpreter, value.raw.endsWith(elem.toString(exec)));
 	}
 	
 	@Override
@@ -150,7 +150,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 		if (!(elem instanceof StringElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"matches\" requires %s element as argument!", BuiltIn.STRING));
 		}
-		return new BoolElement(value.raw.matches(((StringElement) elem).value.raw));
+		return new BoolElement(interpreter, value.raw.matches(((StringElement) elem).value.raw));
 	}
 	
 	@SuppressWarnings("null")
@@ -164,7 +164,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 			throw new IllegalArgumentException(String.format("Built-in method \"replace\" requires %s element as second argument!", BuiltIn.STRING));
 		}
 		
-		return new StringElement(value.raw.replaceAll(((StringElement) elem0).value.raw, ((StringElement) elem1).value.raw));
+		return new StringElement(interpreter, value.raw.replaceAll(((StringElement) elem0).value.raw, ((StringElement) elem1).value.raw));
 	}
 	
 	@SuppressWarnings("null")
@@ -173,23 +173,23 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 		if (!(elem instanceof StringElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"split\" requires %s element as argument!", BuiltIn.STRING));
 		}
-		return new ListElement(Arrays.stream(value.raw.split(((StringElement) elem).value.raw, -1)).map(StringElement::new));
+		return new ListElement(interpreter, Arrays.stream(value.raw.split(((StringElement) elem).value.raw, -1)).map(x -> new StringElement(interpreter, x)));
 	}
 	
 	@Override
 	public @NonNull Element lower(TokenExecutor exec) {
-		return new StringElement(Helpers.lowerCase(value.raw));
+		return new StringElement(interpreter, Helpers.lowerCase(value.raw));
 	}
 	
 	@Override
 	public @NonNull Element upper(TokenExecutor exec) {
-		return new StringElement(Helpers.upperCase(value.raw));
+		return new StringElement(interpreter, Helpers.upperCase(value.raw));
 	}
 	
 	@SuppressWarnings("null")
 	@Override
 	public @NonNull Element trim(TokenExecutor exec) {
-		return new StringElement(value.raw.trim());
+		return new StringElement(interpreter, value.raw.trim());
 	}
 	
 	@SuppressWarnings("null")
@@ -199,7 +199,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 		if (stream == null) {
 			throw new IllegalArgumentException(String.format("Built-in method \"format\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
-		return new StringElement(String.format(value.raw, stream.map(x -> x.formatted(exec)).toArray()));
+		return new StringElement(interpreter, String.format(value.raw, stream.map(x -> x.formatted(exec)).toArray()));
 	}
 	
 	@Override
@@ -214,7 +214,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	
 	@Override
 	public @NonNull Element __debug__(TokenExecutor exec) {
-		return new StringElement(debug(exec));
+		return new StringElement(interpreter, debug(exec));
 	}
 	
 	@Override
@@ -224,7 +224,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	
 	@Override
 	public @NonNull Element clone() {
-		return new StringElement(value.raw);
+		return new StringElement(interpreter, value.raw);
 	}
 	
 	@Override

@@ -10,8 +10,8 @@ import dssl.interpret.element.primitive.*;
 
 public abstract class IterElement extends Element {
 	
-	public IterElement() {
-		super(BuiltIn.ITER_CLAZZ);
+	public IterElement(Interpreter interpreter) {
+		super(interpreter, interpreter.builtIn.iterClazz);
 	}
 	
 	public abstract boolean hasNext(TokenExecutor exec);
@@ -45,17 +45,17 @@ public abstract class IterElement extends Element {
 			}
 			sb.append(((CharElement) elem).primitiveChar());
 		}
-		return new StringElement(sb.toString());
+		return new StringElement(interpreter, sb.toString());
 	}
 	
 	@Override
 	public @NonNull Element collectList(TokenExecutor exec) {
-		return new ListElement(internalIterator(exec));
+		return new ListElement(interpreter, internalIterator(exec));
 	}
 	
 	@Override
 	public @NonNull Element collectSet(TokenExecutor exec) {
-		return new SetElement(internalIterator(exec));
+		return new SetElement(interpreter, internalIterator(exec));
 	}
 	
 	@Override
@@ -70,12 +70,12 @@ public abstract class IterElement extends Element {
 			map.put(iterElem.next(exec), iterElem.next(exec));
 		}
 		
-		return new DictElement(map, false);
+		return new DictElement(interpreter, map, false);
 	}
 	
 	@Override
 	public @NonNull Element stepBy(TokenExecutor exec, @NonNull Element elem) {
-		return new StepByIterElement(this, methodLongIndex(exec, elem, "stepBy"));
+		return new StepByIterElement(interpreter, this, methodLongIndex(exec, elem, "stepBy"));
 	}
 	
 	@Override
@@ -83,7 +83,7 @@ public abstract class IterElement extends Element {
 		if (!(elem instanceof IterElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"chain\" requires %s element as argument!", BuiltIn.ITER));
 		}
-		return new ChainIterElement(this, (IterElement) elem);
+		return new ChainIterElement(interpreter, this, (IterElement) elem);
 	}
 	
 	@Override
@@ -91,7 +91,7 @@ public abstract class IterElement extends Element {
 		if (!(elem instanceof IterElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"zip\" requires %s element as argument!", BuiltIn.ITER));
 		}
-		return new ZipIterElement(this, (IterElement) elem);
+		return new ZipIterElement(interpreter, this, (IterElement) elem);
 	}
 	
 	@Override
@@ -99,7 +99,7 @@ public abstract class IterElement extends Element {
 		if (!(elem instanceof BlockElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"map\" requires %s element as argument!", BuiltIn.BLOCK));
 		}
-		return new MapIterElement(this, (BlockElement) elem);
+		return new MapIterElement(interpreter, this, (BlockElement) elem);
 	}
 	
 	@Override
@@ -107,7 +107,7 @@ public abstract class IterElement extends Element {
 		if (!(elem instanceof BlockElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"filter\" requires %s element as argument!", BuiltIn.BLOCK));
 		}
-		return new FilterIterElement(this, (BlockElement) elem);
+		return new FilterIterElement(interpreter, this, (BlockElement) elem);
 	}
 	
 	@Override
@@ -115,12 +115,12 @@ public abstract class IterElement extends Element {
 		if (!(elem instanceof BlockElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"filterMap\" requires %s element as argument!", BuiltIn.BLOCK));
 		}
-		return new FilterMapIterElement(this, (BlockElement) elem);
+		return new FilterMapIterElement(interpreter, this, (BlockElement) elem);
 	}
 	
 	@Override
 	public @NonNull Element enumerate(TokenExecutor exec) {
-		return new EnumerateIterElement(this);
+		return new EnumerateIterElement(interpreter, this);
 	}
 	
 	@Override
@@ -128,7 +128,7 @@ public abstract class IterElement extends Element {
 		if (!(elem instanceof BlockElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"takeWhile\" requires %s element as argument!", BuiltIn.BLOCK));
 		}
-		return new TakeWhileIterElement(this, (BlockElement) elem);
+		return new TakeWhileIterElement(interpreter, this, (BlockElement) elem);
 	}
 	
 	@Override
@@ -136,22 +136,22 @@ public abstract class IterElement extends Element {
 		if (!(elem instanceof BlockElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"mapWhile\" requires %s element as argument!", BuiltIn.BLOCK));
 		}
-		return new MapWhileIterElement(this, (BlockElement) elem);
+		return new MapWhileIterElement(interpreter, this, (BlockElement) elem);
 	}
 	
 	@Override
 	public @NonNull Element skip(TokenExecutor exec, @NonNull Element elem) {
-		return new SkipIterElement(this, methodLongIndex(exec, elem, "skip"));
+		return new SkipIterElement(interpreter, this, methodLongIndex(exec, elem, "skip"));
 	}
 	
 	@Override
 	public @NonNull Element take(TokenExecutor exec, @NonNull Element elem) {
-		return new TakeIterElement(this, methodLongIndex(exec, elem, "take"));
+		return new TakeIterElement(interpreter, this, methodLongIndex(exec, elem, "take"));
 	}
 	
 	@Override
 	public @NonNull Element flatten(TokenExecutor exec) {
-		return new FlattenIterElement(this);
+		return new FlattenIterElement(interpreter, this);
 	}
 	
 	@Override
@@ -159,12 +159,12 @@ public abstract class IterElement extends Element {
 		if (!(elem instanceof BlockElement)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"flatMap\" requires %s element as argument!", BuiltIn.BLOCK));
 		}
-		return new FlatMapIterElement(this, (BlockElement) elem);
+		return new FlatMapIterElement(interpreter, this, (BlockElement) elem);
 	}
 	
 	@Override
 	public @NonNull Element chunks(TokenExecutor exec, @NonNull Element elem) {
-		return new ChunksIterElement(this, methodLongIndex(exec, elem, "chunks"));
+		return new ChunksIterElement(interpreter, this, methodLongIndex(exec, elem, "chunks"));
 	}
 	
 	@Override
@@ -223,11 +223,11 @@ public abstract class IterElement extends Element {
 	
 	@Override
 	public @NonNull Element min(TokenExecutor exec) {
-		@NonNull Element curr = NullElement.INSTANCE;
+		@NonNull Element curr = interpreter.builtIn.nullElement;
 		Iterator<@NonNull Element> iter = internalIterator(exec);
 		while (iter.hasNext()) {
 			@SuppressWarnings("null") @NonNull Element elem = iter.next();
-			if (curr.equals(NullElement.INSTANCE) || elem.compareTo(exec, curr) < 0) {
+			if (curr.equals(interpreter.builtIn.nullElement) || elem.compareTo(exec, curr) < 0) {
 				curr = elem;
 			}
 		}
@@ -236,11 +236,11 @@ public abstract class IterElement extends Element {
 	
 	@Override
 	public @NonNull Element max(TokenExecutor exec) {
-		@NonNull Element curr = NullElement.INSTANCE;
+		@NonNull Element curr = interpreter.builtIn.nullElement;
 		Iterator<@NonNull Element> iter = internalIterator(exec);
 		while (iter.hasNext()) {
 			@SuppressWarnings("null") @NonNull Element elem = iter.next();
-			if (curr.equals(NullElement.INSTANCE) || elem.compareTo(exec, curr) > 0) {
+			if (curr.equals(interpreter.builtIn.nullElement) || elem.compareTo(exec, curr) > 0) {
 				curr = elem;
 			}
 		}
@@ -249,7 +249,7 @@ public abstract class IterElement extends Element {
 	
 	@Override
 	public @NonNull Element sum(TokenExecutor exec) {
-		@NonNull Element curr = new IntElement(0);
+		@NonNull Element curr = new IntElement(interpreter, 0);
 		Iterator<@NonNull Element> iter = internalIterator(exec);
 		while (iter.hasNext()) {
 			curr.onPlus(exec, iter.next());
@@ -260,7 +260,7 @@ public abstract class IterElement extends Element {
 	
 	@Override
 	public @NonNull Element product(TokenExecutor exec) {
-		@NonNull Element curr = new IntElement(1);
+		@NonNull Element curr = new IntElement(interpreter, 1);
 		Iterator<@NonNull Element> iter = internalIterator(exec);
 		while (iter.hasNext()) {
 			curr.onMultiply(exec, iter.next());

@@ -2,7 +2,7 @@ package dssl.interpret.element.iter;
 
 import org.eclipse.jdt.annotation.*;
 
-import dssl.interpret.TokenExecutor;
+import dssl.interpret.*;
 import dssl.interpret.element.Element;
 
 public class StepByIterElement extends IterElement {
@@ -13,8 +13,8 @@ public class StepByIterElement extends IterElement {
 	protected @Nullable Element next = null;
 	protected boolean start = true, end = false;
 	
-	public StepByIterElement(IterElement internal, long step) {
-		super();
+	public StepByIterElement(Interpreter interpreter, IterElement internal, long step) {
+		super(interpreter);
 		this.internal = internal;
 		this.step = step;
 	}

@@ -4,20 +4,18 @@ import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import dssl.interpret.TokenExecutor;
+import dssl.interpret.*;
 import dssl.interpret.element.Element;
 
 public class SetLBracketElement extends LBracketElement {
 	
-	public static final @NonNull SetLBracketElement INSTANCE = new SetLBracketElement();
-	
-	private SetLBracketElement() {
-		super();
+	public SetLBracketElement(Interpreter interpreter) {
+		super(interpreter);
 	}
 	
 	@Override
 	public @NonNull Element clone() {
-		return INSTANCE;
+		return interpreter.builtIn.setLBracketElement;
 	}
 	
 	@Override
@@ -27,7 +25,7 @@ public class SetLBracketElement extends LBracketElement {
 	
 	@Override
 	public boolean equals(Object obj) {
-		return obj == INSTANCE;
+		return obj == interpreter.builtIn.setLBracketElement;
 	}
 	
 	@Override

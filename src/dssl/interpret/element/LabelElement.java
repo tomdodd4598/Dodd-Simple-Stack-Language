@@ -14,19 +14,19 @@ public class LabelElement extends Element {
 	public final @NonNull String fullIdentifier;
 	protected final @NonNull String shallowIdentifier;
 	
-	public LabelElement(@NonNull Scope scope, @NonNull String identifier) {
-		this(scope, Helpers.extendedIdentifier(scope.scopeIdentifier(), identifier), identifier);
+	public LabelElement(Interpreter interpreter, @NonNull Scope scope, @NonNull String identifier) {
+		this(interpreter, scope, Helpers.extendedIdentifier(scope.scopeIdentifier(), identifier), identifier);
 	}
 	
-	protected LabelElement(@NonNull Scope scope, @NonNull String fullIdentifier, @NonNull String shallowIdentifier) {
-		super(BuiltIn.LABEL_CLAZZ);
+	protected LabelElement(Interpreter interpreter, @NonNull Scope scope, @NonNull String fullIdentifier, @NonNull String shallowIdentifier) {
+		super(interpreter, interpreter.builtIn.labelClazz);
 		this.scope = scope;
 		this.fullIdentifier = fullIdentifier;
 		this.shallowIdentifier = shallowIdentifier;
 	}
 	
-	protected LabelElement(@NonNull LabelElement prev, @NonNull String extension) {
-		super(BuiltIn.LABEL_CLAZZ);
+	protected LabelElement(Interpreter interpreter, @NonNull LabelElement prev, @NonNull String extension) {
+		super(interpreter, interpreter.builtIn.labelClazz);
 		Def def;
 		@NonNull Element elem;
 		@Nullable Scope nextScope;
@@ -71,7 +71,7 @@ public class LabelElement extends Element {
 	}
 	
 	public void setClazz(@NonNull ClazzType type, @Nullable HierarchicalScope base, @NonNull ArrayList<Clazz> supers) {
-		Clazz prev = scope.setClazz(shallowIdentifier, type, base, supers);
+		Clazz prev = scope.setClazz(interpreter, shallowIdentifier, type, base, supers);
 		if (prev != null && !scope.canShadow()) {
 			throw shadowError("class");
 		}
@@ -108,12 +108,12 @@ public class LabelElement extends Element {
 	}
 	
 	public @NonNull LabelElement extended(@NonNull String extension) {
-		return new LabelElement(this, extension);
+		return new LabelElement(interpreter, this, extension);
 	}
 	
 	@Override
 	public @NonNull Element clone() {
-		return new LabelElement(scope, fullIdentifier, shallowIdentifier);
+		return new LabelElement(interpreter, scope, fullIdentifier, shallowIdentifier);
 	}
 	
 	@Override

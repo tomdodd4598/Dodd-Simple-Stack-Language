@@ -14,26 +14,26 @@ public class ListElement extends Element {
 	
 	public final List<@NonNull Element> value;
 	
-	public <T extends Element> ListElement(Consumer<Consumer<@NonNull T>> forEach) {
-		super(BuiltIn.LIST_CLAZZ);
+	public <T extends Element> ListElement(Interpreter interpreter, Consumer<Consumer<@NonNull T>> forEach) {
+		super(interpreter, interpreter.builtIn.listClazz);
 		value = new ArrayList<>();
 		forEach.accept(value::add);
 	}
 	
-	public <T extends Element> ListElement(Iterable<@NonNull T> elems) {
-		this(elems::forEach);
+	public <T extends Element> ListElement(Interpreter interpreter, Iterable<@NonNull T> elems) {
+		this(interpreter, elems::forEach);
 	}
 	
-	public <T extends Element> ListElement(Iterator<@NonNull T> elems) {
-		this(elems::forEachRemaining);
+	public <T extends Element> ListElement(Interpreter interpreter, Iterator<@NonNull T> elems) {
+		this(interpreter, elems::forEachRemaining);
 	}
 	
-	public <T extends Element> ListElement(Stream<@NonNull T> elems) {
-		this(elems::forEachOrdered);
+	public <T extends Element> ListElement(Interpreter interpreter, Stream<@NonNull T> elems) {
+		this(interpreter, elems::forEachOrdered);
 	}
 	
-	public <T extends Element> ListElement(@NonNull T... elems) {
-		super(BuiltIn.LIST_CLAZZ);
+	public <T extends Element> ListElement(Interpreter interpreter, @NonNull T... elems) {
+		super(interpreter, interpreter.builtIn.listClazz);
 		value = new ArrayList<>();
 		for (@NonNull Element elem : elems) {
 			value.add(elem);
@@ -42,7 +42,7 @@ public class ListElement extends Element {
 	
 	@Override
 	public @NonNull StringElement stringCast(TokenExecutor exec) {
-		return new StringElement(toString(exec));
+		return new StringElement(interpreter, toString(exec));
 	}
 	
 	@Override
@@ -52,12 +52,12 @@ public class ListElement extends Element {
 	
 	@Override
 	public @NonNull SetElement setCast(TokenExecutor exec) {
-		return new SetElement(value);
+		return new SetElement(interpreter, value);
 	}
 	
 	@Override
 	public @NonNull IterElement iterator(TokenExecutor exec) {
-		return new IterElement() {
+		return new IterElement(interpreter) {
 			
 			final Iterator<@NonNull Element> internal = value.iterator();
 			
@@ -195,7 +195,7 @@ public class ListElement extends Element {
 	
 	@Override
 	public @NonNull Element slice(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
-		return new ListElement(value.subList(methodIndex(exec, elem0, "slice", 1), methodIndex(exec, elem1, "slice", 2)));
+		return new ListElement(interpreter, value.subList(methodIndex(exec, elem0, "slice", 1), methodIndex(exec, elem1, "slice", 2)));
 	}
 	
 	@SuppressWarnings("null")
@@ -264,7 +264,7 @@ public class ListElement extends Element {
 	
 	@Override
 	public @NonNull Element __debug__(TokenExecutor exec) {
-		return new StringElement(debug(exec));
+		return new StringElement(interpreter, debug(exec));
 	}
 	
 	@Override
@@ -274,7 +274,7 @@ public class ListElement extends Element {
 	
 	@Override
 	public @NonNull Element clone() {
-		return new ListElement(value);
+		return new ListElement(interpreter, value);
 	}
 	
 	@Override

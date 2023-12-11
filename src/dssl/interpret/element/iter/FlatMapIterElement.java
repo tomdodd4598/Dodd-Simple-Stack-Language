@@ -13,8 +13,8 @@ public class FlatMapIterElement extends IterElement {
 	protected @Nullable IterElement current = null;
 	protected boolean end = false;
 	
-	public FlatMapIterElement(IterElement internal, Invokable invokable) {
-		super();
+	public FlatMapIterElement(Interpreter interpreter, IterElement internal, Invokable invokable) {
+		super(interpreter);
 		this.internal = internal;
 		this.invokable = invokable;
 	}

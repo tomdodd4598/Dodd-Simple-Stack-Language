@@ -3,7 +3,7 @@ package dssl.interpret.element.iter;
 import org.eclipse.jdt.annotation.*;
 
 import dssl.interpret.*;
-import dssl.interpret.element.*;
+import dssl.interpret.element.Element;
 
 public class MapWhileIterElement extends IterElement {
 	
@@ -13,8 +13,8 @@ public class MapWhileIterElement extends IterElement {
 	protected @Nullable Element next = null;
 	protected boolean end = false;
 	
-	public MapWhileIterElement(IterElement internal, Invokable invokable) {
-		super();
+	public MapWhileIterElement(Interpreter interpreter, IterElement internal, Invokable invokable) {
+		super(interpreter);
 		this.internal = internal;
 		this.invokable = invokable;
 	}
@@ -26,7 +26,7 @@ public class MapWhileIterElement extends IterElement {
 				invokable.invoke(exec);
 				
 				@NonNull Element result = exec.pop();
-				if (!result.equals(NullElement.INSTANCE)) {
+				if (!result.equals(interpreter.builtIn.nullElement)) {
 					next = result;
 					return;
 				}

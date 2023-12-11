@@ -55,7 +55,7 @@ public interface Scope {
 	
 	public Clazz getClazz(@NonNull String shallowIdentifier);
 	
-	public Clazz setClazz(@NonNull String shallowIdentifier, @NonNull ClazzType type, @Nullable HierarchicalScope base, @NonNull ArrayList<Clazz> supers);
+	public Clazz setClazz(Interpreter interpreter, @NonNull String shallowIdentifier, @NonNull ClazzType type, @Nullable HierarchicalScope base, @NonNull ArrayList<Clazz> supers);
 	
 	public Clazz removeClazz(@NonNull String shallowIdentifier);
 	

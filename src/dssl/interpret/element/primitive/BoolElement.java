@@ -10,8 +10,8 @@ import dssl.interpret.value.BoolValue;
 
 public class BoolElement extends PrimitiveElement<@NonNull Boolean, @NonNull BoolValue> {
 	
-	public BoolElement(@NonNull Boolean rawValue) {
-		super(BuiltIn.BOOL_CLAZZ, new BoolValue(rawValue));
+	public BoolElement(Interpreter interpreter, @NonNull Boolean rawValue) {
+		super(interpreter, interpreter.builtIn.boolClazz, new BoolValue(rawValue));
 	}
 	
 	@Override
@@ -21,7 +21,7 @@ public class BoolElement extends PrimitiveElement<@NonNull Boolean, @NonNull Boo
 	
 	@Override
 	public @NonNull TokenResult onNot(TokenExecutor exec) {
-		exec.push(new BoolElement(!primitiveBool()));
+		exec.push(new BoolElement(interpreter, !primitiveBool()));
 		return TokenResult.PASS;
 	}
 	
@@ -31,7 +31,7 @@ public class BoolElement extends PrimitiveElement<@NonNull Boolean, @NonNull Boo
 	
 	@Override
 	public @NonNull Element clone() {
-		return new BoolElement(primitiveBool());
+		return new BoolElement(interpreter, primitiveBool());
 	}
 	
 	@Override

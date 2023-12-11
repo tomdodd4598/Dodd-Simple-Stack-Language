@@ -25,11 +25,11 @@ public class Clazz implements HierarchicalScope {
 	protected final Hierarchy<@NonNull String, Macro> macroHierarchy;
 	protected final Hierarchy<@NonNull String, Clazz> clazzHierarchy;
 	
-	public Clazz(@NonNull String identifier, @NonNull ClazzType type, Clazz... supers) {
-		this(null, identifier, type, null, new ArrayList<>(Arrays.asList(supers)));
+	public Clazz(Interpreter interpreter, @NonNull String identifier, @NonNull ClazzType type, Clazz... supers) {
+		this(interpreter, null, identifier, type, null, new ArrayList<>(Arrays.asList(supers)));
 	}
 	
-	public Clazz(String prev, @NonNull String extension, @NonNull ClazzType type, @Nullable HierarchicalScope base, @Nullable ArrayList<Clazz> supers) {
+	public Clazz(Interpreter interpreter, @Nullable String prev, @NonNull String extension, @NonNull ClazzType type, @Nullable HierarchicalScope base, @Nullable ArrayList<Clazz> supers) {
 		fullIdentifier = Helpers.extendedIdentifier(prev, extension);
 		shallowIdentifier = extension;
 		this.type = type;
@@ -39,7 +39,7 @@ public class Clazz implements HierarchicalScope {
 		}
 		else {
 			if (supers.isEmpty()) {
-				supers.add(BuiltIn.OBJECT_CLAZZ);
+				supers.add(interpreter.builtIn.objectClazz);
 			}
 			this.supers = supers.stream().distinct().collect(Collectors.toList());
 		}
@@ -54,9 +54,9 @@ public class Clazz implements HierarchicalScope {
 	}
 	
 	@SuppressWarnings("null")
-	public @NonNull Element clazzElement() {
+	public @NonNull Element clazzElement(Interpreter interpreter) {
 		if (elem == null) {
-			elem = new ClassElement(this);
+			elem = new ClassElement(interpreter, this);
 		}
 		return elem;
 	}
@@ -96,7 +96,7 @@ public class Clazz implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Can not instantiate instance of class \"%s\"!", fullIdentifier));
 		}
 		
-		InstanceElement instance = new InstanceElement(this);
+		InstanceElement instance = new InstanceElement(exec.interpreter, this);
 		TokenResult init = instance.magicAction(exec, "__init__");
 		if (init == null) {
 			exec.push(instance);

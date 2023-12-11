@@ -15,8 +15,8 @@ public class DictElement extends Element {
 	
 	public final Map<@NonNull Element, @NonNull Element> value;
 	
-	public <T extends Element> DictElement(TokenExecutor exec, Reverse<@NonNull T> elems) {
-		super(BuiltIn.DICT_CLAZZ);
+	public <T extends Element> DictElement(Interpreter interpreter, Reverse<@NonNull T> elems) {
+		super(interpreter, interpreter.builtIn.dictClazz);
 		int elemCount = elems.size();
 		if ((elemCount & 1) == 1) {
 			throw new IllegalArgumentException(String.format("Constructor for type \"%s\" requires even number of arguments but received %s!", BuiltIn.DICT, elemCount));
@@ -29,14 +29,14 @@ public class DictElement extends Element {
 		}
 	}
 	
-	public DictElement(Map<@NonNull Element, @NonNull Element> map, boolean copy) {
-		super(BuiltIn.DICT_CLAZZ);
+	public DictElement(Interpreter interpreter, Map<@NonNull Element, @NonNull Element> map, boolean copy) {
+		super(interpreter, interpreter.builtIn.dictClazz);
 		value = copy ? new HashMap<>(map) : map;
 	}
 	
 	@Override
 	public @NonNull StringElement stringCast(TokenExecutor exec) {
-		return new StringElement(toString(exec));
+		return new StringElement(interpreter, toString(exec));
 	}
 	
 	@Override
@@ -46,7 +46,7 @@ public class DictElement extends Element {
 	
 	@Override
 	public @NonNull IterElement iterator(TokenExecutor exec) {
-		return new IterElement() {
+		return new IterElement(interpreter) {
 			
 			final Iterator<Entry<@NonNull Element, @NonNull Element>> internal = value.entrySet().iterator();
 			
@@ -58,7 +58,7 @@ public class DictElement extends Element {
 			@Override
 			public @NonNull Element next(TokenExecutor exec) {
 				Entry<@NonNull Element, @NonNull Element> next = internal.next();
-				return new ListElement(next.getKey(), next.getValue());
+				return new ListElement(interpreter, next.getKey(), next.getValue());
 			}
 		};
 	}
@@ -66,7 +66,7 @@ public class DictElement extends Element {
 	@Override
 	public void unpack(TokenExecutor exec) {
 		for (Entry<@NonNull Element, @NonNull Element> entry : value.entrySet()) {
-			exec.push(new ListElement(entry.getKey(), entry.getValue()));
+			exec.push(new ListElement(interpreter, entry.getKey(), entry.getValue()));
 		}
 	}
 	
@@ -104,7 +104,7 @@ public class DictElement extends Element {
 	@Override
 	public @NonNull Element get(TokenExecutor exec, @NonNull Element elem) {
 		@SuppressWarnings("null") Element get = value.get(elem);
-		return get == null ? NullElement.INSTANCE : get;
+		return get == null ? interpreter.builtIn.nullElement : get;
 	}
 	
 	@Override
@@ -143,17 +143,17 @@ public class DictElement extends Element {
 	
 	@Override
 	public @NonNull Element keys(TokenExecutor exec) {
-		return new SetElement(value.keySet());
+		return new SetElement(interpreter, value.keySet());
 	}
 	
 	@Override
 	public @NonNull Element values(TokenExecutor exec) {
-		return new ListElement(value.values());
+		return new ListElement(interpreter, value.values());
 	}
 	
 	@Override
 	public @NonNull Element entries(TokenExecutor exec) {
-		return new SetElement(internalIterable(exec));
+		return new SetElement(interpreter, internalIterable(exec));
 	}
 	
 	@Override
@@ -168,7 +168,7 @@ public class DictElement extends Element {
 	
 	@Override
 	public @NonNull Element __debug__(TokenExecutor exec) {
-		return new StringElement(debug(exec));
+		return new StringElement(interpreter, debug(exec));
 	}
 	
 	@Override
@@ -178,7 +178,7 @@ public class DictElement extends Element {
 	
 	@Override
 	public @NonNull Element clone() {
-		return new DictElement(value, true);
+		return new DictElement(interpreter, value, true);
 	}
 	
 	@Override

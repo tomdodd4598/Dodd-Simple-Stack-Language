@@ -14,8 +14,8 @@ public class FilterIterElement extends IterElement {
 	protected @Nullable Element next = null;
 	protected boolean end = false;
 	
-	public FilterIterElement(IterElement internal, Invokable invokable) {
-		super();
+	public FilterIterElement(Interpreter interpreter, IterElement internal, Invokable invokable) {
+		super(interpreter);
 		this.internal = internal;
 		this.invokable = invokable;
 	}

@@ -12,8 +12,8 @@ public class BlockElement extends Element implements Invokable {
 	
 	public final List<@NonNull Token> tokens;
 	
-	public BlockElement(List<@NonNull Token> tokens) {
-		super(BuiltIn.BLOCK_CLAZZ);
+	public BlockElement(Interpreter interpreter, List<@NonNull Token> tokens) {
+		super(interpreter, interpreter.builtIn.blockClazz);
 		this.tokens = tokens;
 	}
 	
@@ -33,7 +33,7 @@ public class BlockElement extends Element implements Invokable {
 		for (@NonNull Token token : tokens) {
 			tokensClone.add((@NonNull Token) token.clone());
 		}
-		return new BlockElement(tokensClone);
+		return new BlockElement(interpreter, tokensClone);
 	}
 	
 	@Override

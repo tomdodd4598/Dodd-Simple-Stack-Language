@@ -12,75 +12,75 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	
 	public final @NonNull VALUE value;
 	
-	protected PrimitiveElement(@NonNull Clazz clazz, @NonNull VALUE value) {
-		super(clazz);
+	protected PrimitiveElement(Interpreter interpreter, @NonNull Clazz clazz, @NonNull VALUE value) {
+		super(interpreter, clazz);
 		this.value = value;
 	}
 	
 	@Override
 	public @Nullable IntElement asInt(TokenExecutor exec) {
 		BigInteger intValue = value.intValue(false);
-		return intValue == null ? null : new IntElement(intValue);
+		return intValue == null ? null : new IntElement(interpreter, intValue);
 	}
 	
 	@Override
 	public @Nullable BoolElement asBool(TokenExecutor exec) {
 		Boolean boolValue = value.boolValue(false);
-		return boolValue == null ? null : new BoolElement(boolValue);
+		return boolValue == null ? null : new BoolElement(interpreter, boolValue);
 	}
 	
 	@Override
 	public @Nullable FloatElement asFloat(TokenExecutor exec) {
 		Double floatValue = value.floatValue(false);
-		return floatValue == null ? null : new FloatElement(floatValue);
+		return floatValue == null ? null : new FloatElement(interpreter, floatValue);
 	}
 	
 	@Override
 	public @Nullable CharElement asChar(TokenExecutor exec) {
 		Character charValue = value.charValue(false);
-		return charValue == null ? null : new CharElement(charValue);
+		return charValue == null ? null : new CharElement(interpreter, charValue);
 	}
 	
 	@Override
 	public @Nullable StringElement asString(TokenExecutor exec) {
 		String stringValue = value.stringValue(false);
-		return stringValue == null ? null : new StringElement(stringValue);
+		return stringValue == null ? null : new StringElement(interpreter, stringValue);
 	}
 	
 	@Override
 	public @NonNull IntElement intCast(TokenExecutor exec) {
 		BigInteger intValue = value.intValue(true);
-		return intValue == null ? super.intCast(exec) : new IntElement(intValue);
+		return intValue == null ? super.intCast(exec) : new IntElement(interpreter, intValue);
 	}
 	
 	@Override
 	public @NonNull BoolElement boolCast(TokenExecutor exec) {
 		Boolean boolValue = value.boolValue(true);
-		return boolValue == null ? super.boolCast(exec) : new BoolElement(boolValue);
+		return boolValue == null ? super.boolCast(exec) : new BoolElement(interpreter, boolValue);
 	}
 	
 	@Override
 	public @NonNull FloatElement floatCast(TokenExecutor exec) {
 		Double floatValue = value.floatValue(true);
-		return floatValue == null ? super.floatCast(exec) : new FloatElement(floatValue);
+		return floatValue == null ? super.floatCast(exec) : new FloatElement(interpreter, floatValue);
 	}
 	
 	@Override
 	public @NonNull CharElement charCast(TokenExecutor exec) {
 		Character charValue = value.charValue(true);
-		return charValue == null ? super.charCast(exec) : new CharElement(charValue);
+		return charValue == null ? super.charCast(exec) : new CharElement(interpreter, charValue);
 	}
 	
 	@Override
 	public @NonNull StringElement stringCast(TokenExecutor exec) {
 		String stringValue = value.stringValue(true);
-		return stringValue == null ? super.stringCast(exec) : new StringElement(stringValue);
+		return stringValue == null ? super.stringCast(exec) : new StringElement(interpreter, stringValue);
 	}
 	
 	@Override
 	public @NonNull TokenResult onEqualTo(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onEqualTo(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onEqualTo(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -92,7 +92,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull TokenResult onNotEqualTo(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onNotEqualTo(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onNotEqualTo(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -104,7 +104,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull TokenResult onLessThan(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onLessThan(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onLessThan(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -116,7 +116,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull TokenResult onLessOrEqual(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onLessOrEqual(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onLessOrEqual(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -128,7 +128,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull TokenResult onMoreThan(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onMoreThan(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onMoreThan(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -140,7 +140,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull TokenResult onMoreOrEqual(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onMoreOrEqual(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onMoreOrEqual(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -152,7 +152,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull TokenResult onPlus(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onPlus(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onPlus(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -164,7 +164,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull TokenResult onAnd(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onAnd(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onAnd(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -176,7 +176,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull TokenResult onOr(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onOr(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onOr(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -188,7 +188,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull TokenResult onXor(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onXor(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onXor(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -200,7 +200,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull TokenResult onMinus(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onMinus(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onMinus(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -212,7 +212,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull TokenResult onConcat(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onConcat(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onConcat(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -224,7 +224,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull TokenResult onLeftShift(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onLeftShift(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onLeftShift(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -236,7 +236,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull TokenResult onRightShift(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onRightShift(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onRightShift(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -248,7 +248,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull TokenResult onMultiply(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onMultiply(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onMultiply(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -260,7 +260,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull TokenResult onDivide(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onDivide(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onDivide(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -272,7 +272,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull TokenResult onRemainder(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onRemainder(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onRemainder(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -284,7 +284,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull TokenResult onPower(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onPower(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onPower(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -296,7 +296,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull TokenResult onIdivide(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onIdivide(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onIdivide(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -308,7 +308,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull TokenResult onModulo(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof PrimitiveElement<?, ?>) {
-			Element elem = PrimitiveBinaryOpLogic.onModulo(value, ((PrimitiveElement<?, ?>) other).value);
+			Element elem = PrimitiveBinaryOpLogic.onModulo(interpreter, value, ((PrimitiveElement<?, ?>) other).value);
 			if (elem != null) {
 				exec.push(elem);
 				return TokenResult.PASS;
@@ -333,7 +333,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull Element __str__(TokenExecutor exec) {
 		String stringValue = value.stringValue(true);
-		return stringValue == null ? super.__str__(exec) : new StringElement(stringValue);
+		return stringValue == null ? super.__str__(exec) : new StringElement(interpreter, stringValue);
 	}
 	
 	@Override

@@ -2,15 +2,15 @@ package dssl.interpret.element.iter;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import dssl.interpret.TokenExecutor;
+import dssl.interpret.*;
 import dssl.interpret.element.*;
 
 public class ZipIterElement extends IterElement {
 	
 	protected final IterElement first, second;
 	
-	public ZipIterElement(IterElement first, IterElement second) {
-		super();
+	public ZipIterElement(Interpreter interpreter, IterElement first, IterElement second) {
+		super(interpreter);
 		this.first = first;
 		this.second = second;
 	}
@@ -22,6 +22,6 @@ public class ZipIterElement extends IterElement {
 	
 	@Override
 	public @NonNull Element next(TokenExecutor exec) {
-		return new ListElement(first.next(exec), second.next(exec));
+		return new ListElement(interpreter, first.next(exec), second.next(exec));
 	}
 }

@@ -12,8 +12,12 @@ import dssl.interpret.value.IntValue;
 
 public class IntElement extends PrimitiveElement<@NonNull BigInteger, @NonNull IntValue> {
 	
-	public IntElement(BigInteger rawValue) {
-		super(BuiltIn.INT_CLAZZ, new IntValue(Helpers.checkNonNull(rawValue)));
+	public IntElement(Interpreter interpreter, BigInteger rawValue) {
+		super(interpreter, interpreter.builtIn.intClazz, new IntValue(Helpers.checkNonNull(rawValue)));
+	}
+	
+	public IntElement(Interpreter interpreter, long rawValue) {
+		this(interpreter, BigInteger.valueOf(rawValue));
 	}
 	
 	@Override
@@ -21,13 +25,9 @@ public class IntElement extends PrimitiveElement<@NonNull BigInteger, @NonNull I
 		return this;
 	}
 	
-	public IntElement(long rawValue) {
-		this(BigInteger.valueOf(rawValue));
-	}
-	
 	@Override
 	public @NonNull TokenResult onNot(TokenExecutor exec) {
-		exec.push(new IntElement(value.raw.not()));
+		exec.push(new IntElement(interpreter, value.raw.not()));
 		return TokenResult.PASS;
 	}
 	
@@ -41,7 +41,7 @@ public class IntElement extends PrimitiveElement<@NonNull BigInteger, @NonNull I
 	
 	@Override
 	public @NonNull Element clone() {
-		return new IntElement(value.raw);
+		return new IntElement(interpreter, value.raw);
 	}
 	
 	@Override

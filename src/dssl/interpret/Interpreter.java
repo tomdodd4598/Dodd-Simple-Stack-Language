@@ -11,6 +11,8 @@ public class Interpreter {
 	
 	public final List<@NonNull String> args;
 	
+	public final BuiltIn builtIn;
+	
 	protected final TokenExecutor root;
 	protected boolean halt = false;
 	
@@ -26,6 +28,7 @@ public class Interpreter {
 	
 	public Interpreter(List<@NonNull String> args, Hooks hooks, TokenIterator iterator, boolean debug) {
 		this.args = args;
+		builtIn = new BuiltIn(this);
 		this.hooks = hooks;
 		root = newExecutor(iterator);
 		this.debug = debug;

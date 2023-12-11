@@ -11,10 +11,10 @@ public class ModuleElement extends Element {
 	public final @NonNull String identifier;
 	public final @NonNull Clazz internal;
 	
-	public ModuleElement(@NonNull String identifier) {
-		super(BuiltIn.MODULE_CLAZZ);
+	public ModuleElement(Interpreter interpreter, @NonNull String identifier) {
+		super(interpreter, interpreter.builtIn.moduleClazz);
 		this.identifier = identifier;
-		Clazz internal = BuiltIn.MODULE_MAP.get(identifier);
+		Clazz internal = interpreter.builtIn.moduleMap.get(identifier);
 		if (internal == null) {
 			throw new IllegalArgumentException(String.format("Core module \"%s\" not found!", identifier));
 		}
@@ -23,7 +23,7 @@ public class ModuleElement extends Element {
 	
 	@Override
 	public @NonNull Element clone() {
-		return new ModuleElement(identifier);
+		return new ModuleElement(interpreter, identifier);
 	}
 	
 	@Override

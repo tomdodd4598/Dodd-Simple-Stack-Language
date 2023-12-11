@@ -85,7 +85,7 @@ public class NativeImpl {
 			if (isInst) {
 				exec.pop();
 			}
-			exec.push(convert(result));
+			exec.push(convert(exec.interpreter, result));
 			return TokenResult.PASS;
 		}
 		catch (Exception e) {
@@ -112,7 +112,7 @@ public class NativeImpl {
 				
 				for (int i = 0; i < params; ++i) {
 					Object obj = nativize(elems[i], types[i]);
-					if (obj == null && !NullElement.INSTANCE.equals(elems[i])) {
+					if (obj == null && !exec.interpreter.builtIn.nullElement.equals(elems[i])) {
 						continue outer;
 					}
 					else {
@@ -130,7 +130,7 @@ public class NativeImpl {
 					}
 					exec.pop(count);
 					if (result != null) {
-						exec.push(convert(result));
+						exec.push(convert(exec.interpreter, result));
 					}
 					return TokenResult.PASS;
 				}
@@ -186,7 +186,7 @@ public class NativeImpl {
 	}
 	
 	static Object nativize(@NonNull Element elem, Type type) {
-		if (NullElement.INSTANCE.equals(elem)) {
+		if (elem.interpreter.builtIn.nullElement.equals(elem)) {
 			return null;
 		}
 		else if (type instanceof Class) {
@@ -390,7 +390,7 @@ public class NativeImpl {
 	
 	static <T> T tracked(@NonNull Element elem, Function<@NonNull Element, T> mapper, Tracker tracker) {
 		T result = mapper.apply(elem);
-		if (result == null && !NullElement.INSTANCE.equals(elem)) {
+		if (result == null && !elem.interpreter.builtIn.nullElement.equals(elem)) {
 			tracker.flag = true;
 		}
 		return result;
@@ -400,54 +400,55 @@ public class NativeImpl {
 		return tracked(elem, y -> nativize(y, type), tracker);
 	}
 	
-	static @NonNull Element convert(Object obj) {
+	static @NonNull Element convert(Interpreter interpreter, Object obj) {
 		if (obj == null) {
-			return NullElement.INSTANCE;
+			return interpreter.builtIn.nullElement;
 		}
 		else if (obj instanceof Byte) {
-			return new IntElement((Byte) obj);
+			return new IntElement(interpreter, (Byte) obj);
 		}
 		else if (obj instanceof Short) {
-			return new IntElement((Short) obj);
+			return new IntElement(interpreter, (Short) obj);
 		}
 		else if (obj instanceof Integer) {
-			return new IntElement((Integer) obj);
+			return new IntElement(interpreter, (Integer) obj);
 		}
 		else if (obj instanceof Long) {
-			return new IntElement((Long) obj);
+			return new IntElement(interpreter, (Long) obj);
 		}
 		else if (obj instanceof BigInteger) {
-			return new IntElement((BigInteger) obj);
+			return new IntElement(interpreter, (BigInteger) obj);
 		}
 		else if (obj instanceof Boolean) {
-			return new BoolElement((Boolean) obj);
+			return new BoolElement(interpreter, (Boolean) obj);
 		}
 		else if (obj instanceof Float) {
-			return new FloatElement(((Float) obj).doubleValue());
+			return new FloatElement(interpreter, ((Float) obj).doubleValue());
 		}
 		else if (obj instanceof Double) {
-			return new FloatElement((Double) obj);
+			return new FloatElement(interpreter, (Double) obj);
 		}
 		else if (obj instanceof Character) {
-			return new CharElement((Character) obj);
+			return new CharElement(interpreter, (Character) obj);
 		}
 		else if (obj instanceof String) {
-			return new StringElement((String) obj);
+			return new StringElement(interpreter, (String) obj);
 		}
 		else if (obj instanceof List) {
-			return new ListElement(((List<?>) obj).stream().map(NativeImpl::convert));
+			return new ListElement(interpreter, ((List<?>) obj).stream().map(x -> convert(interpreter, x)));
 		}
 		else if (obj.getClass().isArray()) {
-			return new ListElement(IntStream.range(0, Array.getLength(obj)).mapToObj(x -> NativeImpl.convert(Array.get(obj, x))));
+			return new ListElement(interpreter, IntStream.range(0, Array.getLength(obj)).mapToObj(x -> NativeImpl.convert(interpreter, Array.get(obj, x))));
 		}
 		else if (obj instanceof Set) {
-			return new SetElement(Helpers.map((Set<?>) obj, NativeImpl::convert));
+			return new SetElement(interpreter, Helpers.map((Set<?>) obj, x -> convert(interpreter, x)));
 		}
 		else if (obj instanceof Map) {
-			return new DictElement(Helpers.map((Map<?, ?>) obj, NativeImpl::convert, NativeImpl::convert), false);
+			Function<Object, @NonNull Element> convert = x -> convert(interpreter, x);
+			return new DictElement(interpreter, Helpers.map((Map<?, ?>) obj, convert, convert), false);
 		}
 		else {
-			return new NativeElement(obj);
+			return new NativeElement(interpreter, obj);
 		}
 	}
 }
