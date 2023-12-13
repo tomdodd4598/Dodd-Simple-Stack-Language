@@ -85,7 +85,7 @@ public class NativeImpl {
 			if (isInst) {
 				exec.pop();
 			}
-			exec.push(convert(exec.interpreter, result));
+			exec.push(convert(exec, result));
 			return TokenResult.PASS;
 		}
 		catch (Exception e) {
@@ -130,7 +130,7 @@ public class NativeImpl {
 					}
 					exec.pop(count);
 					if (result != null) {
-						exec.push(convert(exec.interpreter, result));
+						exec.push(convert(exec, result));
 					}
 					return TokenResult.PASS;
 				}
@@ -291,19 +291,19 @@ public class NativeImpl {
 		return (T[]) Array.newInstance(rawType(componentType), 0);
 	}
 	
-	static <T extends Collection<Object>> T collection_nativize(Collection<@NonNull Element> collection, Type type, Tracker tracker, Collector<Object, ?, T> collector) {
-		return collection.stream().map(x -> trackedNativize(x, type, tracker)).collect(collector);
+	static <T extends Collection<Object>> T collection_nativize(Stream<@NonNull Element> stream, Type type, Tracker tracker, Collector<Object, ?, T> collector) {
+		return stream.map(x -> trackedNativize(x, type, tracker)).collect(collector);
 	}
 	
 	static Object listNativize(@NonNull Element elem, Type type) {
 		Tracker tracker = new Tracker();
-		List<?> obj = collection_nativize(((ListElement) elem).value, type, tracker, Collectors.toList());
+		List<?> obj = collection_nativize(((ListElement) elem).value.stream(), type, tracker, Collectors.toList());
 		return tracker.flag ? null : obj;
 	}
 	
 	static Object arrayNativize(@NonNull Element elem, Type type) {
 		Tracker tracker = new Tracker();
-		List<?> obj = collection_nativize(((ListElement) elem).value, type, tracker, Collectors.toList());
+		List<?> obj = collection_nativize(((ListElement) elem).value.stream(), type, tracker, Collectors.toList());
 		if (tracker.flag) {
 			return null;
 		}
@@ -373,13 +373,13 @@ public class NativeImpl {
 	
 	static Object setNativize(@NonNull Element elem, Type type) {
 		Tracker tracker = new Tracker();
-		Set<?> obj = collection_nativize(((SetElement) elem).value, type, tracker, Collectors.toSet());
+		Set<?> obj = collection_nativize(((SetElement) elem).value.stream().map(x -> x.elem), type, tracker, Collectors.toSet());
 		return tracker.flag ? null : obj;
 	}
 	
 	static Object mapNativize(@NonNull Element elem, Type keyType, Type valueType) {
 		Tracker tracker = new Tracker();
-		Map<?, ?> obj = Helpers.map(((DictElement) elem).value, x -> trackedNativize(x, keyType, tracker), x -> trackedNativize(x, valueType, tracker));
+		Map<?, ?> obj = Helpers.map(((DictElement) elem).value, x -> trackedNativize(x.elem, keyType, tracker), x -> trackedNativize(x, valueType, tracker));
 		return tracker.flag ? null : obj;
 	}
 	
@@ -400,55 +400,54 @@ public class NativeImpl {
 		return tracked(elem, y -> nativize(y, type), tracker);
 	}
 	
-	static @NonNull Element convert(Interpreter interpreter, Object obj) {
+	static @NonNull Element convert(TokenExecutor exec, Object obj) {
 		if (obj == null) {
-			return interpreter.builtIn.nullElement;
+			return exec.interpreter.builtIn.nullElement;
 		}
 		else if (obj instanceof Byte) {
-			return new IntElement(interpreter, (Byte) obj);
+			return new IntElement(exec.interpreter, (Byte) obj);
 		}
 		else if (obj instanceof Short) {
-			return new IntElement(interpreter, (Short) obj);
+			return new IntElement(exec.interpreter, (Short) obj);
 		}
 		else if (obj instanceof Integer) {
-			return new IntElement(interpreter, (Integer) obj);
+			return new IntElement(exec.interpreter, (Integer) obj);
 		}
 		else if (obj instanceof Long) {
-			return new IntElement(interpreter, (Long) obj);
+			return new IntElement(exec.interpreter, (Long) obj);
 		}
 		else if (obj instanceof BigInteger) {
-			return new IntElement(interpreter, (BigInteger) obj);
+			return new IntElement(exec.interpreter, (BigInteger) obj);
 		}
 		else if (obj instanceof Boolean) {
-			return new BoolElement(interpreter, (Boolean) obj);
+			return new BoolElement(exec.interpreter, (Boolean) obj);
 		}
 		else if (obj instanceof Float) {
-			return new FloatElement(interpreter, ((Float) obj).doubleValue());
+			return new FloatElement(exec.interpreter, ((Float) obj).doubleValue());
 		}
 		else if (obj instanceof Double) {
-			return new FloatElement(interpreter, (Double) obj);
+			return new FloatElement(exec.interpreter, (Double) obj);
 		}
 		else if (obj instanceof Character) {
-			return new CharElement(interpreter, (Character) obj);
+			return new CharElement(exec.interpreter, (Character) obj);
 		}
 		else if (obj instanceof String) {
-			return new StringElement(interpreter, (String) obj);
+			return new StringElement(exec.interpreter, (String) obj);
 		}
 		else if (obj instanceof List) {
-			return new ListElement(interpreter, ((List<?>) obj).stream().map(x -> convert(interpreter, x)));
+			return new ListElement(exec.interpreter, ((List<?>) obj).stream().map(x -> convert(exec, x)));
 		}
 		else if (obj.getClass().isArray()) {
-			return new ListElement(interpreter, IntStream.range(0, Array.getLength(obj)).mapToObj(x -> NativeImpl.convert(interpreter, Array.get(obj, x))));
+			return new ListElement(exec.interpreter, IntStream.range(0, Array.getLength(obj)).mapToObj(x -> NativeImpl.convert(exec, Array.get(obj, x))));
 		}
 		else if (obj instanceof Set) {
-			return new SetElement(interpreter, Helpers.map((Set<?>) obj, x -> convert(interpreter, x)));
+			return new SetElement(exec.interpreter, Helpers.map((Set<?>) obj, x -> convert(exec, x).toKey(exec)));
 		}
 		else if (obj instanceof Map) {
-			Function<Object, @NonNull Element> convert = x -> convert(interpreter, x);
-			return new DictElement(interpreter, Helpers.map((Map<?, ?>) obj, convert, convert), false);
+			return new DictElement(exec.interpreter, Helpers.map((Map<?, ?>) obj, x -> convert(exec, x).toKey(exec), x -> convert(exec, x)));
 		}
 		else {
-			return new NativeElement(interpreter, obj);
+			return new NativeElement(exec.interpreter, obj);
 		}
 	}
 }

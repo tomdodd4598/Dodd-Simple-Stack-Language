@@ -1,7 +1,5 @@
 package dssl.interpret.element.iter;
 
-import java.util.*;
-
 import org.eclipse.jdt.annotation.*;
 
 import dssl.interpret.*;
@@ -24,14 +22,12 @@ public class ChunksIterElement extends IterElement {
 	protected void prepare(TokenExecutor exec) {
 		if (next == null && !end) {
 			long count = 0;
-			List<@NonNull Element> list = new ArrayList<>();
-			
 			while (internal.hasNext(exec)) {
 				if (count++ >= size) {
-					next = new ListElement(interpreter, list);
+					next = new ListElement(interpreter);
 					return;
 				}
-				list.add(internal.next(exec));
+				next.value.add(internal.next(exec));
 			}
 			
 			end = true;

@@ -74,7 +74,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	@Override
 	public @NonNull StringElement stringCast(TokenExecutor exec) {
 		String stringValue = value.stringValue(true);
-		return stringValue == null ? super.stringCast(exec) : new StringElement(interpreter, stringValue);
+		return stringValue == null ? super.stringCastInternal(exec) : new StringElement(interpreter, stringValue);
 	}
 	
 	@Override
@@ -86,7 +86,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onEqualTo(exec, other);
+		return super.onEqualToInternal(exec, other);
 	}
 	
 	@Override
@@ -98,7 +98,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onNotEqualTo(exec, other);
+		return super.onNotEqualToInternal(exec, other);
 	}
 	
 	@Override
@@ -110,7 +110,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onLessThan(exec, other);
+		return super.onLessThanInternal(exec, other);
 	}
 	
 	@Override
@@ -122,7 +122,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onLessOrEqual(exec, other);
+		return super.onLessOrEqualInternal(exec, other);
 	}
 	
 	@Override
@@ -134,7 +134,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onMoreThan(exec, other);
+		return super.onMoreThanInternal(exec, other);
 	}
 	
 	@Override
@@ -146,7 +146,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onMoreOrEqual(exec, other);
+		return super.onMoreOrEqualInternal(exec, other);
 	}
 	
 	@Override
@@ -158,7 +158,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onPlus(exec, other);
+		return super.onPlusInternal(exec, other);
 	}
 	
 	@Override
@@ -170,7 +170,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onAnd(exec, other);
+		return super.onAndInternal(exec, other);
 	}
 	
 	@Override
@@ -182,7 +182,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onOr(exec, other);
+		return super.onOrInternal(exec, other);
 	}
 	
 	@Override
@@ -194,7 +194,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onXor(exec, other);
+		return super.onXorInternal(exec, other);
 	}
 	
 	@Override
@@ -206,7 +206,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onMinus(exec, other);
+		return super.onMinusInternal(exec, other);
 	}
 	
 	@Override
@@ -218,7 +218,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onConcat(exec, other);
+		return super.onConcatInternal(exec, other);
 	}
 	
 	@Override
@@ -230,7 +230,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onLeftShift(exec, other);
+		return super.onLeftShiftInternal(exec, other);
 	}
 	
 	@Override
@@ -242,7 +242,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onRightShift(exec, other);
+		return super.onRightShiftInternal(exec, other);
 	}
 	
 	@Override
@@ -254,7 +254,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onMultiply(exec, other);
+		return super.onMultiplyInternal(exec, other);
 	}
 	
 	@Override
@@ -266,7 +266,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onDivide(exec, other);
+		return super.onDivideInternal(exec, other);
 	}
 	
 	@Override
@@ -278,7 +278,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onRemainder(exec, other);
+		return super.onRemainderInternal(exec, other);
 	}
 	
 	@Override
@@ -290,7 +290,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onPower(exec, other);
+		return super.onPowerInternal(exec, other);
 	}
 	
 	@Override
@@ -302,7 +302,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onIdivide(exec, other);
+		return super.onIdivideInternal(exec, other);
 	}
 	
 	@Override
@@ -314,7 +314,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 				return TokenResult.PASS;
 			}
 		}
-		return super.onModulo(exec, other);
+		return super.onModuloInternal(exec, other);
 	}
 	
 	@Override
@@ -331,7 +331,7 @@ public abstract class PrimitiveElement<@NonNull RAW, @NonNull VALUE extends @Non
 	}
 	
 	@Override
-	public @NonNull Element __str__(TokenExecutor exec) {
+	public @NonNull StringElement __str__(TokenExecutor exec) {
 		String stringValue = value.stringValue(true);
 		return stringValue == null ? super.__str__(exec) : new StringElement(interpreter, stringValue);
 	}

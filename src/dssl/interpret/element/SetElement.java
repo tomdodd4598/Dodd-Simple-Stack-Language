@@ -12,24 +12,33 @@ import dssl.interpret.element.primitive.StringElement;
 
 public class SetElement extends Element {
 	
-	public final Set<@NonNull Element> value;
+	public final Set<@NonNull ElementKey> value;
 	
-	public <T extends Element> SetElement(Interpreter interpreter, Consumer<Consumer<@NonNull T>> forEach) {
-		super(interpreter, interpreter.builtIn.setClazz);
+	public <T extends Element> SetElement(TokenExecutor exec, Consumer<Consumer<@NonNull T>> forEach) {
+		super(exec.interpreter, exec.interpreter.builtIn.setClazz);
 		value = new HashSet<>();
-		forEach.accept(value::add);
+		forEach.accept(x -> value.add(x.toKey(exec)));
 	}
 	
-	public <T extends Element> SetElement(Interpreter interpreter, Iterable<@NonNull T> elems) {
-		this(interpreter, elems::forEach);
+	public <T extends Element> SetElement(TokenExecutor exec, Iterable<@NonNull T> elems) {
+		this(exec, elems::forEach);
 	}
 	
-	public <T extends Element> SetElement(Interpreter interpreter, Iterator<@NonNull T> elems) {
-		this(interpreter, elems::forEachRemaining);
+	public <T extends Element> SetElement(TokenExecutor exec, Iterator<@NonNull T> elems) {
+		this(exec, elems::forEachRemaining);
 	}
 	
-	public <T extends Element> SetElement(Interpreter interpreter, Stream<@NonNull T> elems) {
-		this(interpreter, elems::forEach);
+	public <T extends Element> SetElement(TokenExecutor exec, Stream<@NonNull T> elems) {
+		this(exec, elems::forEach);
+	}
+	
+	public SetElement(Interpreter interpreter, Set<@NonNull ElementKey> set) {
+		super(interpreter, interpreter.builtIn.setClazz);
+		value = set;
+	}
+	
+	public SetElement(Interpreter interpreter, Stream<@NonNull ElementKey> keys) {
+		this(interpreter, keys.collect(Collectors.toSet()));
 	}
 	
 	@Override
@@ -39,7 +48,7 @@ public class SetElement extends Element {
 	
 	@Override
 	public @NonNull ListElement listCast(TokenExecutor exec) {
-		return new ListElement(interpreter, value);
+		return new ListElement(interpreter, value.stream().map(x -> x.elem));
 	}
 	
 	@Override
@@ -51,7 +60,7 @@ public class SetElement extends Element {
 	public @NonNull IterElement iterator(TokenExecutor exec) {
 		return new IterElement(interpreter) {
 			
-			final Iterator<@NonNull Element> internal = value.iterator();
+			final Iterator<@NonNull ElementKey> internal = value.iterator();
 			
 			@Override
 			public boolean hasNext(TokenExecutor exec) {
@@ -61,15 +70,20 @@ public class SetElement extends Element {
 			@SuppressWarnings("null")
 			@Override
 			public @NonNull Element next(TokenExecutor exec) {
-				return internal.next();
+				return internal.next().elem;
 			}
 		};
 	}
 	
 	@Override
+	public @NonNull Element iter(TokenExecutor exec) {
+		return iterator(exec);
+	}
+	
+	@Override
 	public void unpack(TokenExecutor exec) {
-		for (@NonNull Element elem : value) {
-			exec.push(elem);
+		for (@NonNull ElementKey key : value) {
+			exec.push(key.elem);
 		}
 	}
 	
@@ -85,17 +99,17 @@ public class SetElement extends Element {
 	
 	@Override
 	public boolean contains(TokenExecutor exec, @NonNull Element elem) {
-		return value.contains(elem);
+		return value.contains(elem.toKey(exec));
 	}
 	
 	@Override
 	public void add(TokenExecutor exec, @NonNull Element elem) {
-		value.add(elem);
+		value.add(elem.toKey(exec));
 	}
 	
 	@Override
 	public void remove(TokenExecutor exec, @NonNull Element elem) {
-		value.remove(elem);
+		value.remove(elem.toKey(exec));
 	}
 	
 	@Override
@@ -145,23 +159,18 @@ public class SetElement extends Element {
 	}
 	
 	@Override
-	public @NonNull Element __str__(TokenExecutor exec) {
+	public @NonNull StringElement __str__(TokenExecutor exec) {
 		return stringCast(exec);
 	}
 	
 	@Override
-	public @NonNull Element __debug__(TokenExecutor exec) {
+	public @NonNull StringElement __debug__(TokenExecutor exec) {
 		return new StringElement(interpreter, debug(exec));
 	}
 	
 	@Override
-	public @NonNull Element __iter__(TokenExecutor exec) {
-		return iterator(exec);
-	}
-	
-	@Override
 	public @NonNull Element clone() {
-		return new SetElement(interpreter, value);
+		return new SetElement(interpreter, value.stream().map(ElementKey::clone));
 	}
 	
 	@Override
@@ -180,6 +189,6 @@ public class SetElement extends Element {
 	@SuppressWarnings("null")
 	@Override
 	public @NonNull String toString(TokenExecutor exec) {
-		return value.stream().map(x -> x.innerString(exec, this)).collect(Collectors.joining(", ", "(|", "|)"));
+		return value.stream().map(x -> x.elem.innerString(exec, this)).collect(Collectors.joining(", ", "(|", "|)"));
 	}
 }

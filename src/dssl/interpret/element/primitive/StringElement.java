@@ -30,7 +30,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	
 	@Override
 	public @NonNull SetElement setCast(TokenExecutor exec) {
-		return new SetElement(interpreter, internalIterable(exec));
+		return new SetElement(interpreter, internalStream(exec).map(x -> x.toKey(exec)));
 	}
 	
 	@Override
@@ -61,6 +61,11 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 				return new CharElement(interpreter, value.raw.charAt(index++));
 			}
 		};
+	}
+	
+	@Override
+	public @NonNull Element iter(TokenExecutor exec) {
+		return iterator(exec);
 	}
 	
 	@Override
@@ -127,6 +132,26 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	@Override
 	public @NonNull Element last(TokenExecutor exec) {
 		return new CharElement(interpreter, value.raw.charAt(value.raw.length() - 1));
+	}
+	
+	@Override
+	public @NonNull Element indexOf(TokenExecutor exec, @NonNull Element elem) {
+		if (!(elem instanceof CharElement) && !(elem instanceof StringElement)) {
+			throw new IllegalArgumentException(String.format("Built-in method \"indexOf\" requires %s or %s element as argument!", BuiltIn.CHAR, BuiltIn.STRING));
+		}
+		
+		int index = value.raw.indexOf(elem.toString(exec));
+		return index < 0 ? interpreter.builtIn.nullElement : new IntElement(interpreter, index);
+	}
+	
+	@Override
+	public @NonNull Element lastIndexOf(TokenExecutor exec, @NonNull Element elem) {
+		if (!(elem instanceof CharElement) && !(elem instanceof StringElement)) {
+			throw new IllegalArgumentException(String.format("Built-in method \"lastIndexOf\" requires %s or %s element as argument!", BuiltIn.CHAR, BuiltIn.STRING));
+		}
+		
+		int index = value.raw.lastIndexOf(elem.toString(exec));
+		return index < 0 ? interpreter.builtIn.nullElement : new IntElement(interpreter, index);
 	}
 	
 	@Override
@@ -208,18 +233,13 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	}
 	
 	@Override
-	public @NonNull Element __str__(TokenExecutor exec) {
+	public @NonNull StringElement __str__(TokenExecutor exec) {
 		return this;
 	}
 	
 	@Override
-	public @NonNull Element __debug__(TokenExecutor exec) {
+	public @NonNull StringElement __debug__(TokenExecutor exec) {
 		return new StringElement(interpreter, debug(exec));
-	}
-	
-	@Override
-	public @NonNull Element __iter__(TokenExecutor exec) {
-		return iterator(exec);
 	}
 	
 	@Override

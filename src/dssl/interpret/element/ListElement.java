@@ -52,7 +52,7 @@ public class ListElement extends Element {
 	
 	@Override
 	public @NonNull SetElement setCast(TokenExecutor exec) {
-		return new SetElement(interpreter, value);
+		return new SetElement(interpreter, value.stream().map(x -> x.toKey(exec)));
 	}
 	
 	@Override
@@ -75,6 +75,11 @@ public class ListElement extends Element {
 	}
 	
 	@Override
+	public @NonNull Element iter(TokenExecutor exec) {
+		return iterator(exec);
+	}
+	
+	@Override
 	public void unpack(TokenExecutor exec) {
 		for (@NonNull Element elem : value) {
 			exec.push(elem);
@@ -93,7 +98,12 @@ public class ListElement extends Element {
 	
 	@Override
 	public boolean contains(TokenExecutor exec, @NonNull Element elem) {
-		return value.contains(elem);
+		for (@NonNull Element e : value) {
+			if (elem.dynEqualTo(exec, e)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	@Override
@@ -190,7 +200,13 @@ public class ListElement extends Element {
 	
 	@Override
 	public void removeValue(TokenExecutor exec, @NonNull Element elem) {
-		value.remove(elem);
+		int size = value.size();
+		for (int i = 0; i < size; ++i) {
+			if (elem.dynEqualTo(exec, value.get(i))) {
+				value.remove(i);
+				return;
+			}
+		}
 	}
 	
 	@Override
@@ -217,13 +233,34 @@ public class ListElement extends Element {
 	}
 	
 	@Override
+	public @NonNull Element indexOf(TokenExecutor exec, @NonNull Element elem) {
+		int size = value.size();
+		for (int i = 0; i < size; ++i) {
+			if (elem.dynEqualTo(exec, value.get(i))) {
+				return new IntElement(interpreter, i);
+			}
+		}
+		return interpreter.builtIn.nullElement;
+	}
+	
+	@Override
+	public @NonNull Element lastIndexOf(TokenExecutor exec, @NonNull Element elem) {
+		for (int i = value.size() - 1; i >= 0; --i) {
+			if (elem.dynEqualTo(exec, value.get(i))) {
+				return new IntElement(interpreter, i);
+			}
+		}
+		return interpreter.builtIn.nullElement;
+	}
+	
+	@Override
 	public void reverse(TokenExecutor exec) {
 		Collections.reverse(value);
 	}
 	
 	@Override
 	public void sort(TokenExecutor exec) {
-		Collections.sort(value, (x, y) -> x.compareTo(exec, y));
+		Collections.sort(value, (x, y) -> x.dynCompareTo(exec, y));
 	}
 	
 	@Override
@@ -253,28 +290,37 @@ public class ListElement extends Element {
 	}
 	
 	@Override
+	public @NonNull Element clone(TokenExecutor exec) {
+		return new ListElement(interpreter, value.stream().map(x -> x.dynClone(exec)));
+	}
+	
+	@Override
+	public int hash(TokenExecutor exec) {
+		int hash = BuiltIn.LIST.hashCode();
+		for (@NonNull Element elem : value) {
+			hash = 31 * hash + elem.dynHash(exec);
+		}
+		return hash;
+	}
+	
+	@Override
 	public @NonNull String debug(TokenExecutor exec) {
 		return "[...]";
 	}
 	
 	@Override
-	public @NonNull Element __str__(TokenExecutor exec) {
+	public @NonNull StringElement __str__(TokenExecutor exec) {
 		return stringCast(exec);
 	}
 	
 	@Override
-	public @NonNull Element __debug__(TokenExecutor exec) {
+	public @NonNull StringElement __debug__(TokenExecutor exec) {
 		return new StringElement(interpreter, debug(exec));
 	}
 	
 	@Override
-	public @NonNull Element __iter__(TokenExecutor exec) {
-		return iterator(exec);
-	}
-	
-	@Override
 	public @NonNull Element clone() {
-		return new ListElement(interpreter, value);
+		return new ListElement(interpreter, value.stream().map(Element::clone));
 	}
 	
 	@Override

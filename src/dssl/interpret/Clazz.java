@@ -68,12 +68,12 @@ public class Clazz implements HierarchicalScope {
 	
 	@Override
 	public boolean canShadow() {
-		return type.canExtend();
+		return type.canModify();
 	}
 	
 	@Override
 	public boolean canDelete() {
-		return type.canExtend();
+		return type.canModify();
 	}
 	
 	@Override

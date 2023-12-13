@@ -198,8 +198,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	@FunctionalInterface
 	protected static interface TokenFunction {
 		
-		@NonNull
-		TokenResult apply(TokenExecutor exec, @NonNull Token token);
+		public @NonNull TokenResult apply(TokenExecutor exec, @NonNull Token token);
 	}
 	
 	protected static class TokenFunctionMap {
@@ -383,7 +382,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	protected @NonNull TokenResult onDictRBracket(@NonNull Token token) {
-		push(new DictElement(interpreter, getElemsToLBracket(interpreter.builtIn.dictLBracketElement, interpreter.builtIn.dictRBracketElement)));
+		push(new DictElement(this, getElemsToLBracket(interpreter.builtIn.dictLBracketElement, interpreter.builtIn.dictRBracketElement)));
 		return TokenResult.PASS;
 	}
 	
@@ -393,7 +392,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	protected @NonNull TokenResult onSetRBracket(@NonNull Token token) {
-		push(new SetElement(interpreter, getElemsToLBracket(interpreter.builtIn.setLBracketElement, interpreter.builtIn.setRBracketElement)));
+		push(new SetElement(this, getElemsToLBracket(interpreter.builtIn.setLBracketElement, interpreter.builtIn.setRBracketElement)));
 		return TokenResult.PASS;
 	}
 	
@@ -1029,7 +1028,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			return TokenResult.PASS;
 		}
 		
-		TokenResult result = elem.memberAction(this, member);
+		TokenResult result = elem.memberAction(this, member, true);
 		if (result == null) {
 			throw elem.memberAccessError(member);
 		}

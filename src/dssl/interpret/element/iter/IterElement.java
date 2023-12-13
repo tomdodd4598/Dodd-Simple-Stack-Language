@@ -55,22 +55,22 @@ public abstract class IterElement extends Element {
 	
 	@Override
 	public @NonNull Element collectSet(TokenExecutor exec) {
-		return new SetElement(interpreter, internalIterator(exec));
+		return new SetElement(interpreter, internalStream(exec).map(x -> x.toKey(exec)));
 	}
 	
 	@Override
 	public @NonNull Element collectDict(TokenExecutor exec) {
 		Iterator<@NonNull Element> iter = internalIterator(exec);
-		Map<@NonNull Element, @NonNull Element> map = new HashMap<>();
+		Map<@NonNull ElementKey, @NonNull Element> map = new HashMap<>();
 		while (iter.hasNext()) {
 			@SuppressWarnings("null") @Nullable IterElement iterElem = iter.next().iterator(exec);
 			if (iterElem == null) {
 				throw new IllegalArgumentException(String.format("Built-in method \"collectDict\" requires \"() -> %s\" %s element as argument!", BuiltIn.ITERABLE, BuiltIn.ITER));
 			}
-			map.put(iterElem.next(exec), iterElem.next(exec));
+			map.put(iterElem.next(exec).toKey(exec), iterElem.next(exec));
 		}
 		
-		return new DictElement(interpreter, map, false);
+		return new DictElement(interpreter, map);
 	}
 	
 	@Override
@@ -227,7 +227,7 @@ public abstract class IterElement extends Element {
 		Iterator<@NonNull Element> iter = internalIterator(exec);
 		while (iter.hasNext()) {
 			@SuppressWarnings("null") @NonNull Element elem = iter.next();
-			if (curr.equals(interpreter.builtIn.nullElement) || elem.compareTo(exec, curr) < 0) {
+			if (curr.equals(interpreter.builtIn.nullElement) || elem.dynCompareTo(exec, curr) < 0) {
 				curr = elem;
 			}
 		}
@@ -240,7 +240,7 @@ public abstract class IterElement extends Element {
 		Iterator<@NonNull Element> iter = internalIterator(exec);
 		while (iter.hasNext()) {
 			@SuppressWarnings("null") @NonNull Element elem = iter.next();
-			if (curr.equals(interpreter.builtIn.nullElement) || elem.compareTo(exec, curr) > 0) {
+			if (curr.equals(interpreter.builtIn.nullElement) || elem.dynCompareTo(exec, curr) > 0) {
 				curr = elem;
 			}
 		}
@@ -271,7 +271,7 @@ public abstract class IterElement extends Element {
 	
 	@Override
 	public @NonNull Element clone() {
-		throw builtInMethodError("clone");
+		throw new IllegalArgumentException(String.format("Elements of type \"%s\" can not be cloned!", BuiltIn.ITER));
 	}
 	
 	@Override

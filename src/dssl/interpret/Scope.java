@@ -39,7 +39,7 @@ public interface Scope {
 	
 	public Def getDef(@NonNull String identifier);
 	
-	public Def setDef(@NonNull String identifier, @NonNull Element value, boolean shadow);
+	public void setDef(@NonNull String identifier, @NonNull Element value, boolean shadow);
 	
 	public Def removeDef(@NonNull String identifier);
 	
@@ -47,7 +47,7 @@ public interface Scope {
 	
 	public Macro getMacro(@NonNull String identifier);
 	
-	public Macro setMacro(@NonNull String identifier, @NonNull Invokable invokable);
+	public void setMacro(@NonNull String identifier, @NonNull Invokable invokable);
 	
 	public Macro removeMacro(@NonNull String identifier);
 	
@@ -55,9 +55,9 @@ public interface Scope {
 	
 	public Clazz getClazz(@NonNull String shallowIdentifier);
 	
-	public Clazz setClazz(Interpreter interpreter, @NonNull String shallowIdentifier, @NonNull ClazzType type, @Nullable HierarchicalScope base, @NonNull ArrayList<Clazz> supers);
+	public void setClazz(Interpreter interpreter, @NonNull String shallowIdentifier, @NonNull ClazzType type, @Nullable HierarchicalScope base, @NonNull ArrayList<Clazz> supers);
 	
 	public Clazz removeClazz(@NonNull String shallowIdentifier);
 	
-	public void addToScopeMap(TokenExecutor exec, @NonNull Map<@NonNull Element, @NonNull Element> map);
+	public void addToScopeMap(TokenExecutor exec, @NonNull Map<@NonNull ElementKey, @NonNull Element> map);
 }

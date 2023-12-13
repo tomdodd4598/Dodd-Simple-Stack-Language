@@ -55,11 +55,11 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public Def setDef(@NonNull String identifier, @NonNull Element value, boolean shadow) {
+	public void setDef(@NonNull String identifier, @NonNull Element value, boolean shadow) {
 		if (shadow) {
 			checkCollision(identifier);
 		}
-		return defMap.put(identifier, new Def(identifier, value));
+		defMap.put(identifier, new Def(identifier, value));
 	}
 	
 	@Override
@@ -78,9 +78,9 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public Macro setMacro(@NonNull String identifier, @NonNull Invokable invokable) {
+	public void setMacro(@NonNull String identifier, @NonNull Invokable invokable) {
 		checkCollision(identifier);
-		return macroMap.put(identifier, new Macro(identifier, invokable));
+		macroMap.put(identifier, new Macro(identifier, invokable));
 	}
 	
 	@Override
@@ -99,9 +99,9 @@ public class InstanceElement extends Element implements Scope {
 	}
 	
 	@Override
-	public Clazz setClazz(Interpreter interpreter, @NonNull String shallowIdentifier, @NonNull ClazzType type, @Nullable HierarchicalScope base, @NonNull ArrayList<Clazz> supers) {
+	public void setClazz(Interpreter interpreter, @NonNull String shallowIdentifier, @NonNull ClazzType type, @Nullable HierarchicalScope base, @NonNull ArrayList<Clazz> supers) {
 		checkCollision(shallowIdentifier);
-		return clazzMap.put(shallowIdentifier, new Clazz(interpreter, scopeIdentifier, shallowIdentifier, type, base, supers));
+		clazzMap.put(shallowIdentifier, new Clazz(interpreter, scopeIdentifier, shallowIdentifier, type, base, supers));
 	}
 	
 	@Override
@@ -111,21 +111,21 @@ public class InstanceElement extends Element implements Scope {
 	
 	@Override
 	public @Nullable IterElement iterator(TokenExecutor exec) {
-		TokenResult result = memberAction(exec, "__iter__");
+		TokenResult result = memberAction(exec, "iter", false);
 		return result == null ? null : (IterElement) exec.pop();
 	}
 	
-	protected <T> void addToScopeMap(Map<@NonNull String, T> source, Map<@NonNull Element, @NonNull Element> target) {
+	protected <T> void addToScopeMap(TokenExecutor exec, Map<@NonNull String, T> source, Map<@NonNull ElementKey, @NonNull Element> target) {
 		for (String key : source.keySet()) {
-			target.put(new StringElement(interpreter, key), new LabelElement(interpreter, this, key));
+			target.put(new StringElement(interpreter, key).toKey(exec), new LabelElement(interpreter, this, key));
 		}
 	}
 	
 	@Override
-	public void addToScopeMap(TokenExecutor exec, @NonNull Map<@NonNull Element, @NonNull Element> map) {
-		addToScopeMap(defMap, map);
-		addToScopeMap(macroMap, map);
-		addToScopeMap(clazzMap, map);
+	public void addToScopeMap(TokenExecutor exec, @NonNull Map<@NonNull ElementKey, @NonNull Element> map) {
+		addToScopeMap(exec, defMap, map);
+		addToScopeMap(exec, macroMap, map);
+		addToScopeMap(exec, clazzMap, map);
 	}
 	
 	@Override
@@ -140,14 +140,14 @@ public class InstanceElement extends Element implements Scope {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash("instance", clazz, defMap, clazzMap);
+		return Objects.hash("instance", clazz, defMap, macroMap, clazzMap);
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof InstanceElement) {
 			InstanceElement other = (InstanceElement) obj;
-			return clazz.equals(other.clazz) && defMap.equals(other.defMap) && clazzMap.equals(other.clazzMap);
+			return clazz.equals(other.clazz) && defMap.equals(other.defMap) && macroMap.equals(other.macroMap) && clazzMap.equals(other.clazzMap);
 		}
 		return false;
 	}

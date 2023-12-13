@@ -35,7 +35,7 @@ public class FloatElement extends PrimitiveElement<@NonNull Double, @NonNull Flo
 	
 	@Override
 	public @NonNull Element clone() {
-		return new FloatElement(interpreter, primitiveFloat());
+		return new FloatElement(interpreter, value.raw);
 	}
 	
 	@Override

@@ -31,7 +31,7 @@ public class BoolElement extends PrimitiveElement<@NonNull Boolean, @NonNull Boo
 	
 	@Override
 	public @NonNull Element clone() {
-		return new BoolElement(interpreter, primitiveBool());
+		return new BoolElement(interpreter, value.raw);
 	}
 	
 	@Override

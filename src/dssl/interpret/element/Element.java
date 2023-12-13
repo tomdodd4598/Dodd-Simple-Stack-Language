@@ -73,10 +73,7 @@ public abstract class Element {
 	
 	public @NonNull StringElement stringCast(TokenExecutor exec) {
 		TokenResult magic = magicAction(exec, "__str__");
-		if (magic != null) {
-			return exec.pop().stringCastInternal(exec);
-		}
-		return stringCastInternal(exec);
+		return (magic == null ? this : exec.pop()).stringCastInternal(exec);
 	}
 	
 	public @NonNull RangeElement rangeCast(TokenExecutor exec) {
@@ -109,12 +106,80 @@ public abstract class Element {
 		return TokenResult.PASS;
 	}
 	
+	protected @NonNull TokenResult onLessThanInternal(TokenExecutor exec, @NonNull Element other) {
+		throw binaryOpError("<", other);
+	}
+	
+	protected @NonNull TokenResult onLessOrEqualInternal(TokenExecutor exec, @NonNull Element other) {
+		throw binaryOpError("<=", other);
+	}
+	
+	protected @NonNull TokenResult onMoreThanInternal(TokenExecutor exec, @NonNull Element other) {
+		throw binaryOpError(">", other);
+	}
+	
+	protected @NonNull TokenResult onMoreOrEqualInternal(TokenExecutor exec, @NonNull Element other) {
+		throw binaryOpError(">=", other);
+	}
+	
+	protected @NonNull TokenResult onPlusInternal(TokenExecutor exec, @NonNull Element other) {
+		throw binaryOpError("+", other);
+	}
+	
+	protected @NonNull TokenResult onAndInternal(TokenExecutor exec, @NonNull Element other) {
+		throw binaryOpError("&", other);
+	}
+	
+	protected @NonNull TokenResult onOrInternal(TokenExecutor exec, @NonNull Element other) {
+		throw binaryOpError("|", other);
+	}
+	
+	protected @NonNull TokenResult onXorInternal(TokenExecutor exec, @NonNull Element other) {
+		throw binaryOpError("^", other);
+	}
+	
+	protected @NonNull TokenResult onMinusInternal(TokenExecutor exec, @NonNull Element other) {
+		throw binaryOpError("-", other);
+	}
+	
 	protected @NonNull TokenResult onConcatInternal(TokenExecutor exec, @NonNull Element other) {
 		if (other instanceof StringElement) {
 			exec.push(new StringElement(interpreter, stringCast(exec).toString(exec) + other.toString(exec)));
 			return TokenResult.PASS;
 		}
 		throw binaryOpError("~", other);
+	}
+	
+	protected @NonNull TokenResult onLeftShiftInternal(TokenExecutor exec, @NonNull Element other) {
+		throw binaryOpError("<<", other);
+	}
+	
+	protected @NonNull TokenResult onRightShiftInternal(TokenExecutor exec, @NonNull Element other) {
+		throw binaryOpError(">>", other);
+	}
+	
+	protected @NonNull TokenResult onMultiplyInternal(TokenExecutor exec, @NonNull Element other) {
+		throw binaryOpError("*", other);
+	}
+	
+	protected @NonNull TokenResult onDivideInternal(TokenExecutor exec, @NonNull Element other) {
+		throw binaryOpError("/", other);
+	}
+	
+	protected @NonNull TokenResult onRemainderInternal(TokenExecutor exec, @NonNull Element other) {
+		throw binaryOpError("%", other);
+	}
+	
+	protected @NonNull TokenResult onPowerInternal(TokenExecutor exec, @NonNull Element other) {
+		throw binaryOpError("**", other);
+	}
+	
+	protected @NonNull TokenResult onIdivideInternal(TokenExecutor exec, @NonNull Element other) {
+		throw binaryOpError("//", other);
+	}
+	
+	protected @NonNull TokenResult onModuloInternal(TokenExecutor exec, @NonNull Element other) {
+		throw binaryOpError("%%", other);
 	}
 	
 	public @NonNull TokenResult onEqualTo(TokenExecutor exec, @NonNull Element other) {
@@ -138,7 +203,7 @@ public abstract class Element {
 		if (magic != null) {
 			return magic;
 		}
-		throw binaryOpError("<", other);
+		return onLessThanInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult onLessOrEqual(TokenExecutor exec, @NonNull Element other) {
@@ -146,7 +211,7 @@ public abstract class Element {
 		if (magic != null) {
 			return magic;
 		}
-		throw binaryOpError("<=", other);
+		return onLessOrEqualInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult onMoreThan(TokenExecutor exec, @NonNull Element other) {
@@ -154,7 +219,7 @@ public abstract class Element {
 		if (magic != null) {
 			return magic;
 		}
-		throw binaryOpError(">", other);
+		return onMoreThanInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult onMoreOrEqual(TokenExecutor exec, @NonNull Element other) {
@@ -162,7 +227,7 @@ public abstract class Element {
 		if (magic != null) {
 			return magic;
 		}
-		throw binaryOpError(">=", other);
+		return onMoreOrEqualInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult onPlus(TokenExecutor exec, @NonNull Element other) {
@@ -170,7 +235,7 @@ public abstract class Element {
 		if (magic != null) {
 			return magic;
 		}
-		throw binaryOpError("+", other);
+		return onPlusInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult onAnd(TokenExecutor exec, @NonNull Element other) {
@@ -178,7 +243,7 @@ public abstract class Element {
 		if (magic != null) {
 			return magic;
 		}
-		throw binaryOpError("&", other);
+		return onAndInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult onOr(TokenExecutor exec, @NonNull Element other) {
@@ -186,7 +251,7 @@ public abstract class Element {
 		if (magic != null) {
 			return magic;
 		}
-		throw binaryOpError("|", other);
+		return onOrInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult onXor(TokenExecutor exec, @NonNull Element other) {
@@ -194,7 +259,7 @@ public abstract class Element {
 		if (magic != null) {
 			return magic;
 		}
-		throw binaryOpError("^", other);
+		return onXorInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult onMinus(TokenExecutor exec, @NonNull Element other) {
@@ -202,7 +267,7 @@ public abstract class Element {
 		if (magic != null) {
 			return magic;
 		}
-		throw binaryOpError("-", other);
+		return onMinusInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult onConcat(TokenExecutor exec, @NonNull Element other) {
@@ -218,7 +283,7 @@ public abstract class Element {
 		if (magic != null) {
 			return magic;
 		}
-		throw binaryOpError("<<", other);
+		return onLeftShiftInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult onRightShift(TokenExecutor exec, @NonNull Element other) {
@@ -226,7 +291,7 @@ public abstract class Element {
 		if (magic != null) {
 			return magic;
 		}
-		throw binaryOpError(">>", other);
+		return onRightShiftInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult onMultiply(TokenExecutor exec, @NonNull Element other) {
@@ -234,7 +299,7 @@ public abstract class Element {
 		if (magic != null) {
 			return magic;
 		}
-		throw binaryOpError("*", other);
+		return onMultiplyInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult onDivide(TokenExecutor exec, @NonNull Element other) {
@@ -242,7 +307,7 @@ public abstract class Element {
 		if (magic != null) {
 			return magic;
 		}
-		throw binaryOpError("/", other);
+		return onDivideInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult onRemainder(TokenExecutor exec, @NonNull Element other) {
@@ -250,7 +315,7 @@ public abstract class Element {
 		if (magic != null) {
 			return magic;
 		}
-		throw binaryOpError("%", other);
+		return onRemainderInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult onPower(TokenExecutor exec, @NonNull Element other) {
@@ -258,7 +323,7 @@ public abstract class Element {
 		if (magic != null) {
 			return magic;
 		}
-		throw binaryOpError("**", other);
+		return onPowerInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult onIdivide(TokenExecutor exec, @NonNull Element other) {
@@ -266,7 +331,7 @@ public abstract class Element {
 		if (magic != null) {
 			return magic;
 		}
-		throw binaryOpError("//", other);
+		return onIdivideInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult onModulo(TokenExecutor exec, @NonNull Element other) {
@@ -274,11 +339,15 @@ public abstract class Element {
 		if (magic != null) {
 			return magic;
 		}
-		throw binaryOpError("%%", other);
+		return onModuloInternal(exec, other);
 	}
 	
 	protected RuntimeException unaryOpError(String operator) {
 		return new IllegalArgumentException(String.format("Unary operator \"%s\" is undefined for argument type \"%s\"!", operator, typeName()));
+	}
+	
+	public @NonNull TokenResult onNotInternal(TokenExecutor exec) {
+		throw unaryOpError("!");
 	}
 	
 	public @NonNull TokenResult onNot(TokenExecutor exec) {
@@ -286,7 +355,7 @@ public abstract class Element {
 		if (magic != null) {
 			return magic;
 		}
-		throw unaryOpError("!");
+		return onNotInternal(exec);
 	}
 	
 	public @Nullable IterElement iterator(TokenExecutor exec) {
@@ -305,6 +374,10 @@ public abstract class Element {
 	
 	protected RuntimeException builtInMethodError(String name) {
 		return new IllegalArgumentException(String.format("Built-in method \"%s\" is undefined for argument type \"%s\"!", name, typeName()));
+	}
+	
+	public @NonNull Element iter(TokenExecutor exec) {
+		throw builtInMethodError("iter");
 	}
 	
 	public void unpack(TokenExecutor exec) {
@@ -429,6 +502,14 @@ public abstract class Element {
 	
 	public @NonNull Element last(TokenExecutor exec) {
 		throw builtInMethodError("last");
+	}
+	
+	public @NonNull Element indexOf(TokenExecutor exec, @NonNull Element elem) {
+		throw builtInMethodError("indexOf");
+	}
+	
+	public @NonNull Element lastIndexOf(TokenExecutor exec, @NonNull Element elem) {
+		throw builtInMethodError("lastIndexOf");
 	}
 	
 	public void reverse(TokenExecutor exec) {
@@ -591,7 +672,34 @@ public abstract class Element {
 		throw builtInMethodError("supers");
 	}
 	
-	public int compareTo(TokenExecutor exec, @NonNull Element elem) {
+	public @NonNull Element dynClone(TokenExecutor exec) {
+		memberAction(exec, "clone", false);
+		return exec.pop();
+	}
+	
+	public int dynHash(TokenExecutor exec) {
+		memberAction(exec, "hash", false);
+		
+		IntElement result = exec.pop().asInt(exec);
+		if (result == null) {
+			throw new IllegalArgumentException(String.format("Element hashing requires method \"hash\" to return %s element!", BuiltIn.INT));
+		}
+		
+		return result.value.raw.intValue();
+	}
+	
+	public boolean dynEqualTo(TokenExecutor exec, @NonNull Element elem) {
+		onEqualTo(exec, elem);
+		
+		BoolElement result = exec.pop().asBool(exec);
+		if (result == null) {
+			throw new IllegalArgumentException(String.format("Element equality check requires binary operator \"==\" to return %s element!", BuiltIn.BOOL));
+		}
+		
+		return result.primitiveBool();
+	}
+	
+	public int dynCompareTo(TokenExecutor exec, @NonNull Element elem) {
 		onEqualTo(exec, elem);
 		
 		BoolElement result = exec.pop().asBool(exec);
@@ -673,19 +781,15 @@ public abstract class Element {
 	}
 	
 	public @NonNull Element scope(TokenExecutor exec) {
-		Map<@NonNull Element, @NonNull Element> map = new HashMap<>();
-		
-		@Nullable Scope memberScope = getMemberScope(MemberAccessType.INSTANCE);
-		if (memberScope != null) {
-			memberScope.addToScopeMap(exec, map);
+		@Nullable Scope memberScope = getMemberScope(MemberAccessType.STATIC);
+		if (memberScope == null) {
+			throw builtInMethodError("scope");
 		}
-		
-		memberScope = getMemberScope(MemberAccessType.STATIC);
-		if (memberScope != null) {
+		else {
+			Map<@NonNull ElementKey, @NonNull Element> map = new HashMap<>();
 			memberScope.addToScopeMap(exec, map);
+			return new DictElement(interpreter, map);
 		}
-		
-		return new DictElement(interpreter, map, false);
 	}
 	
 	public @NonNull String debug(TokenExecutor exec) {
@@ -701,16 +805,18 @@ public abstract class Element {
 		return access.equals(MemberAccessType.STATIC) ? null : clazz;
 	}
 	
-	public @Nullable TokenResult memberAction(TokenExecutor exec, @NonNull String member) {
-		@Nullable Scope memberScope = getMemberScope(MemberAccessType.STATIC);
-		if (memberScope != null) {
-			TokenResult result = memberScope.scopeAction(exec, member);
-			if (result != null) {
-				return result;
+	public @Nullable TokenResult memberAction(TokenExecutor exec, @NonNull String member, boolean allowStatic) {
+		if (allowStatic) {
+			@Nullable Scope memberScope = getMemberScope(MemberAccessType.STATIC);
+			if (memberScope != null) {
+				TokenResult result = memberScope.scopeAction(exec, member);
+				if (result != null) {
+					return result;
+				}
 			}
 		}
 		
-		memberScope = getMemberScope(MemberAccessType.INSTANCE);
+		@Nullable Scope memberScope = getMemberScope(MemberAccessType.INSTANCE);
 		if (memberScope != null) {
 			exec.push(this);
 			return memberScope.scopeAction(exec, member);
@@ -770,30 +876,23 @@ public abstract class Element {
 	
 	public Object formatted(TokenExecutor exec) {
 		TokenResult magic = magicAction(exec, "__fmt__");
-		if (magic != null) {
-			return exec.pop().formattedInternal(exec);
-		}
-		return this;
+		return (magic == null ? this : exec.pop()).formattedInternal(exec);
 	}
 	
 	public @NonNull Element __init__(TokenExecutor exec) {
 		return this;
 	}
 	
-	public @NonNull Element __str__(TokenExecutor exec) {
-		return this;
+	public @NonNull StringElement __str__(TokenExecutor exec) {
+		return stringCastInternal(exec);
 	}
 	
-	public @NonNull Element __debug__(TokenExecutor exec) {
-		return this;
+	public @NonNull StringElement __debug__(TokenExecutor exec) {
+		return stringCastInternal(exec);
 	}
 	
 	public @NonNull Element __fmt__(TokenExecutor exec) {
 		return this;
-	}
-	
-	public @NonNull Element __iter__(TokenExecutor exec) {
-		throw builtInMethodError("__iter__");
 	}
 	
 	public @NonNull TokenResult __eq__(TokenExecutor exec, @NonNull Element other) {
@@ -805,39 +904,39 @@ public abstract class Element {
 	}
 	
 	public @NonNull TokenResult __lt__(TokenExecutor exec, @NonNull Element other) {
-		throw binaryOpError("<", other);
+		return onLessThanInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult __le__(TokenExecutor exec, @NonNull Element other) {
-		throw binaryOpError("<=", other);
+		return onLessOrEqualInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult __gt__(TokenExecutor exec, @NonNull Element other) {
-		throw binaryOpError(">", other);
+		return onMoreThanInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult __ge__(TokenExecutor exec, @NonNull Element other) {
-		throw binaryOpError(">=", other);
+		return onMoreOrEqualInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult __add__(TokenExecutor exec, @NonNull Element other) {
-		throw binaryOpError("+", other);
+		return onPlusInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult __and__(TokenExecutor exec, @NonNull Element other) {
-		throw binaryOpError("&", other);
+		return onAndInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult __or__(TokenExecutor exec, @NonNull Element other) {
-		throw binaryOpError("|", other);
+		return onOrInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult __xor__(TokenExecutor exec, @NonNull Element other) {
-		throw binaryOpError("^", other);
+		return onXorInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult __sub__(TokenExecutor exec, @NonNull Element other) {
-		throw binaryOpError("-", other);
+		return onMinusInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult __concat__(TokenExecutor exec, @NonNull Element other) {
@@ -845,39 +944,43 @@ public abstract class Element {
 	}
 	
 	public @NonNull TokenResult __lshift__(TokenExecutor exec, @NonNull Element other) {
-		throw binaryOpError("<<", other);
+		return onLeftShiftInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult __rshift__(TokenExecutor exec, @NonNull Element other) {
-		throw binaryOpError(">>", other);
+		return onRightShiftInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult __mul__(TokenExecutor exec, @NonNull Element other) {
-		throw binaryOpError("*", other);
+		return onMultiplyInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult __div__(TokenExecutor exec, @NonNull Element other) {
-		throw binaryOpError("/", other);
+		return onDivideInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult __rem__(TokenExecutor exec, @NonNull Element other) {
-		throw binaryOpError("%", other);
+		return onRemainderInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult __pow__(TokenExecutor exec, @NonNull Element other) {
-		throw binaryOpError("**", other);
+		return onPowerInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult __floordiv__(TokenExecutor exec, @NonNull Element other) {
-		throw binaryOpError("//", other);
+		return onIdivideInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult __mod__(TokenExecutor exec, @NonNull Element other) {
-		throw binaryOpError("%%", other);
+		return onModuloInternal(exec, other);
 	}
 	
 	public @NonNull TokenResult __not__(TokenExecutor exec) {
-		throw unaryOpError("!");
+		return onNotInternal(exec);
+	}
+	
+	public @NonNull ElementKey toKey(TokenExecutor exec) {
+		return new ElementKey(exec, this);
 	}
 	
 	@Override

@@ -255,7 +255,7 @@ public class BuiltIn {
 			@Override
 			public @NonNull TokenResult instantiate(TokenExecutor exec) {
 				@NonNull Element elem = exec.pop();
-				TokenResult result = elem.memberAction(exec, "__iter__");
+				TokenResult result = elem.memberAction(exec, "iter", false);
 				if (result == null) {
 					throw new IllegalArgumentException(String.format("Constructor for type \"%s\" requires %s element as argument!", ITER, ITERABLE));
 				}
@@ -413,8 +413,8 @@ public class BuiltIn {
 		}
 		
 		for (Clazz clazz : Arrays.asList(iterableClazz)) {
-			clazz.setMacro("__iter__", x -> {
-				x.push(x.pop().__iter__(x));
+			clazz.setMacro("iter", x -> {
+				x.push(x.pop().iter(x));
 				return TokenResult.PASS;
 			});
 			
@@ -472,6 +472,18 @@ public class BuiltIn {
 			
 			clazz.setMacro("last", x -> {
 				x.push(x.pop().last(x));
+				return TokenResult.PASS;
+			});
+			
+			clazz.setMacro("indexOf", x -> {
+				x.push(x.pop().indexOf(x, x.pop()));
+				return TokenResult.PASS;
+			});
+		}
+		
+		for (Clazz clazz : Arrays.asList(stringClazz, listClazz)) {
+			clazz.setMacro("lastIndexOf", x -> {
+				x.push(x.pop().lastIndexOf(x, x.pop()));
 				return TokenResult.PASS;
 			});
 		}

@@ -49,10 +49,10 @@ public class LabelElement extends Element {
 	}
 	
 	public void setDef(@NonNull Element value, boolean shadow) {
-		Def prev = scope.setDef(shallowIdentifier, value, shadow);
-		if (prev != null && !scope.canShadow()) {
+		if (shadow && !scope.canShadow() && scope.hasDef(shallowIdentifier, false)) {
 			throw shadowError("variable");
 		}
+		scope.setDef(shallowIdentifier, value, shadow);
 	}
 	
 	public Macro getMacro() {
@@ -60,10 +60,10 @@ public class LabelElement extends Element {
 	}
 	
 	public void setMacro(@NonNull BlockElement block) {
-		Macro prev = scope.setMacro(shallowIdentifier, block);
-		if (prev != null && !scope.canShadow()) {
+		if (!scope.canShadow() && scope.hasMacro(shallowIdentifier, false)) {
 			throw shadowError("macro");
 		}
+		scope.setMacro(shallowIdentifier, block);
 	}
 	
 	public Clazz getClazz() {
@@ -71,10 +71,10 @@ public class LabelElement extends Element {
 	}
 	
 	public void setClazz(@NonNull ClazzType type, @Nullable HierarchicalScope base, @NonNull ArrayList<Clazz> supers) {
-		Clazz prev = scope.setClazz(interpreter, shallowIdentifier, type, base, supers);
-		if (prev != null && !scope.canShadow()) {
+		if (!scope.canShadow() && scope.hasClazz(shallowIdentifier, false)) {
 			throw shadowError("class");
 		}
+		scope.setClazz(interpreter, shallowIdentifier, type, base, supers);
 	}
 	
 	protected RuntimeException shadowError(@NonNull String type) {

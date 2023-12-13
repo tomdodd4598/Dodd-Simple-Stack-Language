@@ -13,10 +13,11 @@ import dssl.interpret.element.primitive.StringElement;
 
 public class DictElement extends Element {
 	
-	public final Map<@NonNull Element, @NonNull Element> value;
+	public final Map<@NonNull ElementKey, @NonNull Element> value;
 	
-	public <T extends Element> DictElement(Interpreter interpreter, Reverse<@NonNull T> elems) {
-		super(interpreter, interpreter.builtIn.dictClazz);
+	@SuppressWarnings("null")
+	public <T extends Element> DictElement(TokenExecutor exec, Reverse<@NonNull T> elems) {
+		super(exec.interpreter, exec.interpreter.builtIn.dictClazz);
 		int elemCount = elems.size();
 		if ((elemCount & 1) == 1) {
 			throw new IllegalArgumentException(String.format("Constructor for type \"%s\" requires even number of arguments but received %s!", BuiltIn.DICT, elemCount));
@@ -25,13 +26,13 @@ public class DictElement extends Element {
 		value = new HashMap<>();
 		Iterator<@NonNull T> iter = elems.iterator();
 		while (iter.hasNext()) {
-			value.put(iter.next(), iter.next());
+			value.put(iter.next().toKey(exec), iter.next());
 		}
 	}
 	
-	public DictElement(Interpreter interpreter, Map<@NonNull Element, @NonNull Element> map, boolean copy) {
+	public DictElement(Interpreter interpreter, Map<@NonNull ElementKey, @NonNull Element> map) {
 		super(interpreter, interpreter.builtIn.dictClazz);
-		value = copy ? new HashMap<>(map) : map;
+		value = map;
 	}
 	
 	@Override
@@ -48,25 +49,32 @@ public class DictElement extends Element {
 	public @NonNull IterElement iterator(TokenExecutor exec) {
 		return new IterElement(interpreter) {
 			
-			final Iterator<Entry<@NonNull Element, @NonNull Element>> internal = value.entrySet().iterator();
+			final Iterator<Entry<@NonNull ElementKey, @NonNull Element>> internal = value.entrySet().iterator();
 			
 			@Override
 			public boolean hasNext(TokenExecutor exec) {
 				return internal.hasNext();
 			}
 			
+			@SuppressWarnings("null")
 			@Override
 			public @NonNull Element next(TokenExecutor exec) {
-				Entry<@NonNull Element, @NonNull Element> next = internal.next();
-				return new ListElement(interpreter, next.getKey(), next.getValue());
+				Entry<@NonNull ElementKey, @NonNull Element> next = internal.next();
+				return new ListElement(interpreter, next.getKey().elem, next.getValue());
 			}
 		};
 	}
 	
 	@Override
+	public @NonNull Element iter(TokenExecutor exec) {
+		return iterator(exec);
+	}
+	
+	@SuppressWarnings("null")
+	@Override
 	public void unpack(TokenExecutor exec) {
-		for (Entry<@NonNull Element, @NonNull Element> entry : value.entrySet()) {
-			exec.push(new ListElement(interpreter, entry.getKey(), entry.getValue()));
+		for (Entry<@NonNull ElementKey, @NonNull Element> entry : value.entrySet()) {
+			exec.push(new ListElement(interpreter, entry.getKey().elem, entry.getValue()));
 		}
 	}
 	
@@ -82,7 +90,7 @@ public class DictElement extends Element {
 	
 	@Override
 	public void remove(TokenExecutor exec, @NonNull Element elem) {
-		value.remove(elem);
+		value.remove(elem.toKey(exec));
 	}
 	
 	@Override
@@ -92,7 +100,7 @@ public class DictElement extends Element {
 			throw new IllegalArgumentException(String.format("Built-in method \"removeAll\" requires %s element as argument!", BuiltIn.ITERABLE));
 		}
 		for (@NonNull Element e : iterable) {
-			value.remove(e);
+			value.remove(e.toKey(exec));
 		}
 	}
 	
@@ -103,13 +111,13 @@ public class DictElement extends Element {
 	
 	@Override
 	public @NonNull Element get(TokenExecutor exec, @NonNull Element elem) {
-		@SuppressWarnings("null") Element get = value.get(elem);
+		@SuppressWarnings("null") Element get = value.get(elem.toKey(exec));
 		return get == null ? interpreter.builtIn.nullElement : get;
 	}
 	
 	@Override
 	public void put(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
-		value.put(elem0, elem1);
+		value.put(elem0.toKey(exec), elem1);
 	}
 	
 	@Override
@@ -127,7 +135,7 @@ public class DictElement extends Element {
 	
 	@Override
 	public boolean containsKey(TokenExecutor exec, @NonNull Element elem) {
-		return value.containsKey(elem);
+		return value.containsKey(elem.toKey(exec));
 	}
 	
 	@Override
@@ -137,13 +145,13 @@ public class DictElement extends Element {
 	
 	@Override
 	public boolean containsEntry(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
-		@SuppressWarnings("null") Element get = value.get(elem0);
+		@SuppressWarnings("null") Element get = value.get(elem0.toKey(exec));
 		return get == null ? false : get.equals(elem1);
 	}
 	
 	@Override
 	public @NonNull Element keys(TokenExecutor exec) {
-		return new SetElement(interpreter, value.keySet());
+		return new SetElement(exec, value.keySet().stream().map(x -> x.elem));
 	}
 	
 	@Override
@@ -153,7 +161,27 @@ public class DictElement extends Element {
 	
 	@Override
 	public @NonNull Element entries(TokenExecutor exec) {
-		return new SetElement(interpreter, internalIterable(exec));
+		return new SetElement(exec, internalIterable(exec));
+	}
+	
+	@SuppressWarnings("null")
+	@Override
+	public @NonNull Element clone(TokenExecutor exec) {
+		Map<@NonNull ElementKey, @NonNull Element> map = new HashMap<>();
+		for (Entry<@NonNull ElementKey, @NonNull Element> entry : value.entrySet()) {
+			map.put(entry.getKey().clone(), entry.getValue().dynClone(exec));
+		}
+		return new DictElement(interpreter, map);
+	}
+	
+	@SuppressWarnings("null")
+	@Override
+	public int hash(TokenExecutor exec) {
+		int hash = BuiltIn.LIST.hashCode();
+		for (Entry<@NonNull ElementKey, @NonNull Element> entry : value.entrySet()) {
+			hash = 31 * hash + (entry.getKey().hashCode() ^ entry.getValue().dynHash(exec));
+		}
+		return hash;
 	}
 	
 	@Override
@@ -162,23 +190,23 @@ public class DictElement extends Element {
 	}
 	
 	@Override
-	public @NonNull Element __str__(TokenExecutor exec) {
+	public @NonNull StringElement __str__(TokenExecutor exec) {
 		return stringCast(exec);
 	}
 	
 	@Override
-	public @NonNull Element __debug__(TokenExecutor exec) {
+	public @NonNull StringElement __debug__(TokenExecutor exec) {
 		return new StringElement(interpreter, debug(exec));
 	}
 	
-	@Override
-	public @NonNull Element __iter__(TokenExecutor exec) {
-		return iterator(exec);
-	}
-	
+	@SuppressWarnings("null")
 	@Override
 	public @NonNull Element clone() {
-		return new DictElement(interpreter, value, true);
+		Map<@NonNull ElementKey, @NonNull Element> map = new HashMap<>();
+		for (Entry<@NonNull ElementKey, @NonNull Element> entry : value.entrySet()) {
+			map.put(entry.getKey().clone(), entry.getValue().clone());
+		}
+		return new DictElement(interpreter, map);
 	}
 	
 	@Override
@@ -198,6 +226,6 @@ public class DictElement extends Element {
 	@Override
 	public @NonNull String toString(TokenExecutor exec) {
 		Function<@NonNull Element, @NonNull String> f = x -> x.innerString(exec, this);
-		return value.entrySet().stream().map(x -> f.apply(x.getKey()) + ":" + f.apply(x.getValue())).collect(Collectors.joining(", ", "[|", "|]"));
+		return value.entrySet().stream().map(x -> f.apply(x.getKey().elem) + ":" + f.apply(x.getValue())).collect(Collectors.joining(", ", "[|", "|]"));
 	}
 }

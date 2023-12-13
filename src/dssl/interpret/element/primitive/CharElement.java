@@ -36,7 +36,7 @@ public class CharElement extends PrimitiveElement<@NonNull Character, @NonNull C
 	
 	@Override
 	public @NonNull Element clone() {
-		return new CharElement(interpreter, primitiveChar());
+		return new CharElement(interpreter, value.raw);
 	}
 	
 	@Override

@@ -20,16 +20,16 @@ public interface HierarchicalScope extends Scope {
 		return getDefHierarchy().get(identifier, false);
 	}
 	
-	public default Def setDef(@NonNull String identifier, @NonNull Def def, boolean shadow) {
+	public default void setDef(@NonNull String identifier, @NonNull Def def, boolean shadow) {
 		if (shadow) {
 			checkCollision(identifier);
 		}
-		return getDefHierarchy().put(identifier, def, shadow);
+		getDefHierarchy().put(identifier, def, shadow);
 	}
 	
 	@Override
-	public default Def setDef(@NonNull String identifier, @NonNull Element value, boolean shadow) {
-		return setDef(identifier, new Def(identifier, value), shadow);
+	public default void setDef(@NonNull String identifier, @NonNull Element value, boolean shadow) {
+		setDef(identifier, new Def(identifier, value), shadow);
 	}
 	
 	@Override
@@ -47,14 +47,14 @@ public interface HierarchicalScope extends Scope {
 		return getMacroHierarchy().get(identifier, false);
 	}
 	
-	public default Macro setMacro(@NonNull String identifier, @NonNull Macro macro, boolean shadow) {
+	public default void setMacro(@NonNull String identifier, @NonNull Macro macro, boolean shadow) {
 		checkCollision(identifier);
-		return getMacroHierarchy().put(identifier, macro, shadow);
+		getMacroHierarchy().put(identifier, macro, shadow);
 	}
 	
 	@Override
-	public default Macro setMacro(@NonNull String identifier, @NonNull Invokable invokable) {
-		return setMacro(identifier, new Macro(identifier, invokable), true);
+	public default void setMacro(@NonNull String identifier, @NonNull Invokable invokable) {
+		setMacro(identifier, new Macro(identifier, invokable), true);
 	}
 	
 	@Override
@@ -72,14 +72,14 @@ public interface HierarchicalScope extends Scope {
 		return getClazzHierarchy().get(shallowIdentifier, false);
 	}
 	
-	public default Clazz setClazz(@NonNull String shallowIdentifier, @NonNull Clazz clazz, boolean shadow) {
+	public default void setClazz(@NonNull String shallowIdentifier, @NonNull Clazz clazz, boolean shadow) {
 		checkCollision(shallowIdentifier);
-		return getClazzHierarchy().put(shallowIdentifier, clazz, shadow);
+		getClazzHierarchy().put(shallowIdentifier, clazz, shadow);
 	}
 	
 	@Override
-	public default Clazz setClazz(Interpreter interpreter, @NonNull String shallowIdentifier, @NonNull ClazzType type, @Nullable HierarchicalScope base, @NonNull ArrayList<Clazz> supers) {
-		return setClazz(shallowIdentifier, new Clazz(interpreter, scopeIdentifier(), shallowIdentifier, type, base, supers), true);
+	public default void setClazz(Interpreter interpreter, @NonNull String shallowIdentifier, @NonNull ClazzType type, @Nullable HierarchicalScope base, @NonNull ArrayList<Clazz> supers) {
+		setClazz(shallowIdentifier, new Clazz(interpreter, scopeIdentifier(), shallowIdentifier, type, base, supers), true);
 	}
 	
 	@Override
@@ -93,15 +93,15 @@ public interface HierarchicalScope extends Scope {
 	
 	public Hierarchy<@NonNull String, Clazz> getClazzHierarchy();
 	
-	public default <T> void addToScopeMap(Interpreter interpreter, Hierarchy<@NonNull String, T> source, Map<@NonNull Element, @NonNull Element> target) {
-		source.forEach((k, v) -> target.put(new StringElement(interpreter, k), new LabelElement(interpreter, this, k)), false);
+	public default <T> void addToScopeMap(TokenExecutor exec, Hierarchy<@NonNull String, T> source, Map<@NonNull ElementKey, @NonNull Element> target) {
+		source.forEach((k, v) -> target.put(new StringElement(exec.interpreter, k).toKey(exec), new LabelElement(exec.interpreter, this, k)), false);
 	}
 	
 	@Override
-	public default void addToScopeMap(TokenExecutor exec, @NonNull Map<@NonNull Element, @NonNull Element> map) {
-		addToScopeMap(exec.interpreter, getDefHierarchy(), map);
-		addToScopeMap(exec.interpreter, getMacroHierarchy(), map);
-		addToScopeMap(exec.interpreter, getClazzHierarchy(), map);
+	public default void addToScopeMap(TokenExecutor exec, @NonNull Map<@NonNull ElementKey, @NonNull Element> map) {
+		addToScopeMap(exec, getDefHierarchy(), map);
+		addToScopeMap(exec, getMacroHierarchy(), map);
+		addToScopeMap(exec, getClazzHierarchy(), map);
 	}
 	
 	@SuppressWarnings("null")

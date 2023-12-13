@@ -10,6 +10,10 @@ public enum ClazzType {
 		return equals(STANDARD);
 	}
 	
+	public boolean canModify() {
+		return equals(STANDARD);
+	}
+	
 	public boolean canInstantiate() {
 		return !equals(INTERNAL);
 	}

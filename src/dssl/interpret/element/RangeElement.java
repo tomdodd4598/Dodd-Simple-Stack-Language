@@ -97,7 +97,7 @@ public class RangeElement extends Element {
 	
 	@Override
 	public @NonNull SetElement setCast(TokenExecutor exec) {
-		return new SetElement(interpreter, internalIterable(exec));
+		return new SetElement(interpreter, internalStream(exec).map(x -> x.toKey(exec)));
 	}
 	
 	@Override
@@ -116,6 +116,11 @@ public class RangeElement extends Element {
 				return new IntElement(interpreter, at(index++));
 			}
 		};
+	}
+	
+	@Override
+	public @NonNull Element iter(TokenExecutor exec) {
+		return iterator(exec);
 	}
 	
 	@Override
@@ -145,7 +150,7 @@ public class RangeElement extends Element {
 	public boolean contains(TokenExecutor exec, @NonNull Element elem) {
 		IntElement intElem = elem.asInt(exec);
 		if (intElem == null) {
-			return false;
+			throw new IllegalArgumentException(String.format("Built-in method \"contains\" requires %s element as argument!", BuiltIn.INT));
 		}
 		
 		@NonNull BigInteger intValue = intElem.value.raw;
@@ -206,6 +211,22 @@ public class RangeElement extends Element {
 		return new IntElement(interpreter, at(size - 1));
 	}
 	
+	@Override
+	public @NonNull Element indexOf(TokenExecutor exec, @NonNull Element elem) {
+		IntElement intElem = elem.asInt(exec);
+		if (intElem == null) {
+			throw new IllegalArgumentException(String.format("Built-in method \"indexOf\" requires %s element as argument!", BuiltIn.INT));
+		}
+		
+		@NonNull BigInteger intValue = intElem.value.raw;
+		if (intValue.compareTo(start) < 0 || intValue.compareTo(stop) >= 0) {
+			return interpreter.builtIn.nullElement;
+		}
+		
+		BigInteger[] divRem = intValue.subtract(start).divideAndRemainder(step);
+		return divRem[1].equals(BigInteger.ZERO) ? new IntElement(interpreter, divRem[0]) : interpreter.builtIn.nullElement;
+	}
+	
 	protected BigInteger at(long index) {
 		return start.add(step.multiply(BigInteger.valueOf(index)));
 	}
@@ -219,11 +240,6 @@ public class RangeElement extends Element {
 	@Override
 	public @NonNull String debug(TokenExecutor exec) {
 		return "(...)";
-	}
-	
-	@Override
-	public @NonNull Element __iter__(TokenExecutor exec) {
-		return iterator(exec);
 	}
 	
 	@Override
