@@ -8,12 +8,10 @@ import dssl.interpret.*;
 
 public class ModuleElement extends Element {
 	
-	public final @NonNull String identifier;
 	public final @NonNull Clazz internal;
 	
 	public ModuleElement(Interpreter interpreter, @NonNull String identifier) {
 		super(interpreter, interpreter.builtIn.moduleClazz);
-		this.identifier = identifier;
 		Clazz internal = interpreter.builtIn.moduleMap.get(identifier);
 		if (internal == null) {
 			throw new IllegalArgumentException(String.format("Core module \"%s\" not found!", identifier));
@@ -21,27 +19,32 @@ public class ModuleElement extends Element {
 		this.internal = internal;
 	}
 	
+	protected ModuleElement(Interpreter interpreter, @NonNull Clazz internal) {
+		super(interpreter, interpreter.builtIn.moduleClazz);
+		this.internal = internal;
+	}
+	
 	@Override
 	public @NonNull Element clone() {
-		return new ModuleElement(interpreter, identifier);
+		return new ModuleElement(interpreter, internal);
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(BuiltIn.MODULE, identifier);
+		return Objects.hash(BuiltIn.MODULE, internal);
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof ModuleElement) {
 			ModuleElement other = (ModuleElement) obj;
-			return identifier.equals(other.identifier);
+			return internal.equals(other.internal);
 		}
 		return false;
 	}
 	
 	@Override
 	public @NonNull String toString(TokenExecutor exec) {
-		return "$" + identifier;
+		return "$" + internal.fullIdentifier;
 	}
 }
