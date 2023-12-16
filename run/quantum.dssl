@@ -1,0 +1,197 @@
+$consts include
+$math include
+
+# ---------- #
+# DATA TYPES #
+# ---------- #
+
+/Int .bit {
+	exch >> 1 &
+} macro
+
+/Complex {
+	/__init__ {
+		/this exch def
+		/this .im exch def
+		/this .re exch def
+		this
+	} macro
+	
+	/absSq {
+		/this exch def
+		this .re dup * this .im dup * +
+	} macro
+	
+	/__add__ {
+		dup .re /xre exch def .im /xim exch def
+		dup .re /yre exch def .im /yim exch def
+		xre yre + xim yim + Complex new
+	} macro
+	
+	/__mul__ {
+		dup .re /xre exch def .im /xim exch def
+		dup .re /yre exch def .im /yim exch def
+		xre yre * xim yim * - xre yim * xim yre * + Complex new
+	} macro
+	
+	/__str__ {
+		/this exch def
+		this .re
+		this .im 0.0 >= { '+' ~ } if
+		this .im ~ 'i' ~
+	} macro
+} class
+
+/re {
+	0.0 Complex new
+} macro
+
+/im {
+	0.0 exch Complex new
+} macro
+
+/*
+/List .mvmulc {
+	/this exch def
+	/nrange ( this .size ) def
+	{
+		/row exch def
+		0.0 re nrange { dup row .get exch this .get * + } foreach
+	} exch .iter .map .collectList
+} macro
+*/
+
+/List .grpmvmulc {
+	/this exch def
+	/groups exch def
+	/mat exch def
+	
+	/res { pop 0.0 re } ( this .size ) .iter .map .collectList def
+	groups {
+		/group exch def
+		( mat .size ) {
+			/i exch def
+			/row i mat .get def
+			0.0 re ( group .size ) { dup row .get exch group .get this .get * + } foreach
+			i group .get exch res .set
+		} foreach
+	} foreach
+	res
+} macro
+
+/State {
+	/__init__ {
+		/this exch def
+		/this .qubits exch def
+		/this .dim 2 this .qubits ** def
+		/this .vec { pop 0.0 re } ( this .dim ) .iter .map .collectList def
+		0 1.0 re this .vec .set
+		this
+	} macro
+	
+	/run {
+		/this exch def
+		{
+			this .apply
+		} foreach
+	} macro
+	
+	/apply {
+		/this exch def
+		/gate exch def
+		/qrange ( this .qubits ) def
+		
+		/targetsDemux { gate .targets .contains } qrange .iter .map .collectList def
+		
+		/starts {
+			/x exch def
+			{ dup targetsDemux .get exch x .bit Bool cast & } qrange .iter .map .any !
+		} ( this .dim ) .iter .filter .collectList def
+		/offsets {
+			/x exch def
+			{ dup targetsDemux .get ! exch x .bit Bool cast & } qrange .iter .map .any !
+		} ( this .dim ) .iter .filter .collectList def
+		
+		/groups {
+			/start exch def
+			{ start + } offsets .iter .map .collectList
+		} starts .iter .map .collectList def
+		
+		/this .vec gate .mat groups this .vec .grpmvmulc =
+	} macro
+	
+	/probs {
+		{ .absSq } exch .vec .iter .map .collectList
+	} macro
+	
+	/__str__ {
+		.vec String cast
+	} macro
+} class
+
+/Gate {
+	/__init__ {
+		/this exch def
+		/targets exch def
+		/mat exch def
+		/trange ( targets .size ) def
+		/mrange ( mat .size ) def
+		
+		/sorted targets .clone def
+		sorted .sort
+		
+		/order { sorted .indexOf } targets .iter .map .collectList def
+		/swaps {
+			/x exch def
+			0 { dup 2 exch ** exch order .get x .bit * + } trange .iter .forEach
+		} mrange .iter .map .collectList def
+		
+		/this .targets targets Set cast def
+		/this .mat {
+			/row exch swaps .get mat .get def
+			{ swaps .get row .get } mrange .iter .map .collectList
+		} mrange .iter .map .collectList def
+		
+		this
+	} macro
+	
+	/__str__ {
+		/this exch def
+		this .targets " <- " this .mat ~ ~
+	} macro
+} class
+
+# -------------- #
+#  GATE MATRICES #
+# -------------- #
+
+/I [ [ 1.0 re 0.0 re ] [ 0.0 re 1.0 re ] ] def
+/X [ [ 0.0 re 1.0 re ] [ 1.0 re 0.0 re ] ] def
+/Y [ [ 0.0 re 1.0 neg im ] [ 1.0 im 0.0 re ] ] def
+/Z [ [ 1.0 re 0.0 re ] [ 0.0 re 1.0 neg re ] ] def
+/H [ [ INV_SQRT_2 re INV_SQRT_2 re ] [ INV_SQRT_2 re INV_SQRT_2 neg re ] ] def
+/CX [ [ 1.0 re 0.0 re 0.0 re 0.0 re ] [ 0.0 re 0.0 re 0.0 re 1.0 re ] [ 0.0 re 0.0 re 1.0 re 0.0 re ] [ 0.0 re 1.0 re 0.0 re 0.0 re ] ] def
+
+# -------------- #
+# DEFINE CIRCUIT #
+# -------------- #
+
+/circuit [ ] def
+
+/append {
+	Gate new circuit .push
+} macro
+
+H [ 0 ] append
+CX [ 0 1 ] append
+CX [ 1 2 ] append
+
+# ----------- #
+# RUN CIRCUIT #
+# ----------- #
+
+/psi 3 State new def
+
+circuit psi .run
+
+{ 3 places } psi .probs .iter .map .collectList println
