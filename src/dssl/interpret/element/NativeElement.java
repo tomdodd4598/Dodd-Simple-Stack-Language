@@ -10,9 +10,9 @@ import dssl.interpret.*;
 
 public class NativeElement extends Element {
 	
-	public final Object value;
+	public final @NonNull Object value;
 	
-	public NativeElement(Interpreter interpreter, Object value) {
+	public NativeElement(Interpreter interpreter, @NonNull Object value) {
 		super(interpreter, interpreter.builtIn.nativeClazz);
 		this.value = value;
 	}
