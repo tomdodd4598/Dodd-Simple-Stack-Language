@@ -795,16 +795,6 @@ public class BuiltIn {
 				x.push(x.pop().max(x));
 				return TokenResult.PASS;
 			});
-			
-			clazz.setMacro("sum", x -> {
-				x.push(x.pop().sum(x));
-				return TokenResult.PASS;
-			});
-			
-			clazz.setMacro("product", x -> {
-				x.push(x.pop().product(x));
-				return TokenResult.PASS;
-			});
 		}
 		
 		mathModule.setMacro("finite", TokenExecutor::finite);

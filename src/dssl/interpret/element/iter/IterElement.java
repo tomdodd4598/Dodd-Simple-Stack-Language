@@ -248,28 +248,6 @@ public abstract class IterElement extends Element {
 	}
 	
 	@Override
-	public @NonNull Element sum(TokenExecutor exec) {
-		@NonNull Element curr = new IntElement(interpreter, 0);
-		Iterator<@NonNull Element> iter = internalIterator(exec);
-		while (iter.hasNext()) {
-			curr.onPlus(exec, iter.next());
-			curr = exec.pop();
-		}
-		return curr;
-	}
-	
-	@Override
-	public @NonNull Element product(TokenExecutor exec) {
-		@NonNull Element curr = new IntElement(interpreter, 1);
-		Iterator<@NonNull Element> iter = internalIterator(exec);
-		while (iter.hasNext()) {
-			curr.onMultiply(exec, iter.next());
-			curr = exec.pop();
-		}
-		return curr;
-	}
-	
-	@Override
 	public @NonNull Element clone() {
 		throw new IllegalArgumentException(String.format("Elements of type \"%s\" can not be cloned!", BuiltIn.ITER));
 	}

@@ -660,14 +660,6 @@ public abstract class Element {
 		throw builtInMethodError("max");
 	}
 	
-	public @NonNull Element sum(TokenExecutor exec) {
-		throw builtInMethodError("sum");
-	}
-	
-	public @NonNull Element product(TokenExecutor exec) {
-		throw builtInMethodError("product");
-	}
-	
 	public @NonNull Element supers(TokenExecutor exec) {
 		throw builtInMethodError("supers");
 	}
