@@ -7,10 +7,10 @@
 /c 0 def
 
 10 {
-	/c a =
-	/a b +=
-	/b c = 
-	c println
+    /c a =
+    /a b +=
+    /b c = 
+    c println
 } repeat
 
 '\n' print
@@ -20,12 +20,12 @@
 # ------------------- #
 
 /fib {
-	dup 1 > {
-		dup 1 - fib
-		exch 2 - fib +
-	} if
+    dup 1 > {
+        dup 1 - fib
+        exch 2 - fib +
+    } if
 } macro
 
 ( 1 11 ) {
-	fib println
+    fib println
 } foreach

@@ -9,11 +9,11 @@
 /fuelPower 168 def
 
 /reactor [
-	[ "DWDWD" "GMQMG" "DWDWD" "GMGMG" "DWDWD" ]
-	[ "QMQMQ" "MCMCM" "QMGMQ" "MCMCM" "QMQMQ" ]
-	[ "DWDQD" "QMGMW" "DGPGD" "WMGMQ" "DQDWD" ]
-	[ "QMQMQ" "MCMCM" "QMGMQ" "MCMCM" "QMQMQ" ]
-	[ "DWDWD" "GMGMG" "DWDWD" "GMQMG" "DWDWD" ]
+    [ "DWDWD" "GMQMG" "DWDWD" "GMGMG" "DWDWD" ]
+    [ "QMQMQ" "MCMCM" "QMGMQ" "MCMCM" "QMQMQ" ]
+    [ "DWDQD" "QMGMW" "DGPGD" "WMGMQ" "DQDWD" ]
+    [ "QMQMQ" "MCMCM" "QMGMQ" "MCMCM" "QMQMQ" ]
+    [ "DWDWD" "GMGMG" "DWDWD" "GMQMG" "DWDWD" ]
 ] def
 
 /width reactor .fst .fst .size def
@@ -22,234 +22,234 @@
 
 # x y z -> block
 /getBlock {
-	reactor .get .get .get
+    reactor .get .get .get
 } macro
 
 # (char int int int -> void) -> void
 /forAllBlocks {
-	/x 0 def
-	/y 0 def
-	/z 0 def
-	/f exch def
-	( width ) {
-		/x exch =
-		( height ) {
-			/y exch =
-			( depth ) {
-				/z exch =
-				x y z getBlock x y z f exec
-			} foreach
-		} foreach
-	} foreach
+    /x 0 def
+    /y 0 def
+    /z 0 def
+    /f exch def
+    ( width ) {
+        /x exch =
+        ( height ) {
+            /y exch =
+            ( depth ) {
+                /z exch =
+                x y z getBlock x y z f exec
+            } foreach
+        } foreach
+    } foreach
 } macro
 
 # (char int int int -> void) x y z -> void
 /ifInBounds {
-	/z exch def
-	/y exch def
-	/x exch def
-	/f exch def
-	/good true def
-	x 0 < { /good false = } if
-	y 0 < { /good false = } if
-	z 0 < { /good false = } if
-	x width >= { /good false = } if
-	y height >= { /good false = } if
-	z depth >= { /good false = } if
-	good { x y z f exec } if
+    /z exch def
+    /y exch def
+    /x exch def
+    /f exch def
+    /good true def
+    x 0 < { /good false = } if
+    y 0 < { /good false = } if
+    z 0 < { /good false = } if
+    x width >= { /good false = } if
+    y height >= { /good false = } if
+    z depth >= { /good false = } if
+    good { x y z f exec } if
 } macro
 
 # (char int int int -> void) x y z -> void
 /forEachAdj {
-	/z exch def
-	/y exch def
-	/x exch def
-	/f exch def
-	f x 1 - y z ifInBounds
-	f x 1 + y z ifInBounds
-	f x y 1 - z ifInBounds
-	f x y 1 + z ifInBounds
-	f x y z 1 - ifInBounds
-	f x y z 1 + ifInBounds
+    /z exch def
+    /y exch def
+    /x exch def
+    /f exch def
+    f x 1 - y z ifInBounds
+    f x 1 + y z ifInBounds
+    f x y 1 - z ifInBounds
+    f x y 1 + z ifInBounds
+    f x y z 1 - ifInBounds
+    f x y z 1 + ifInBounds
 } macro
 
 # (char int int int -> void) x1 y1 z1 x2 y2 z2 -> void
 /forBlocksWithin {
-	/z2 exch def
-	/y2 exch def
-	/x2 exch def
-	/z1 exch def
-	/y1 exch def
-	/x1 exch def
-	/f exch def
-	x1 0 < { /x1 0 = } if
-	y1 0 < { /y1 0 = } if
-	z1 0 < { /z1 0 = } if
-	x2 width >= { /x2 width 1 - = } if
-	y2 height >= { /y2 height 1 - = } if
-	z2 depth >= { /z2 depth 1 - = } if
-	/x 0 def
-	/y 0 def
-	/z 0 def
-	( x1 x2 1 + ) {
-		/x exch =
-		( y1 y2 1 + ) {
-			/y exch =
-			( z1 z2 1 + ) {
-				/z exch =
-				x y z getBlock x y z f exec
-			} foreach
-		} foreach
-	} foreach
+    /z2 exch def
+    /y2 exch def
+    /x2 exch def
+    /z1 exch def
+    /y1 exch def
+    /x1 exch def
+    /f exch def
+    x1 0 < { /x1 0 = } if
+    y1 0 < { /y1 0 = } if
+    z1 0 < { /z1 0 = } if
+    x2 width >= { /x2 width 1 - = } if
+    y2 height >= { /y2 height 1 - = } if
+    z2 depth >= { /z2 depth 1 - = } if
+    /x 0 def
+    /y 0 def
+    /z 0 def
+    ( x1 x2 1 + ) {
+        /x exch =
+        ( y1 y2 1 + ) {
+            /y exch =
+            ( z1 z2 1 + ) {
+                /z exch =
+                x y z getBlock x y z f exec
+            } foreach
+        } foreach
+    } foreach
 } macro
 
 /coolingDict [|
-	'W' 60.0	# water
-	'R' 90.0	# redstone
-	'Q' 90.0	# quartz
-	'O' 120.0	# gold
-	'G' 130.0	# glowstone
-	'L' 120.0	# lapis
-	'D' 150.0	# diamond
-	'H' 140.0	# helium
-	'E' 120.0	# enderium
-	'Y' 160.0	# cryotheum
-	'I' 80.0	# iron
-	'V' 160.0	# emerald
-	'P' 80.0	# copper
-	'T' 120.0	# tin
-	'N' 110.0	# magnesium
+    'W' 60.0   # water
+    'R' 90.0   # redstone
+    'Q' 90.0   # quartz
+    'O' 120.0  # gold
+    'G' 130.0  # glowstone
+    'L' 120.0  # lapis
+    'D' 150.0  # diamond
+    'H' 140.0  # helium
+    'E' 120.0  # enderium
+    'Y' 160.0  # cryotheum
+    'I' 80.0   # iron
+    'V' 160.0  # emerald
+    'P' 80.0   # copper
+    'T' 120.0  # tin
+    'N' 110.0  # magnesium
 |] def
 
 # x y z dx dy dz -> moderators cell
 # returns 2 ints: first is number of moderators, second is 1 if cell found, otherwise 0 (internally returns an extra -1 for end of line or positive number for current distance)
 /cellScan {
-	cellScanInternal
-	/cell exch def
-	/mod exch def
-	pop
-	mod cell
+    cellScanInternal
+    /cell exch def
+    /mod exch def
+    pop
+    mod cell
 } macro
 
 /numAdjacent {
-	/z exch def
-	/y exch def
-	/x exch def
-	/block exch def
-	/num 0 def
-	{
-		/z exch def
-		/y exch def
-		/x exch def
-		x y z getBlock block == { # check if it's the block we're looking for
-			x y z isValid {
-				/num ++
-			} if
-		} if
-	} x y z forEachAdj
-	num
+    /z exch def
+    /y exch def
+    /x exch def
+    /block exch def
+    /num 0 def
+    {
+        /z exch def
+        /y exch def
+        /x exch def
+        x y z getBlock block == { # check if it's the block we're looking for
+            x y z isValid {
+                /num ++
+            } if
+        } if
+    } x y z forEachAdj
+    num
 } macro
 
 /numCasing {
-	/z exch def
-	/y exch def
-	/x exch def
-	6
-	{ pop pop pop 1 - } x y z forEachAdj
+    /z exch def
+    /y exch def
+    /x exch def
+    6
+    { pop pop pop 1 - } x y z forEachAdj
 } macro
 
 /numAxes {
-	/z exch def
-	/y exch def
-	/x exch def
-	/block exch def
-	/num 0 def
-	{ isValid } x 1 - y z x 1 - y z forBlocksWithin
-	{ isValid } x 1 + y z x 1 + y z forBlocksWithin
-	& { /num ++ } if
-	{ isValid } x y 1 - z x y 1 - z forBlocksWithin
-	{ isValid } x y 1 + z x y 1 + z forBlocksWithin
-	& { /num ++ } if
-	{ isValid } x y z 1 - x y z 1 - forBlocksWithin
-	{ isValid } x y z 1 + x y z 1 + forBlocksWithin
-	& { /num ++ } if
-	num
+    /z exch def
+    /y exch def
+    /x exch def
+    /block exch def
+    /num 0 def
+    { isValid } x 1 - y z x 1 - y z forBlocksWithin
+    { isValid } x 1 + y z x 1 + y z forBlocksWithin
+    & { /num ++ } if
+    { isValid } x y 1 - z x y 1 - z forBlocksWithin
+    { isValid } x y 1 + z x y 1 + z forBlocksWithin
+    & { /num ++ } if
+    { isValid } x y z 1 - x y z 1 - forBlocksWithin
+    { isValid } x y z 1 + x y z 1 + forBlocksWithin
+    & { /num ++ } if
+    num
 } macro
 
 /validDict [|
-	'C' { true } 														# cell
-	'M' { 'C' x y z numAdjacent 1 >= }									# moderator
-	'W' { 'C' x y z numAdjacent 1 >= 'M' x y z numAdjacent 1 >= | }		# water
-	'R' { 'C' x y z numAdjacent 1 >= }									# redstone
-	'Q' { 'M' x y z numAdjacent 1 >= }									# quartz
-	'O' { 'W' x y z numAdjacent 1 >= 'R' x y z numAdjacent 1 >= & }		# gold
-	'G' { 'M' x y z numAdjacent 2 >= }									# glowstone
-	'L' { 'C' x y z numAdjacent 1 >= x y z numCasing 1 >= }				# lapis
-	'D' { 'W' x y z numAdjacent 1 >= 'Q' x y z numAdjacent 1 >= & }		# diamond
-	'H' { 'R' x y z numAdjacent 1 == x y z numCasing 1 >= & }			# helium
-	'E' { x y z numCasing 3 == width 1 > height 1 > depth 1 > & & & }	# enderium
-	'Y' { 'C' x y z numAdjacent 2 >= }									# cryotheum
-	'I' { 'O' x y z numAdjacent 1 >= }									# iron
-	'V' { 'M' x y z numAdjacent 1 >= 'C' x y z numAdjacent 1 >= & }		# emerald
-	'P' { 'G' x y z numAdjacent 1 >= }									# copper
-	'T' { 'L' x y z numAxes 1 >= }										# tin
-	'N' { 'M' x y z numAdjacent 1 >= x y z numCasing 1 >= & }			# magnesium
+    'C' { true }                                                       # cell
+    'M' { 'C' x y z numAdjacent 1 >= }                                 # moderator
+    'W' { 'C' x y z numAdjacent 1 >= 'M' x y z numAdjacent 1 >= | }    # water
+    'R' { 'C' x y z numAdjacent 1 >= }                                 # redstone
+    'Q' { 'M' x y z numAdjacent 1 >= }                                 # quartz
+    'O' { 'W' x y z numAdjacent 1 >= 'R' x y z numAdjacent 1 >= & }    # gold
+    'G' { 'M' x y z numAdjacent 2 >= }                                 # glowstone
+    'L' { 'C' x y z numAdjacent 1 >= x y z numCasing 1 >= }            # lapis
+    'D' { 'W' x y z numAdjacent 1 >= 'Q' x y z numAdjacent 1 >= & }    # diamond
+    'H' { 'R' x y z numAdjacent 1 == x y z numCasing 1 >= & }          # helium
+    'E' { x y z numCasing 3 == width 1 > height 1 > depth 1 > & & & }  # enderium
+    'Y' { 'C' x y z numAdjacent 2 >= }                                 # cryotheum
+    'I' { 'O' x y z numAdjacent 1 >= }                                 # iron
+    'V' { 'M' x y z numAdjacent 1 >= 'C' x y z numAdjacent 1 >= & }    # emerald
+    'P' { 'G' x y z numAdjacent 1 >= }                                 # copper
+    'T' { 'L' x y z numAxes 1 >= }                                     # tin
+    'N' { 'M' x y z numAdjacent 1 >= x y z numCasing 1 >= & }          # magnesium
 |] def
 
 /isValid {
-	/z exch def
-	/y exch def
-	/x exch def
-	/f x y z getBlock validDict .get def
-	f null == { false } { f exec } ifelse
+    /z exch def
+    /y exch def
+    /x exch def
+    /f x y z getBlock validDict .get def
+    f null == { false } { f exec } ifelse
 } macro
 
 /cellScanInternal {
-	/dz exch def
-	/dy exch def
-	/dx exch def
-	/z exch def
-	/y exch def
-	/x exch def
-	/notDone true def
-	/mod 0 def
-	/cell 0 def
-	/dist 1 def
-	/x dx +=
-	/y dy +=
-	/z dz +=
-	x 0 >= y 0 >= z 0 >= x width < y height < z depth < notDone & & & & & & {
-		x y z getBlock
-		/block exch def
-		/notDone block 'C' == block 'M' == | =
-		notDone {
-			block 'M' == { # moderator detection
-				/mod ++
-			} if
-			block 'C' == {
-				/cell ++
-				/notDone false =
-			} if
-		} if
-		notDone {
-			x y z dx dy dz cellScanInternal
-			/cell exch +=
-			/mod exch +=
-			dup -1 == {
-				/notDone false =
-			} if
-			/dist exch +=
-			dist neutronReach > {
-				/notDone false =
-			} if
-		} if
-	} if
-	notDone {
-		dist
-	} {
-		-1
-	} ifelse
-	mod cell
+    /dz exch def
+    /dy exch def
+    /dx exch def
+    /z exch def
+    /y exch def
+    /x exch def
+    /notDone true def
+    /mod 0 def
+    /cell 0 def
+    /dist 1 def
+    /x dx +=
+    /y dy +=
+    /z dz +=
+    x 0 >= y 0 >= z 0 >= x width < y height < z depth < notDone & & & & & & {
+        x y z getBlock
+        /block exch def
+        /notDone block 'C' == block 'M' == | =
+        notDone {
+            block 'M' == { # moderator detection
+                /mod ++
+            } if
+            block 'C' == {
+                /cell ++
+                /notDone false =
+            } if
+        } if
+        notDone {
+            x y z dx dy dz cellScanInternal
+            /cell exch +=
+            /mod exch +=
+            dup -1 == {
+                /notDone false =
+            } if
+            /dist exch +=
+            dist neutronReach > {
+                /notDone false =
+            } if
+        } if
+    } if
+    notDone {
+        dist
+    } {
+        -1
+    } ifelse
+    mod cell
 } macro
 
 # calculate core
@@ -265,53 +265,53 @@
 
 # calculate cells
 {
-	/z exch def
-	/y exch def
-	/x exch def
-	/block exch def
-	/adjMods 0 def
-	/adjCells 0 def
-	block 'C' == { # run only for cells
-		x y z -1 0 0 cellScan
-		/adjCells exch +=
-		0 > { /adjMods ++ } if
-		x y z 1 0 0 cellScan
-		/adjCells exch +=
-		0 > { /adjMods ++ } if
-		x y z 0 -1 0 cellScan
-		/adjCells exch +=
-		0 > { /adjMods ++ } if
-		x y z 0 1 0 cellScan
-		/adjCells exch +=
-		0 > { /adjMods ++ } if
-		x y z 0 0 -1 cellScan
-		/adjCells exch +=
-		0 > { /adjMods ++ } if
-		x y z 0 0 1 cellScan
-		/adjCells exch +=
-		0 > { /adjMods ++ } if
-		/baseEff adjCells 1 + def
-		/energyMult baseEff def
-		/heatMult baseEff 1 + baseEff * 2 / def
-		/energyMult baseEff 6.0 / modExtraPower * adjMods * +=
-		/heatMult baseEff 6.0 / modExtraHeat * adjMods * +=
-		/totalHeatMult heatMult +=
-		/totalEnergyMult energyMult +=
-		/cells ++
-	} if
+    /z exch def
+    /y exch def
+    /x exch def
+    /block exch def
+    /adjMods 0 def
+    /adjCells 0 def
+    block 'C' == { # run only for cells
+        x y z -1 0 0 cellScan
+        /adjCells exch +=
+        0 > { /adjMods ++ } if
+        x y z 1 0 0 cellScan
+        /adjCells exch +=
+        0 > { /adjMods ++ } if
+        x y z 0 -1 0 cellScan
+        /adjCells exch +=
+        0 > { /adjMods ++ } if
+        x y z 0 1 0 cellScan
+        /adjCells exch +=
+        0 > { /adjMods ++ } if
+        x y z 0 0 -1 cellScan
+        /adjCells exch +=
+        0 > { /adjMods ++ } if
+        x y z 0 0 1 cellScan
+        /adjCells exch +=
+        0 > { /adjMods ++ } if
+        /baseEff adjCells 1 + def
+        /energyMult baseEff def
+        /heatMult baseEff 1 + baseEff * 2 / def
+        /energyMult baseEff 6.0 / modExtraPower * adjMods * +=
+        /heatMult baseEff 6.0 / modExtraHeat * adjMods * +=
+        /totalHeatMult heatMult +=
+        /totalEnergyMult energyMult +=
+        /cells ++
+    } if
 } forAllBlocks
 
 # calculate coolers
 {
-	/z exch def
-	/y exch def
-	/x exch def
-	/block exch def
-	block 'C' != block 'M' != & { # exclude cells & moderators (coolers are all that remain)
-		x y z isValid { # check if cooler is valid
-			/cooling block coolingDict .get +=
-		} if
-	} if
+    /z exch def
+    /y exch def
+    /x exch def
+    /block exch def
+    block 'C' != block 'M' != & { # exclude cells & moderators (coolers are all that remain)
+        x y z isValid { # check if cooler is valid
+            /cooling block coolingDict .get +=
+        } if
+    } if
 } forAllBlocks
 
 /heatMult totalHeatMult cells / =

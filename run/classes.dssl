@@ -3,24 +3,24 @@
 # ----------------- #
 
 /Container {
-	/__init__ {
-		/this exch def
-		/this .counter 0 def
-		this
-		"Made a Container!" println
-	} macro
-	
-	/increment {
-		/this exch def
-		/this .counter ++
-		"Counter: " this .counter ~ println
-	} macro
+    /__init__ {
+        /this exch def
+        /this .counter 0 def
+        this
+        "Made a Container!" println
+    } macro
+    
+    /increment {
+        /this exch def
+        /this .counter ++
+        "Counter: " this .counter ~ println
+    } macro
 } class
 
 /cont Container new def
 
 5 {
-	cont .increment
+    cont .increment
 } repeat
 
 /cont .shout { "Hello!" println } macro
@@ -33,44 +33,44 @@ cont .shout
 # ---------------- #
 
 /Item {
-	/__init__ {
-		/this exch def
-		/this .value exch def
-		/this .next null def
-		this
-	} macro
-	
-	/addNext {
-		/curr exch def
-		/prev null def
-		{
-			/prev curr =
-			/curr curr .next =
-			curr null == { break } if
-		} loop
-		/prev .next exch Item new =
-	} macro
-	
-	/printGetNext {
-		/item exch def
-		item .value print
-		item .next dup null == { '\n' } { ", " } ifelse print
-	} macro
-	
-	/printList {
-		/item exch def
-		{
-			/item item .printGetNext =
-			item null == { break } if
-		} loop
-	} macro
-	
-	/printRecursive {
-		.printGetNext /next exch def
-		next null != {
-			next .printRecursive
-		} if
-	} macro
+    /__init__ {
+        /this exch def
+        /this .value exch def
+        /this .next null def
+        this
+    } macro
+    
+    /addNext {
+        /curr exch def
+        /prev null def
+        {
+            /prev curr =
+            /curr curr .next =
+            curr null == { break } if
+        } loop
+        /prev .next exch Item new =
+    } macro
+    
+    /printGetNext {
+        /item exch def
+        item .value print
+        item .next dup null == { '\n' } { ", " } ifelse print
+    } macro
+    
+    /printList {
+        /item exch def
+        {
+            /item item .printGetNext =
+            item null == { break } if
+        } loop
+    } macro
+    
+    /printRecursive {
+        .printGetNext /next exch def
+        next null != {
+            next .printRecursive
+        } if
+    } macro
 } class
 
 /item "First" Item new def
@@ -86,54 +86,54 @@ item .printRecursive
 # ------------------- #
 
 /Person {
-	/__init__ {
-		"Constructing Person!" println
-		Person .supers { .__init__ } foreach
-	} macro
-	
-	/talk {
-		type " talked." ~ println
-	} macro
+    /__init__ {
+        "Constructing Person!" println
+        Person .supers { .__init__ } foreach
+    } macro
+    
+    /talk {
+        type " talked." ~ println
+    } macro
 } class
 
 /Worker Person {
-	/__init__ {
-		"Constructing Worker!" println
-		Worker .supers { .__init__ } foreach
-	} macro
-	
-	/work {
-		type " worked." ~ println
-	} macro
+    /__init__ {
+        "Constructing Worker!" println
+        Worker .supers { .__init__ } foreach
+    } macro
+    
+    /work {
+        type " worked." ~ println
+    } macro
 } class
 
 /Miner Worker {
-	/__init__ {
-		"Constructing Miner!" println
-		Miner .supers { .__init__ } foreach
-	} macro
-	
-	/mine {
-		type " mined." ~ println
-	} macro
+    /__init__ {
+        "Constructing Miner!" println
+        Miner .supers { .__init__ } foreach
+    } macro
+    
+    /mine {
+        type " mined." ~ println
+    } macro
 } class
 
 /Programmer Worker {
-	/__init__ {
-		"Constructing Programmer!" println
-		Programmer .supers { .__init__ } foreach
-	} macro
-	
-	/code {
-		type " coded." ~ println
-	} macro
+    /__init__ {
+        "Constructing Programmer!" println
+        Programmer .supers { .__init__ } foreach
+    } macro
+    
+    /code {
+        type " coded." ~ println
+    } macro
 } class
 
 /Satoshi Programmer Miner {
-	/__init__ {
-		"Constructing Satoshi!" println
-		Satoshi .supers { .__init__ } foreach
-	} macro
+    /__init__ {
+        "Constructing Satoshi!" println
+        Satoshi .supers { .__init__ } foreach
+    } macro
 } class
 
 /satoshi Satoshi new def
@@ -148,9 +148,9 @@ satoshi .code
 '\n' print
 
 /instance {
-	/clazz exch def
-	/value exch def
-	value " is " ~ value clazz is ! { "not " ~ } if "an instance of " ~ clazz ~ println
+    /clazz exch def
+    /value exch def
+    value " is " ~ value clazz is ! { "not " ~ } if "an instance of " ~ clazz ~ println
 } macro
 
 satoshi Satoshi instance

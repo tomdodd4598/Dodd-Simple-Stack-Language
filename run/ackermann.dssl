@@ -11,7 +11,7 @@
 ( 4 ) {
     /m exch def
     ( 7 ) {
-	    m exch ackermann " " ~ print
-	} foreach
-	"" println
+        m exch ackermann " " ~ print
+    } foreach
+    "" println
 } foreach
