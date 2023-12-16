@@ -1,4 +1,4 @@
-$consts include
+$const include
 $math include
 
 # ---------- #

@@ -84,7 +84,7 @@ public class BuiltIn {
 	public @NonNull NullElement nullElement;
 	
 	public @NonNull Clazz mathModule;
-	public @NonNull Clazz constsModule;
+	public @NonNull Clazz constModule;
 	public @NonNull Clazz envModule;
 	public @NonNull Clazz fsModule;
 	
@@ -278,7 +278,7 @@ public class BuiltIn {
 		nullElement = new NullElement(interpreter);
 		
 		mathModule = module("math");
-		constsModule = module("consts");
+		constModule = module("const");
 		envModule = module("env");
 		fsModule = module("fs");
 		
@@ -861,66 +861,66 @@ public class BuiltIn {
 		mathModule.setMacro("clamp32", TokenExecutor::clamp32);
 		mathModule.setMacro("clamp64", TokenExecutor::clamp64);
 		
-		constsModule.setDef("MIN_INT_8", new IntElement(interpreter, Constants.MIN_INT_8), true);
-		constsModule.setDef("MAX_INT_8", new IntElement(interpreter, Constants.MAX_INT_8), true);
+		constModule.setDef("MIN_INT_8", new IntElement(interpreter, Constants.MIN_INT_8), true);
+		constModule.setDef("MAX_INT_8", new IntElement(interpreter, Constants.MAX_INT_8), true);
 		
-		constsModule.setDef("MIN_INT_16", new IntElement(interpreter, Constants.MIN_INT_16), true);
-		constsModule.setDef("MAX_INT_16", new IntElement(interpreter, Constants.MAX_INT_16), true);
+		constModule.setDef("MIN_INT_16", new IntElement(interpreter, Constants.MIN_INT_16), true);
+		constModule.setDef("MAX_INT_16", new IntElement(interpreter, Constants.MAX_INT_16), true);
 		
-		constsModule.setDef("MIN_INT_32", new IntElement(interpreter, Constants.MIN_INT_32), true);
-		constsModule.setDef("MAX_INT_32", new IntElement(interpreter, Constants.MAX_INT_32), true);
+		constModule.setDef("MIN_INT_32", new IntElement(interpreter, Constants.MIN_INT_32), true);
+		constModule.setDef("MAX_INT_32", new IntElement(interpreter, Constants.MAX_INT_32), true);
 		
-		constsModule.setDef("MIN_INT_64", new IntElement(interpreter, Constants.MIN_INT_64), true);
-		constsModule.setDef("MAX_INT_64", new IntElement(interpreter, Constants.MAX_INT_64), true);
+		constModule.setDef("MIN_INT_64", new IntElement(interpreter, Constants.MIN_INT_64), true);
+		constModule.setDef("MAX_INT_64", new IntElement(interpreter, Constants.MAX_INT_64), true);
 		
-		constsModule.setDef("INF", new FloatElement(interpreter, Constants.INF), true);
-		constsModule.setDef("NAN", new FloatElement(interpreter, Constants.NAN), true);
-		constsModule.setDef("MIN_F", new FloatElement(interpreter, Constants.MIN_F), true);
-		constsModule.setDef("MAX_F", new FloatElement(interpreter, Constants.MAX_F), true);
-		constsModule.setDef("EPSILON", new FloatElement(interpreter, Constants.EPSILON), true);
+		constModule.setDef("INF", new FloatElement(interpreter, Constants.INF), true);
+		constModule.setDef("NAN", new FloatElement(interpreter, Constants.NAN), true);
+		constModule.setDef("MIN_F", new FloatElement(interpreter, Constants.MIN_F), true);
+		constModule.setDef("MAX_F", new FloatElement(interpreter, Constants.MAX_F), true);
+		constModule.setDef("EPSILON", new FloatElement(interpreter, Constants.EPSILON), true);
 		
-		constsModule.setDef("E", new FloatElement(interpreter, Constants.E), true);
+		constModule.setDef("E", new FloatElement(interpreter, Constants.E), true);
 		
-		constsModule.setDef("PI", new FloatElement(interpreter, Constants.PI), true);
-		constsModule.setDef("TAU", new FloatElement(interpreter, Constants.TAU), true);
+		constModule.setDef("PI", new FloatElement(interpreter, Constants.PI), true);
+		constModule.setDef("TAU", new FloatElement(interpreter, Constants.TAU), true);
 		
-		constsModule.setDef("INV_PI", new FloatElement(interpreter, Constants.INV_PI), true);
-		constsModule.setDef("INV_TAU", new FloatElement(interpreter, Constants.INV_TAU), true);
+		constModule.setDef("INV_PI", new FloatElement(interpreter, Constants.INV_PI), true);
+		constModule.setDef("INV_TAU", new FloatElement(interpreter, Constants.INV_TAU), true);
 		
-		constsModule.setDef("SQRT_PI", new FloatElement(interpreter, Constants.SQRT_PI), true);
-		constsModule.setDef("SQRT_TAU", new FloatElement(interpreter, Constants.SQRT_TAU), true);
+		constModule.setDef("SQRT_PI", new FloatElement(interpreter, Constants.SQRT_PI), true);
+		constModule.setDef("SQRT_TAU", new FloatElement(interpreter, Constants.SQRT_TAU), true);
 		
-		constsModule.setDef("INV_SQRT_PI", new FloatElement(interpreter, Constants.INV_SQRT_PI), true);
-		constsModule.setDef("INV_SQRT_TAU", new FloatElement(interpreter, Constants.INV_SQRT_TAU), true);
+		constModule.setDef("INV_SQRT_PI", new FloatElement(interpreter, Constants.INV_SQRT_PI), true);
+		constModule.setDef("INV_SQRT_TAU", new FloatElement(interpreter, Constants.INV_SQRT_TAU), true);
 		
-		constsModule.setDef("INV_3", new FloatElement(interpreter, Constants.INV_3), true);
-		constsModule.setDef("INV_6", new FloatElement(interpreter, Constants.INV_6), true);
+		constModule.setDef("INV_3", new FloatElement(interpreter, Constants.INV_3), true);
+		constModule.setDef("INV_6", new FloatElement(interpreter, Constants.INV_6), true);
 		
-		constsModule.setDef("SQRT_2", new FloatElement(interpreter, Constants.SQRT_2), true);
-		constsModule.setDef("SQRT_3", new FloatElement(interpreter, Constants.SQRT_3), true);
-		constsModule.setDef("SQRT_6", new FloatElement(interpreter, Constants.SQRT_6), true);
-		constsModule.setDef("SQRT_8", new FloatElement(interpreter, Constants.SQRT_8), true);
+		constModule.setDef("SQRT_2", new FloatElement(interpreter, Constants.SQRT_2), true);
+		constModule.setDef("SQRT_3", new FloatElement(interpreter, Constants.SQRT_3), true);
+		constModule.setDef("SQRT_6", new FloatElement(interpreter, Constants.SQRT_6), true);
+		constModule.setDef("SQRT_8", new FloatElement(interpreter, Constants.SQRT_8), true);
 		
-		constsModule.setDef("INV_SQRT_2", new FloatElement(interpreter, Constants.INV_SQRT_2), true);
-		constsModule.setDef("INV_SQRT_3", new FloatElement(interpreter, Constants.INV_SQRT_3), true);
-		constsModule.setDef("INV_SQRT_6", new FloatElement(interpreter, Constants.INV_SQRT_6), true);
-		constsModule.setDef("INV_SQRT_8", new FloatElement(interpreter, Constants.INV_SQRT_8), true);
+		constModule.setDef("INV_SQRT_2", new FloatElement(interpreter, Constants.INV_SQRT_2), true);
+		constModule.setDef("INV_SQRT_3", new FloatElement(interpreter, Constants.INV_SQRT_3), true);
+		constModule.setDef("INV_SQRT_6", new FloatElement(interpreter, Constants.INV_SQRT_6), true);
+		constModule.setDef("INV_SQRT_8", new FloatElement(interpreter, Constants.INV_SQRT_8), true);
 		
-		constsModule.setDef("FRAC_PI_2", new FloatElement(interpreter, Constants.FRAC_PI_2), true);
-		constsModule.setDef("FRAC_PI_3", new FloatElement(interpreter, Constants.FRAC_PI_3), true);
-		constsModule.setDef("FRAC_PI_4", new FloatElement(interpreter, Constants.FRAC_PI_4), true);
-		constsModule.setDef("FRAC_PI_6", new FloatElement(interpreter, Constants.FRAC_PI_6), true);
-		constsModule.setDef("FRAC_PI_8", new FloatElement(interpreter, Constants.FRAC_PI_8), true);
+		constModule.setDef("FRAC_PI_2", new FloatElement(interpreter, Constants.FRAC_PI_2), true);
+		constModule.setDef("FRAC_PI_3", new FloatElement(interpreter, Constants.FRAC_PI_3), true);
+		constModule.setDef("FRAC_PI_4", new FloatElement(interpreter, Constants.FRAC_PI_4), true);
+		constModule.setDef("FRAC_PI_6", new FloatElement(interpreter, Constants.FRAC_PI_6), true);
+		constModule.setDef("FRAC_PI_8", new FloatElement(interpreter, Constants.FRAC_PI_8), true);
 		
-		constsModule.setDef("FRAC_2_PI", new FloatElement(interpreter, Constants.FRAC_2_PI), true);
-		constsModule.setDef("FRAC_2_SQRT_PI", new FloatElement(interpreter, Constants.FRAC_2_SQRT_PI), true);
+		constModule.setDef("FRAC_2_PI", new FloatElement(interpreter, Constants.FRAC_2_PI), true);
+		constModule.setDef("FRAC_2_SQRT_PI", new FloatElement(interpreter, Constants.FRAC_2_SQRT_PI), true);
 		
-		constsModule.setDef("LN_2", new FloatElement(interpreter, Constants.LN_2), true);
-		constsModule.setDef("LN_10", new FloatElement(interpreter, Constants.LN_10), true);
-		constsModule.setDef("LOG2_E", new FloatElement(interpreter, Constants.LOG2_E), true);
-		constsModule.setDef("LOG2_10", new FloatElement(interpreter, Constants.LOG2_10), true);
-		constsModule.setDef("LOG10_E", new FloatElement(interpreter, Constants.LOG10_E), true);
-		constsModule.setDef("LOG10_2", new FloatElement(interpreter, Constants.LOG10_2), true);
+		constModule.setDef("LN_2", new FloatElement(interpreter, Constants.LN_2), true);
+		constModule.setDef("LN_10", new FloatElement(interpreter, Constants.LN_10), true);
+		constModule.setDef("LOG2_E", new FloatElement(interpreter, Constants.LOG2_E), true);
+		constModule.setDef("LOG2_10", new FloatElement(interpreter, Constants.LOG2_10), true);
+		constModule.setDef("LOG10_E", new FloatElement(interpreter, Constants.LOG10_E), true);
+		constModule.setDef("LOG10_2", new FloatElement(interpreter, Constants.LOG10_2), true);
 		
 		envModule.setMacro("args", TokenExecutor::args);
 		
