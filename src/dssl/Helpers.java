@@ -44,10 +44,7 @@ public class Helpers {
 	
 	public static <T> void writeLines(@NonNull String fileName, Consumer<Consumer<? super String>> forEach) {
 		try (PrintWriter out = new PrintWriter(fileName)) {
-			forEach.accept(x -> {
-				out.print(x);
-				out.println();
-			});
+			forEach.accept(out::println);
 		}
 		catch (Exception e) {
 			throw panic(e);
@@ -124,8 +121,37 @@ public class Helpers {
 				return "fourth";
 			case 5:
 				return "fifth";
+			case 6:
+				return "sixth";
+			case 7:
+				return "seventh";
+			case 8:
+				return "eighth";
+			case 9:
+				return "ninth";
+			case 10:
+				return "tenth";
 			default:
-				throw new IllegalArgumentException(String.format("Could not convert %s to ordinal string!", n));
+				return n + ordinalSuffix(n);
+		}
+	}
+	
+	protected static @NonNull String ordinalSuffix(int n) {
+		n %= 100;
+		if (n > 10 && n < 20) {
+			return "th";
+		}
+		
+		n %= 10;
+		switch (n) {
+			case 1:
+				return "st";
+			case 2:
+				return "nd";
+			case 3:
+				return "rd";
+			default:
+				return "th";
 		}
 	}
 	
