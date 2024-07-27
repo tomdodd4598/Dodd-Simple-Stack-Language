@@ -11,7 +11,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import dssl.interpret.*;
 import dssl.interpret.element.*;
 import dssl.interpret.element.primitive.*;
-import sun.reflect.generics.reflectiveObjects.*;
 
 public class NativeImpl {
 	
@@ -256,14 +255,14 @@ public class NativeImpl {
 				return mapNativize(elem, Object.class, Object.class);
 			}
 		}
-		else if (type instanceof GenericArrayTypeImpl) {
+		else if (type instanceof GenericArrayType) {
 			if (elem instanceof ListElement) {
-				Type t = ((GenericArrayTypeImpl) type).getGenericComponentType();
-				return arrayNativize(elem, t instanceof ParameterizedTypeImpl ? ((ParameterizedTypeImpl) t).getRawType() : Object.class);
+				Type t = ((GenericArrayType) type).getGenericComponentType();
+				return arrayNativize(elem, t instanceof ParameterizedType ? ((ParameterizedType) t).getRawType() : Object.class);
 			}
 		}
-		else if (type instanceof ParameterizedTypeImpl) {
-			return nativize(elem, ((ParameterizedTypeImpl) type).getRawType());
+		else if (type instanceof ParameterizedType) {
+			return nativize(elem, ((ParameterizedType) type).getRawType());
 		}
 		else if (type instanceof WildcardType) {
 			return nativize(elem, Object.class);
@@ -276,11 +275,11 @@ public class NativeImpl {
 		if (type instanceof Class) {
 			return (Class<?>) type;
 		}
-		else if (type instanceof GenericArrayTypeImpl) {
-			return newArray(((GenericArrayTypeImpl) type).getGenericComponentType()).getClass();
+		else if (type instanceof GenericArrayType) {
+			return newArray(((GenericArrayType) type).getGenericComponentType()).getClass();
 		}
-		else if (type instanceof ParameterizedTypeImpl) {
-			return ((ParameterizedTypeImpl) type).getRawType();
+		else if (type instanceof ParameterizedType) {
+			return rawType(((ParameterizedType) type).getRawType());
 		}
 		else {
 			return Object.class;

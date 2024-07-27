@@ -1293,7 +1293,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			throw new IllegalArgumentException(String.format("Built-in math macro \"places\" requires %s element as second argument!", BuiltIn.INT));
 		}
 		
-		push(new FloatElement(interpreter, floatElem.bigFloat().setScale(intElem.primitiveInt(), BigDecimal.ROUND_HALF_UP).doubleValue()));
+		push(new FloatElement(interpreter, floatElem.bigFloat().setScale(intElem.primitiveInt(), RoundingMode.HALF_UP).doubleValue()));
 		return TokenResult.PASS;
 	}
 	
