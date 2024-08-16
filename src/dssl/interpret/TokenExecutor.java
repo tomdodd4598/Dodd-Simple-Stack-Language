@@ -435,34 +435,32 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected @NonNull TokenResult onMacro(@NonNull Token token) {
 		@NonNull Element elem1 = pop(), elem0 = pop();
-		if (!(elem0 instanceof LabelElement)) {
+		if (!(elem0 instanceof LabelElement label)) {
 			throw new IllegalArgumentException(String.format("Keyword \"macro\" requires %s element as first argument!", BuiltIn.LABEL));
 		}
-		if (!(elem1 instanceof BlockElement)) {
+		if (!(elem1 instanceof BlockElement block)) {
 			throw new IllegalArgumentException(String.format("Keyword \"macro\" requires %s element as second argument!", BuiltIn.BLOCK));
 		}
 		
-		((LabelElement) elem0).setMacro((BlockElement) elem1);
+		label.setMacro(block);
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onClass(@NonNull Token token) {
 		@NonNull Element elem1 = pop(), elem0;
-		if (!(elem1 instanceof BlockElement)) {
+		if (!(elem1 instanceof BlockElement block)) {
 			throw new IllegalArgumentException(String.format("Keyword \"class\" requires %s element as last argument!", BuiltIn.BLOCK));
 		}
 		
 		ArrayList<Clazz> supers = new ArrayList<>();
-		while ((elem0 = pop()) instanceof ClassElement) {
-			supers.add(((ClassElement) elem0).internal);
+		while ((elem0 = pop()) instanceof ClassElement clazz) {
+			supers.add(clazz.internal);
 		}
 		Collections.reverse(supers);
 		
-		if (!(elem0 instanceof LabelElement)) {
+		if (!(elem0 instanceof LabelElement label)) {
 			throw new IllegalArgumentException(String.format("Keyword \"class\" requires %s element as first argument!", BuiltIn.LABEL));
 		}
-		
-		LabelElement label = (LabelElement) elem0;
 		
 		for (Clazz clazz : supers) {
 			if (!clazz.type.canExtend()) {
@@ -470,18 +468,17 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			}
 		}
 		
-		TokenExecutor clazzExec = ((BlockElement) elem1).executor(this);
+		TokenExecutor clazzExec = block.executor(this);
 		label.setClazz(ClazzType.STANDARD, clazzExec, supers);
 		return clazzExec.iterate();
 	}
 	
 	protected @NonNull TokenResult onDeref(@NonNull Token token) {
 		@NonNull Element elem = pop();
-		if (!(elem instanceof LabelElement)) {
+		if (!(elem instanceof LabelElement label)) {
 			throw new IllegalArgumentException(String.format("Keyword \"deref\" requires %s element as argument!", BuiltIn.LABEL));
 		}
 		
-		LabelElement label = (LabelElement) elem;
 		TokenResult result = scopeAction(label::getDef, label::getMacro, label::getClazz);
 		if (result == null) {
 			throw Helpers.defError(label.fullIdentifier);
@@ -491,18 +488,18 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected @NonNull TokenResult onDelete(@NonNull Token token) {
 		@NonNull Element elem = pop();
-		if (!(elem instanceof LabelElement)) {
+		if (!(elem instanceof LabelElement label)) {
 			throw new IllegalArgumentException(String.format("Keyword \"delete\" requires %s element as argument!", BuiltIn.LABEL));
 		}
-		return ((LabelElement) elem).delete();
+		return label.delete();
 	}
 	
 	protected @NonNull TokenResult onNew(@NonNull Token token) {
 		@NonNull Element elem = pop();
-		if (!(elem instanceof ClassElement)) {
+		if (!(elem instanceof ClassElement clazz)) {
 			throw new IllegalArgumentException(String.format("Keyword \"new\" requires %s element as argument!", BuiltIn.CLASS));
 		}
-		return ((ClassElement) elem).internal.instantiate(this);
+		return clazz.internal.instantiate(this);
 	}
 	
 	protected @NonNull TokenResult onNull(@NonNull Token token) {
@@ -517,21 +514,21 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected @NonNull TokenResult onCast(@NonNull Token token) {
 		@NonNull Element elem1 = pop(), elem0 = pop();
-		if (!(elem1 instanceof ClassElement)) {
+		if (!(elem1 instanceof ClassElement clazz)) {
 			throw new IllegalArgumentException(String.format("Keyword \"cast\" requires %s element as second argument!", BuiltIn.CLASS));
 		}
 		
-		push(((ClassElement) elem1).internal.cast(this, elem0));
+		push(clazz.internal.cast(this, elem0));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onIs(@NonNull Token token) {
 		@NonNull Element elem1 = pop(), elem0 = pop();
-		if (!(elem1 instanceof ClassElement)) {
+		if (!(elem1 instanceof ClassElement clazz)) {
 			throw new IllegalArgumentException(String.format("Keyword \"is\" requires %s element as second argument!", BuiltIn.CLASS));
 		}
 		
-		push(new BoolElement(interpreter, elem0.clazz.is(((ClassElement) elem1).internal)));
+		push(new BoolElement(interpreter, elem0.clazz.is(clazz.internal)));
 		return TokenResult.PASS;
 	}
 	
@@ -626,10 +623,10 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected @NonNull TokenResult onExec(@NonNull Token token) {
 		@NonNull Element elem = pop();
-		if (!(elem instanceof BlockElement)) {
+		if (!(elem instanceof BlockElement block)) {
 			throw new IllegalArgumentException(String.format("Keyword \"exec\" requires %s element as argument!", BuiltIn.BLOCK));
 		}
-		return ((BlockElement) elem).invoke(this);
+		return block.invoke(this);
 	}
 	
 	protected @NonNull TokenResult onIf(@NonNull Token token) {
@@ -638,11 +635,11 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		if (boolElem == null) {
 			throw new IllegalArgumentException(String.format("Keyword \"if\" requires %s element as first argument!", BuiltIn.BOOL));
 		}
-		if (!(elem1 instanceof BlockElement)) {
+		if (!(elem1 instanceof BlockElement block)) {
 			throw new IllegalArgumentException(String.format("Keyword \"if\" requires %s element as second argument!", BuiltIn.BLOCK));
 		}
 		
-		return boolElem.primitiveBool() ? ((BlockElement) elem1).invoke(this) : TokenResult.PASS;
+		return boolElem.primitiveBool() ? block.invoke(this) : TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onIfelse(@NonNull Token token) {
@@ -651,23 +648,22 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		if (boolElem == null) {
 			throw new IllegalArgumentException(String.format("Keyword \"ifelse\" requires %s element as first argument!", BuiltIn.BOOL));
 		}
-		if (!(elem1 instanceof BlockElement)) {
+		if (!(elem1 instanceof BlockElement ifBlock)) {
 			throw new IllegalArgumentException(String.format("Keyword \"ifelse\" requires %s element as second argument!", BuiltIn.BLOCK));
 		}
-		else if (!(elem2 instanceof BlockElement)) {
+		if (!(elem2 instanceof BlockElement elseBlock)) {
 			throw new IllegalArgumentException(String.format("Keyword \"ifelse\" requires %s element as third argument!", BuiltIn.BLOCK));
 		}
 		
-		return ((BlockElement) (boolElem.primitiveBool() ? elem1 : elem2)).invoke(this);
+		return (boolElem.primitiveBool() ? ifBlock : elseBlock).invoke(this);
 	}
 	
 	protected @NonNull TokenResult onLoop(@NonNull Token token) {
 		@NonNull Element elem = pop();
-		if (!(elem instanceof BlockElement)) {
+		if (!(elem instanceof BlockElement block)) {
 			throw new IllegalArgumentException(String.format("Keyword \"loop\" requires %s element as argument!", BuiltIn.BLOCK));
 		}
 		
-		BlockElement block = (BlockElement) elem;
 		loop: while (true) {
 			TokenResult invokeResult = block.invoke(this);
 			switch (invokeResult) {
@@ -695,11 +691,10 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		if (primitiveInt < 0) {
 			throw new IllegalArgumentException(String.format("Keyword \"repeat\" requires %s element as first argument!", Helpers.NON_NEGATIVE_INT));
 		}
-		if (!(elem1 instanceof BlockElement)) {
+		if (!(elem1 instanceof BlockElement block)) {
 			throw new IllegalArgumentException(String.format("Keyword \"repeat\" requires %s element as second argument!", BuiltIn.BLOCK));
 		}
 		
-		BlockElement block = (BlockElement) elem1;
 		loop: for (int i = 0; i < primitiveInt; ++i) {
 			TokenResult invokeResult = block.invoke(this);
 			switch (invokeResult) {
@@ -723,11 +718,10 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		if (iterable == null) {
 			throw new IllegalArgumentException(String.format("Keyword \"foreach\" requires %s element as first argument!", BuiltIn.ITERABLE));
 		}
-		if (!(elem1 instanceof BlockElement)) {
+		if (!(elem1 instanceof BlockElement block)) {
 			throw new IllegalArgumentException(String.format("Keyword \"foreach\" requires %s element as second argument!", BuiltIn.BLOCK));
 		}
 		
-		BlockElement block = (BlockElement) elem1;
 		loop: for (@NonNull Element e : iterable) {
 			push(e);
 			TokenResult invokeResult = block.invoke(this);
@@ -765,11 +759,10 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected @NonNull TokenResult onIncrement(@NonNull Token token) {
 		@NonNull Element elem = peek();
-		if (!(elem instanceof LabelElement)) {
+		if (!(elem instanceof LabelElement label)) {
 			throw new IllegalArgumentException(String.format("Increment operator \"++\" requires %s element as argument!", BuiltIn.LABEL));
 		}
 		
-		LabelElement label = (LabelElement) elem;
 		Def def = label.getDef();
 		if (def == null) {
 			throw Helpers.variableError(label.fullIdentifier);
@@ -780,11 +773,10 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected @NonNull TokenResult onDecrement(@NonNull Token token) {
 		@NonNull Element elem = peek();
-		if (!(elem instanceof LabelElement)) {
+		if (!(elem instanceof LabelElement label)) {
 			throw new IllegalArgumentException(String.format("Decrement operator \"--\" requires %s element as argument!", BuiltIn.LABEL));
 		}
 		
-		LabelElement label = (LabelElement) elem;
 		Def def = label.getDef();
 		if (def == null) {
 			throw Helpers.variableError(label.fullIdentifier);
@@ -1023,8 +1015,8 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		// checkKeyword(member, "a member identifier");
 		
 		@NonNull Element elem = pop();
-		if (elem instanceof LabelElement) {
-			push(((LabelElement) elem).extended(member));
+		if (elem instanceof LabelElement label) {
+			push(label.extended(member));
 			return TokenResult.PASS;
 		}
 		
@@ -1059,11 +1051,10 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 			}
 		}
 		else {
-			if (!(elem0 instanceof LabelElement)) {
+			if (!(elem0 instanceof LabelElement label)) {
 				throw new IllegalArgumentException(String.format("%s requires %s element as first argument!", type.labelErrorPrefix(), BuiltIn.LABEL));
 			}
 			
-			LabelElement label = (LabelElement) elem0;
 			boolean def = type.equals(AssignmentType.DEF);
 			if (!def && label.getDef() == null) {
 				throw Helpers.variableError(label.fullIdentifier);
@@ -1111,11 +1102,10 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	
 	protected AssignmentOpPair assignmentOpElems(@NonNull Token token) {
 		@NonNull Element elem1 = pop(), elem0 = peek();
-		if (!(elem0 instanceof LabelElement)) {
+		if (!(elem0 instanceof LabelElement label)) {
 			throw new IllegalArgumentException(String.format("Assignment operator \"%s\" requires %s element as first argument!", token.getText(), BuiltIn.LABEL));
 		}
 		
-		LabelElement label = (LabelElement) elem0;
 		Def def = label.getDef();
 		if (def == null) {
 			throw Helpers.variableError(label.fullIdentifier);

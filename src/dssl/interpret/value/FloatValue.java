@@ -51,8 +51,7 @@ public class FloatValue extends PrimitiveValue<@NonNull Double> {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof FloatValue) {
-			FloatValue other = (FloatValue) obj;
+		if (obj instanceof FloatValue other) {
 			return raw.equals(other.raw);
 		}
 		return false;

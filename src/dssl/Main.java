@@ -76,8 +76,8 @@ public class Main {
 						throw Helpers.panic(e);
 					}
 				}
-				else if (elem instanceof ModuleElement) {
-					exec.putAll(((ModuleElement) elem).internal, true, true);
+				else if (elem instanceof ModuleElement module) {
+					exec.putAll(module.internal, true, true);
 					return TokenResult.PASS;
 				}
 				else {
@@ -88,11 +88,10 @@ public class Main {
 			@Override
 			public @NonNull TokenResult onImport(TokenExecutor exec) {
 				@NonNull Element elem1 = exec.pop(), elem0 = exec.pop();
-				if (!(elem0 instanceof LabelElement)) {
+				if (!(elem0 instanceof LabelElement label)) {
 					throw new IllegalArgumentException(String.format("Keyword \"import\" requires %s element as first argument!", BuiltIn.LABEL));
 				}
 				
-				LabelElement label = (LabelElement) elem0;
 				StringElement stringElem = elem1.asString(exec);
 				if (stringElem != null) {
 					try (FileReader fileReader = new FileReader(stringElem.toString(exec)); PushbackReader pushbackReader = Helpers.getPushbackReader(fileReader)) {
@@ -104,8 +103,8 @@ public class Main {
 						throw Helpers.panic(e);
 					}
 				}
-				else if (elem1 instanceof ModuleElement) {
-					label.setClazz(ClazzType.INTERNAL, ((ModuleElement) elem1).internal, new ArrayList<>());
+				else if (elem1 instanceof ModuleElement module) {
+					label.setClazz(ClazzType.INTERNAL, module.internal, new ArrayList<>());
 					return TokenResult.PASS;
 				}
 				else {

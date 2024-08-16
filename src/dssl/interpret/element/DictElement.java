@@ -122,10 +122,10 @@ public class DictElement extends Element {
 	
 	@Override
 	public void putAll(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof DictElement)) {
+		if (!(elem instanceof DictElement dict)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"putAll\" requires %s element as argument!", BuiltIn.DICT));
 		}
-		value.putAll(((DictElement) elem).value);
+		value.putAll(dict.value);
 	}
 	
 	@Override
@@ -216,8 +216,8 @@ public class DictElement extends Element {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof DictElement) {
-			return value.equals(((DictElement) obj).value);
+		if (obj instanceof DictElement other) {
+			return value.equals(other.value);
 		}
 		return false;
 	}

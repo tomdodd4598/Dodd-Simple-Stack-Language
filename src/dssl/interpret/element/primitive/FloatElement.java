@@ -45,8 +45,7 @@ public class FloatElement extends PrimitiveElement<@NonNull Double, @NonNull Flo
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof FloatElement) {
-			FloatElement other = (FloatElement) obj;
+		if (obj instanceof FloatElement other) {
 			return value.equals(other.value);
 		}
 		return false;

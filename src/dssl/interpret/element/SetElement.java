@@ -180,8 +180,8 @@ public class SetElement extends Element {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof SetElement) {
-			return value.equals(((SetElement) obj).value);
+		if (obj instanceof SetElement other) {
+			return value.equals(other.value);
 		}
 		return false;
 	}

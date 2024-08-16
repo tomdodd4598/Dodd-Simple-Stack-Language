@@ -50,8 +50,7 @@ public class IntValue extends PrimitiveValue<@NonNull BigInteger> {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof IntValue) {
-			IntValue other = (IntValue) obj;
+		if (obj instanceof IntValue other) {
 			return raw.equals(other.raw);
 		}
 		return false;

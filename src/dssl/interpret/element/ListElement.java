@@ -265,11 +265,10 @@ public class ListElement extends Element {
 	
 	@Override
 	public void sortBy(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof BlockElement)) {
+		if (!(elem instanceof BlockElement block)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"sortBy\" requires \"%s %s -> %s\" %s element as argument!", BuiltIn.OBJECT, BuiltIn.OBJECT, BuiltIn.INT, BuiltIn.BLOCK));
 		}
 		
-		BlockElement block = (BlockElement) elem;
 		Collections.sort(value, (x, y) -> {
 			exec.push(x);
 			exec.push(y);
@@ -330,8 +329,8 @@ public class ListElement extends Element {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof ListElement) {
-			return value.equals(((ListElement) obj).value);
+		if (obj instanceof ListElement other) {
+			return value.equals(other.value);
 		}
 		return false;
 	}

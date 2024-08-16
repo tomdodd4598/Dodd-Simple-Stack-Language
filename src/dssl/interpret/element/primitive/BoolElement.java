@@ -41,8 +41,7 @@ public class BoolElement extends PrimitiveElement<@NonNull Boolean, @NonNull Boo
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof BoolElement) {
-			BoolElement other = (BoolElement) obj;
+		if (obj instanceof BoolElement other) {
 			return value.equals(other.value);
 		}
 		return false;

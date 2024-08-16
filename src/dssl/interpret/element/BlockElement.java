@@ -43,8 +43,7 @@ public class BlockElement extends Element implements Invokable {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof BlockElement) {
-			BlockElement other = (BlockElement) obj;
+		if (obj instanceof BlockElement other) {
 			return tokens.equals(other.tokens);
 		}
 		return false;

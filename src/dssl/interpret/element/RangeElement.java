@@ -254,8 +254,7 @@ public class RangeElement extends Element {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof RangeElement) {
-			RangeElement other = (RangeElement) obj;
+		if (obj instanceof RangeElement other) {
 			return start == other.start && stop == other.stop && step == other.step;
 		}
 		return false;

@@ -26,11 +26,11 @@ public class ElementKey {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Element) {
-			return elem.dynEqualTo(exec, (Element) obj);
+		if (obj instanceof Element other) {
+			return elem.dynEqualTo(exec, other);
 		}
-		else if (obj instanceof ElementKey) {
-			return elem.dynEqualTo(exec, ((ElementKey) obj).elem);
+		else if (obj instanceof ElementKey key) {
+			return elem.dynEqualTo(exec, key.elem);
 		}
 		else {
 			return false;

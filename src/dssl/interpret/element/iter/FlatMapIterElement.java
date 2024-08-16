@@ -35,10 +35,10 @@ public class FlatMapIterElement extends IterElement {
 				invokable.invoke(exec);
 				
 				@NonNull Element result = exec.pop();
-				if (!(result instanceof IterElement)) {
+				if (!(result instanceof IterElement iter)) {
 					throw new IllegalArgumentException(String.format("Built-in method \"flatMap\" requires \"%s -> %s\" %s element as argument!", BuiltIn.OBJECT, BuiltIn.ITER, BuiltIn.BLOCK));
 				}
-				current = (IterElement) result;
+				current = iter;
 			}
 			else {
 				end = true;

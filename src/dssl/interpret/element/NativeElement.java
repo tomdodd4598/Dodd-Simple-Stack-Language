@@ -19,8 +19,8 @@ public class NativeElement extends Element {
 	
 	@Override
 	public @NonNull Element clone() {
-		if (value instanceof Serializable) {
-			return new NativeElement(interpreter, SerializationUtils.clone((Serializable) value));
+		if (value instanceof Serializable serializable) {
+			return new NativeElement(interpreter, SerializationUtils.clone(serializable));
 		}
 		else {
 			throw new IllegalArgumentException(String.format("Non-serializable %s element can not be cloned!", BuiltIn.NATIVE));
@@ -34,8 +34,7 @@ public class NativeElement extends Element {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof NativeElement) {
-			NativeElement other = (NativeElement) obj;
+		if (obj instanceof NativeElement other) {
 			return value.equals(other.value);
 		}
 		return false;

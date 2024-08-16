@@ -46,8 +46,7 @@ public class CharElement extends PrimitiveElement<@NonNull Character, @NonNull C
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof CharElement) {
-			CharElement other = (CharElement) obj;
+		if (obj instanceof CharElement other) {
 			return value.equals(other.value);
 		}
 		return false;

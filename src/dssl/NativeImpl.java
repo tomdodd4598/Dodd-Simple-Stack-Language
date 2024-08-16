@@ -121,8 +121,8 @@ public class NativeImpl {
 				
 				if (args != null) {
 					Object result;
-					if (executable instanceof Method) {
-						result = ((Method) executable).invoke(instance, args);
+					if (executable instanceof Method method) {
+						result = method.invoke(instance, args);
 					}
 					else {
 						result = ((Constructor<?>) executable).newInstance(args);
@@ -188,10 +188,9 @@ public class NativeImpl {
 		if (elem.interpreter.builtIn.nullElement.equals(elem)) {
 			return null;
 		}
-		else if (type instanceof Class) {
-			Class<?> clazz = (Class<?>) type;
-			if (elem instanceof IntElement) {
-				BigInteger val = ((IntElement) elem).value.raw;
+		else if (type instanceof Class<?> clazz) {
+			if (elem instanceof IntElement intElem) {
+				BigInteger val = intElem.value.raw;
 				long longVal;
 				int intVal;
 				short shortVal;
@@ -212,14 +211,14 @@ public class NativeImpl {
 					return byteVal;
 				}
 			}
-			else if (elem instanceof BoolElement) {
-				boolean val = ((BoolElement) elem).value.raw;
+			else if (elem instanceof BoolElement boolElem) {
+				boolean val = boolElem.value.raw;
 				if (clazz.isInstance(val) || clazz.equals(boolean.class)) {
 					return val;
 				}
 			}
-			else if (elem instanceof FloatElement) {
-				double val = ((FloatElement) elem).value.raw;
+			else if (elem instanceof FloatElement floatElem) {
+				double val = floatElem.value.raw;
 				float floatVal;
 				if (clazz.isInstance(val) || clazz.equals(double.class)) {
 					return val;
@@ -228,14 +227,14 @@ public class NativeImpl {
 					return floatVal;
 				}
 			}
-			else if (elem instanceof CharElement) {
-				char val = ((CharElement) elem).value.raw;
+			else if (elem instanceof CharElement charElem) {
+				char val = charElem.value.raw;
 				if (clazz.isInstance(val) || clazz.equals(char.class)) {
 					return val;
 				}
 			}
-			else if (elem instanceof StringElement) {
-				String val = ((StringElement) elem).value.raw;
+			else if (elem instanceof StringElement stringElem) {
+				String val = stringElem.value.raw;
 				if (clazz.isInstance(val)) {
 					return val;
 				}
@@ -255,31 +254,31 @@ public class NativeImpl {
 				return mapNativize(elem, Object.class, Object.class);
 			}
 		}
-		else if (type instanceof GenericArrayType) {
+		else if (type instanceof GenericArrayType g) {
 			if (elem instanceof ListElement) {
-				Type t = ((GenericArrayType) type).getGenericComponentType();
-				return arrayNativize(elem, t instanceof ParameterizedType ? ((ParameterizedType) t).getRawType() : Object.class);
+				Type t = g.getGenericComponentType();
+				return arrayNativize(elem, t instanceof ParameterizedType p ? p.getRawType() : Object.class);
 			}
 		}
-		else if (type instanceof ParameterizedType) {
-			return nativize(elem, ((ParameterizedType) type).getRawType());
+		else if (type instanceof ParameterizedType p) {
+			return nativize(elem, p.getRawType());
 		}
 		else if (type instanceof WildcardType) {
 			return nativize(elem, Object.class);
 		}
 		
-		return elem instanceof NativeElement ? ((NativeElement) elem).value : null;
+		return elem instanceof NativeElement nativeElem ? nativeElem.value : null;
 	}
 	
 	static Class<?> rawType(Type type) {
-		if (type instanceof Class) {
-			return (Class<?>) type;
+		if (type instanceof Class<?> clazz) {
+			return clazz;
 		}
-		else if (type instanceof GenericArrayType) {
-			return newArray(((GenericArrayType) type).getGenericComponentType()).getClass();
+		else if (type instanceof GenericArrayType g) {
+			return newArray(g.getGenericComponentType()).getClass();
 		}
-		else if (type instanceof ParameterizedType) {
-			return rawType(((ParameterizedType) type).getRawType());
+		else if (type instanceof ParameterizedType p) {
+			return rawType(p.getRawType());
 		}
 		else {
 			return Object.class;
@@ -403,47 +402,47 @@ public class NativeImpl {
 		if (obj == null) {
 			return exec.interpreter.builtIn.nullElement;
 		}
-		else if (obj instanceof Byte) {
-			return new IntElement(exec.interpreter, (Byte) obj);
+		else if (obj instanceof Byte x) {
+			return new IntElement(exec.interpreter, x);
 		}
-		else if (obj instanceof Short) {
-			return new IntElement(exec.interpreter, (Short) obj);
+		else if (obj instanceof Short x) {
+			return new IntElement(exec.interpreter, x);
 		}
-		else if (obj instanceof Integer) {
-			return new IntElement(exec.interpreter, (Integer) obj);
+		else if (obj instanceof Integer x) {
+			return new IntElement(exec.interpreter, x);
 		}
-		else if (obj instanceof Long) {
-			return new IntElement(exec.interpreter, (Long) obj);
+		else if (obj instanceof Long x) {
+			return new IntElement(exec.interpreter, x);
 		}
-		else if (obj instanceof BigInteger) {
-			return new IntElement(exec.interpreter, (BigInteger) obj);
+		else if (obj instanceof BigInteger x) {
+			return new IntElement(exec.interpreter, x);
 		}
-		else if (obj instanceof Boolean) {
-			return new BoolElement(exec.interpreter, (Boolean) obj);
+		else if (obj instanceof Boolean x) {
+			return new BoolElement(exec.interpreter, x);
 		}
-		else if (obj instanceof Float) {
-			return new FloatElement(exec.interpreter, ((Float) obj).doubleValue());
+		else if (obj instanceof Float x) {
+			return new FloatElement(exec.interpreter, x.doubleValue());
 		}
-		else if (obj instanceof Double) {
-			return new FloatElement(exec.interpreter, (Double) obj);
+		else if (obj instanceof Double x) {
+			return new FloatElement(exec.interpreter, x);
 		}
-		else if (obj instanceof Character) {
-			return new CharElement(exec.interpreter, (Character) obj);
+		else if (obj instanceof Character x) {
+			return new CharElement(exec.interpreter, x);
 		}
-		else if (obj instanceof String) {
-			return new StringElement(exec.interpreter, (String) obj);
+		else if (obj instanceof String x) {
+			return new StringElement(exec.interpreter, x);
 		}
-		else if (obj instanceof List) {
-			return new ListElement(exec.interpreter, ((List<?>) obj).stream().map(x -> convert(exec, x)));
+		else if (obj instanceof List<?> list) {
+			return new ListElement(exec.interpreter, list.stream().map(x -> convert(exec, x)));
 		}
 		else if (obj.getClass().isArray()) {
 			return new ListElement(exec.interpreter, IntStream.range(0, Array.getLength(obj)).mapToObj(x -> NativeImpl.convert(exec, Array.get(obj, x))));
 		}
-		else if (obj instanceof Set) {
-			return new SetElement(exec.interpreter, Helpers.map((Set<?>) obj, x -> convert(exec, x).toKey(exec)));
+		else if (obj instanceof Set<?> set) {
+			return new SetElement(exec.interpreter, Helpers.map(set, x -> convert(exec, x).toKey(exec)));
 		}
-		else if (obj instanceof Map) {
-			return new DictElement(exec.interpreter, Helpers.map((Map<?, ?>) obj, x -> convert(exec, x).toKey(exec), x -> convert(exec, x)));
+		else if (obj instanceof Map<?, ?> map) {
+			return new DictElement(exec.interpreter, Helpers.map(map, x -> convert(exec, x).toKey(exec), x -> convert(exec, x)));
 		}
 		else {
 			return new NativeElement(exec.interpreter, obj);

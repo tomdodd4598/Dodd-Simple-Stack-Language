@@ -66,8 +66,7 @@ public class StringValue extends PrimitiveValue<@NonNull String> {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof StringValue) {
-			StringValue other = (StringValue) obj;
+		if (obj instanceof StringValue other) {
 			return raw.equals(other.raw);
 		}
 		return false;

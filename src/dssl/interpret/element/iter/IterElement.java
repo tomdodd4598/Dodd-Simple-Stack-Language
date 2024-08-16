@@ -40,10 +40,10 @@ public abstract class IterElement extends Element {
 		StringBuilder sb = new StringBuilder();
 		while (iter.hasNext()) {
 			@NonNull Element elem = iter.next();
-			if (!(elem instanceof CharElement)) {
+			if (!(elem instanceof CharElement charElem)) {
 				throw new IllegalArgumentException(String.format("Built-in method \"collectString\" requires \"() -> %s\" %s element as argument!", BuiltIn.CHAR, BuiltIn.ITER));
 			}
-			sb.append(((CharElement) elem).primitiveChar());
+			sb.append(charElem.primitiveChar());
 		}
 		return new StringElement(interpreter, sb.toString());
 	}
@@ -80,42 +80,42 @@ public abstract class IterElement extends Element {
 	
 	@Override
 	public @NonNull Element chain(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof IterElement)) {
+		if (!(elem instanceof IterElement iter)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"chain\" requires %s element as argument!", BuiltIn.ITER));
 		}
-		return new ChainIterElement(interpreter, this, (IterElement) elem);
+		return new ChainIterElement(interpreter, this, iter);
 	}
 	
 	@Override
 	public @NonNull Element zip(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof IterElement)) {
+		if (!(elem instanceof IterElement iter)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"zip\" requires %s element as argument!", BuiltIn.ITER));
 		}
-		return new ZipIterElement(interpreter, this, (IterElement) elem);
+		return new ZipIterElement(interpreter, this, iter);
 	}
 	
 	@Override
 	public @NonNull Element map(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof BlockElement)) {
+		if (!(elem instanceof BlockElement block)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"map\" requires %s element as argument!", BuiltIn.BLOCK));
 		}
-		return new MapIterElement(interpreter, this, (BlockElement) elem);
+		return new MapIterElement(interpreter, this, block);
 	}
 	
 	@Override
 	public @NonNull Element filter(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof BlockElement)) {
+		if (!(elem instanceof BlockElement block)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"filter\" requires %s element as argument!", BuiltIn.BLOCK));
 		}
-		return new FilterIterElement(interpreter, this, (BlockElement) elem);
+		return new FilterIterElement(interpreter, this, block);
 	}
 	
 	@Override
 	public @NonNull Element filterMap(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof BlockElement)) {
+		if (!(elem instanceof BlockElement block)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"filterMap\" requires %s element as argument!", BuiltIn.BLOCK));
 		}
-		return new FilterMapIterElement(interpreter, this, (BlockElement) elem);
+		return new FilterMapIterElement(interpreter, this, block);
 	}
 	
 	@Override
@@ -125,18 +125,18 @@ public abstract class IterElement extends Element {
 	
 	@Override
 	public @NonNull Element takeWhile(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof BlockElement)) {
+		if (!(elem instanceof BlockElement block)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"takeWhile\" requires %s element as argument!", BuiltIn.BLOCK));
 		}
-		return new TakeWhileIterElement(interpreter, this, (BlockElement) elem);
+		return new TakeWhileIterElement(interpreter, this, block);
 	}
 	
 	@Override
 	public @NonNull Element mapWhile(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof BlockElement)) {
+		if (!(elem instanceof BlockElement block)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"mapWhile\" requires %s element as argument!", BuiltIn.BLOCK));
 		}
-		return new MapWhileIterElement(interpreter, this, (BlockElement) elem);
+		return new MapWhileIterElement(interpreter, this, block);
 	}
 	
 	@Override
@@ -156,10 +156,10 @@ public abstract class IterElement extends Element {
 	
 	@Override
 	public @NonNull Element flatMap(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof BlockElement)) {
+		if (!(elem instanceof BlockElement block)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"flatMap\" requires %s element as argument!", BuiltIn.BLOCK));
 		}
-		return new FlatMapIterElement(interpreter, this, (BlockElement) elem);
+		return new FlatMapIterElement(interpreter, this, block);
 	}
 	
 	@Override
@@ -180,11 +180,10 @@ public abstract class IterElement extends Element {
 	
 	@Override
 	public void forEach(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof BlockElement)) {
+		if (!(elem instanceof BlockElement block)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"forEach\" requires %s element as argument!", BuiltIn.BLOCK));
 		}
 		
-		BlockElement block = (BlockElement) elem;
 		internalIterator(exec).forEachRemaining(x -> {
 			exec.push(x);
 			block.invoke(exec);

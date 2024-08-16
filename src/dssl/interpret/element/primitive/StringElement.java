@@ -172,33 +172,33 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	
 	@Override
 	public @NonNull Element matches(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof StringElement)) {
+		if (!(elem instanceof StringElement stringElem)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"matches\" requires %s element as argument!", BuiltIn.STRING));
 		}
-		return new BoolElement(interpreter, value.raw.matches(((StringElement) elem).value.raw));
+		return new BoolElement(interpreter, value.raw.matches(stringElem.value.raw));
 	}
 	
 	@SuppressWarnings("null")
 	@Override
 	public @NonNull Element replace(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
-		if (!(elem0 instanceof StringElement)) {
+		if (!(elem0 instanceof StringElement stringElem0)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"replace\" requires %s element as first argument!", BuiltIn.STRING));
 		}
 		
-		if (!(elem1 instanceof StringElement)) {
+		if (!(elem1 instanceof StringElement stringElem1)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"replace\" requires %s element as second argument!", BuiltIn.STRING));
 		}
 		
-		return new StringElement(interpreter, value.raw.replaceAll(((StringElement) elem0).value.raw, ((StringElement) elem1).value.raw));
+		return new StringElement(interpreter, value.raw.replaceAll(stringElem0.value.raw, stringElem1.value.raw));
 	}
 	
 	@SuppressWarnings("null")
 	@Override
 	public @NonNull Element split(TokenExecutor exec, @NonNull Element elem) {
-		if (!(elem instanceof StringElement)) {
+		if (!(elem instanceof StringElement stringElem)) {
 			throw new IllegalArgumentException(String.format("Built-in method \"split\" requires %s element as argument!", BuiltIn.STRING));
 		}
-		return new ListElement(interpreter, Arrays.stream(value.raw.split(((StringElement) elem).value.raw, -1)).map(x -> new StringElement(interpreter, x)));
+		return new ListElement(interpreter, Arrays.stream(value.raw.split(stringElem.value.raw, -1)).map(x -> new StringElement(interpreter, x)));
 	}
 	
 	@Override
@@ -254,8 +254,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof StringElement) {
-			StringElement other = (StringElement) obj;
+		if (obj instanceof StringElement other) {
 			return value.equals(other.value);
 		}
 		return false;

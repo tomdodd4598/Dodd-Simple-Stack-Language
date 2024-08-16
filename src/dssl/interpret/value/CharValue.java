@@ -50,8 +50,7 @@ public class CharValue extends PrimitiveValue<@NonNull Character> {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof CharValue) {
-			CharValue other = (CharValue) obj;
+		if (obj instanceof CharValue other) {
 			return raw.equals(other.raw);
 		}
 		return false;

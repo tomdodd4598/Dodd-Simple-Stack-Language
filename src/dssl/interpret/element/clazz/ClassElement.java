@@ -38,8 +38,7 @@ public class ClassElement extends Element {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof ClassElement) {
-			ClassElement other = (ClassElement) obj;
+		if (obj instanceof ClassElement other) {
 			return internal.equals(other.internal);
 		}
 		return false;

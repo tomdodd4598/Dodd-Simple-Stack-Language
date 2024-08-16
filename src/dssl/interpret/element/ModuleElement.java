@@ -36,8 +36,7 @@ public class ModuleElement extends Element {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof ModuleElement) {
-			ModuleElement other = (ModuleElement) obj;
+		if (obj instanceof ModuleElement other) {
 			return internal.equals(other.internal);
 		}
 		return false;

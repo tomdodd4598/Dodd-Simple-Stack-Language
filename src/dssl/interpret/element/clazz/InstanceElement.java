@@ -145,8 +145,7 @@ public class InstanceElement extends Element implements Scope {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof InstanceElement) {
-			InstanceElement other = (InstanceElement) obj;
+		if (obj instanceof InstanceElement other) {
 			return clazz.equals(other.clazz) && defMap.equals(other.defMap) && macroMap.equals(other.macroMap) && clazzMap.equals(other.clazzMap);
 		}
 		return false;

@@ -51,8 +51,7 @@ public class IntElement extends PrimitiveElement<@NonNull BigInteger, @NonNull I
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof IntElement) {
-			IntElement other = (IntElement) obj;
+		if (obj instanceof IntElement other) {
 			return value.equals(other.value);
 		}
 		return false;

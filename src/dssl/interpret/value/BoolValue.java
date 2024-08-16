@@ -50,8 +50,7 @@ public class BoolValue extends PrimitiveValue<@NonNull Boolean> {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof BoolValue) {
-			BoolValue other = (BoolValue) obj;
+		if (obj instanceof BoolValue other) {
 			return raw.equals(other.raw);
 		}
 		return false;

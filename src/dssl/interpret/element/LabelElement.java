@@ -123,8 +123,7 @@ public class LabelElement extends Element {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof LabelElement) {
-			LabelElement other = (LabelElement) obj;
+		if (obj instanceof LabelElement other) {
 			return scope.equals(other.scope) && fullIdentifier.equals(other.fullIdentifier) && shallowIdentifier.equals(other.shallowIdentifier);
 		}
 		return false;
