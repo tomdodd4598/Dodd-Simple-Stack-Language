@@ -65,7 +65,7 @@ public class RangeElement extends Element {
 		this.stop = stop;
 		this.step = step;
 		
-		size = diff.divide(step).longValueExact();
+		size = diff.abs().subtract(BigInteger.ONE).divide(step.abs()).add(BigInteger.ONE).longValueExact();
 	}
 	
 	public RangeElement(Interpreter interpreter, @NonNull BigInteger start, @NonNull BigInteger stop, @NonNull BigInteger step, long size) {
