@@ -105,8 +105,8 @@ public class BuiltIn {
 		nativeClazz = clazz(new Clazz(interpreter, NATIVE, ClazzType.INTERNAL));
 		nullClazz = clazz(new Clazz(interpreter, NULL, ClazzType.INTERNAL));
 		
-		primitiveClazz = clazz(new Clazz(interpreter, MODULE, ClazzType.INTERNAL));
-		iterableClazz = clazz(new Clazz(interpreter, MODULE, ClazzType.INTERNAL));
+		primitiveClazz = clazz(new Clazz(interpreter, PRIMITIVE, ClazzType.INTERNAL));
+		iterableClazz = clazz(new Clazz(interpreter, ITERABLE, ClazzType.INTERNAL));
 		
 		intClazz = clazz(new Clazz(interpreter, INT, ClazzType.FINAL, primitiveClazz) {
 			
