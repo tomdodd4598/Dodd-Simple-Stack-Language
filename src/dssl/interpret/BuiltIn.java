@@ -1000,6 +1000,7 @@ public class BuiltIn {
 		KEYWORDS.add("dup");
 		
 		KEYWORDS.add("stacksize");
+		KEYWORDS.add("stackindex");
 		
 		KEYWORDS.add("read");
 		KEYWORDS.add("print");

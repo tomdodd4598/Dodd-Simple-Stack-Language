@@ -35,7 +35,7 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 	
 	@Override
 	public @NonNull TokenResult onConcat(TokenExecutor exec, @NonNull Element other) {
-		exec.push(new StringElement(interpreter, toString(exec) + other.stringCast(exec)));
+		exec.push(new StringElement(interpreter, toString(exec) + other.stringCast(exec).toString(exec)));
 		return TokenResult.PASS;
 	}
 	
