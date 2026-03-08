@@ -11,7 +11,7 @@ import dssl.interpret.*;
 import dssl.interpret.element.*;
 import dssl.interpret.element.primitive.StringElement;
 import dssl.lexer.Lexer;
-import dssl.node.*;
+import dssl.node.Token;
 
 public class Main {
 	
@@ -35,6 +35,7 @@ public class Main {
 		final boolean console = input.args.isEmpty();
 		final boolean debug = input.options.contains("d");
 		final boolean natives = input.options.contains("n");
+		final Path rootPath = (console ? Paths.get("").resolve(".console.dssl") : Paths.get(input.args.get(0))).toAbsolutePath().normalize();
 		
 		if (console) {
 			System.out.println("INFO: Console mode was enabled!");
@@ -148,57 +149,56 @@ public class Main {
 			
 			@Override
 			public Path getRootPath(TokenExecutor exec) {
-				return Paths.get(input.args.get(0));
+				return rootPath;
 			}
 		};
 		
 		if (console) {
-			TokenIterator consoleIterator = new TokenIterator() {
-				
-				protected Lexer lexer = Helpers.stringLexer("");
-				
-				@Override
-				public @NonNull Token next() {
-					@NonNull Token next = super.next();
-					if (debug && !Helpers.isSeparator(next)) {
-						hooks.print("::: ");
-					}
-					return next;
+			Interpreter interpreter = new Interpreter(input.args, new LexerIterator(""), hooks, debug);
+			while (true) {
+				String str;
+				hooks.print(">>> ");
+				if ((str = hooks.read()) == null) {
+					break;
 				}
 				
-				@Override
-				public void onStart() {
-					curr = new EOF();
-				}
-				
-				@Override
-				public boolean validNext() {
-					while (curr instanceof EOF) {
-						String str;
-						hooks.print(">>> ");
-						if ((str = hooks.read()) == null) {
-							return false;
+				try {
+					TokenIterator iterator = new LexerIterator(str) {
+						
+						@Override
+						public @NonNull Token next() {
+							@NonNull Token next = super.next();
+							if (debug && !Helpers.isSeparator(next)) {
+								hooks.print("::: ");
+							}
+							return next;
 						}
-						lexer = Helpers.stringLexer(str);
-						curr = getNextChecked();
-						requireSeparator = false;
+					};
+					
+					if (new TokenExecutor(iterator, interpreter.root, false).iterate().equals(TokenResult.QUIT)) {
+						break;
 					}
-					return true;
 				}
-				
-				@Override
-				public Token getNext() {
-					return Helpers.getLexerNext(lexer);
+				catch (Throwable e) {
+					interpreter.printList.clear();
+					
+					while (e.getCause() != null && e.getMessage() == null) {
+						e = e.getCause();
+					}
+					
+					String message = e.getMessage(), error = e.getClass().getSimpleName();
+					if (message != null && !message.isBlank()) {
+						error += ": ";
+						error += message;
+					}
+					
+					hooks.debug("ERROR: " + error + "\n");
 				}
-			};
-			
-			Interpreter interpreter = new Interpreter(input.args, hooks, consoleIterator, debug);
-			interpreter.run();
+			}
 		}
 		else {
-			try (PushbackReader reader = Helpers.getPushbackReader(new FileReader(input.args.get(0)))) {
-				Interpreter interpreter = new Interpreter(input.args, hooks, new Lexer(reader), debug);
-				interpreter.run();
+			try (PushbackReader reader = Helpers.getPushbackReader(new FileReader(rootPath.toFile()))) {
+				new Interpreter(input.args, new Lexer(reader), hooks, debug).run();
 			}
 			catch (Exception e) {
 				throw Helpers.panic(e);

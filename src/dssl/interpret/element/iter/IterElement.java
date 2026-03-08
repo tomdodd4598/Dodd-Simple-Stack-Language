@@ -19,7 +19,7 @@ public abstract class IterElement extends Element {
 	public abstract @NonNull Element next(TokenExecutor exec);
 	
 	public Iterator<@NonNull Element> internalIterator(TokenExecutor exec) {
-		return new Iterator<@NonNull Element>() {
+		return new Iterator<>() {
 			
 			@Override
 			public boolean hasNext() {

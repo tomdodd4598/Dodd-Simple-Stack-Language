@@ -12,25 +12,25 @@ public class Interpreter {
 	public final List<@NonNull String> args;
 	
 	public final BuiltIn builtIn;
-	
-	protected final TokenExecutor root;
-	protected boolean halt = false;
-	
-	protected final Deque<@NonNull Element> stack = new ArrayDeque<>();
-	protected final List<String> printList = new ArrayList<>();
+	public final TokenExecutor root;
 	
 	public final Hooks hooks;
 	public final boolean debug;
 	
-	public Interpreter(List<@NonNull String> args, Hooks hooks, Lexer lexer, boolean debug) {
-		this(args, hooks, new LexerIterator(lexer), debug);
+	protected boolean halt = false;
+	
+	public final Deque<@NonNull Element> stack = new ArrayDeque<>();
+	public final List<String> printList = new ArrayList<>();
+	
+	public Interpreter(List<@NonNull String> args, Lexer lexer, Hooks hooks, boolean debug) {
+		this(args, new LexerIterator(lexer), hooks, debug);
 	}
 	
-	public Interpreter(List<@NonNull String> args, Hooks hooks, TokenIterator iterator, boolean debug) {
+	public Interpreter(List<@NonNull String> args, TokenIterator iterator, Hooks hooks, boolean debug) {
 		this.args = args;
 		builtIn = new BuiltIn(this);
-		this.hooks = hooks;
 		root = newExecutor(iterator);
+		this.hooks = hooks;
 		this.debug = debug;
 	}
 	
