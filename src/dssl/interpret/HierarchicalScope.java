@@ -104,7 +104,6 @@ public interface HierarchicalScope extends Scope {
 		addToScopeMap(exec, getClazzHierarchy(), map);
 	}
 	
-	@SuppressWarnings("null")
 	public default void putAll(@NonNull HierarchicalScope from, boolean shadow, boolean shallow) {
 		from.getDefHierarchy().forEach((k, v) -> setDef(k, v, shadow), shallow);
 		from.getMacroHierarchy().forEach((k, v) -> setMacro(k, v, shadow), shallow);

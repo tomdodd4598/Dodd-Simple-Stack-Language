@@ -14,7 +14,6 @@ public class RangeElement extends Element {
 	protected final @NonNull BigInteger start, stop, step;
 	protected final long size;
 	
-	@SuppressWarnings("null")
 	public <T extends Element> RangeElement(TokenExecutor exec, Reverse<@NonNull T> elems) {
 		super(exec.interpreter, exec.interpreter.builtIn.rangeClazz);
 		int elemCount = elems.size();
@@ -189,7 +188,6 @@ public class RangeElement extends Element {
 		return new IntElement(interpreter, at(primitiveLong));
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull Element slice(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
 		long begin = methodLongIndex(exec, elem0, "slice", 1);
@@ -275,7 +273,6 @@ public class RangeElement extends Element {
 		return false;
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull String toString(TokenExecutor exec) {
 		return String.format("(%s, %s, %s)", start, stop, step);

@@ -53,7 +53,6 @@ public class Clazz implements HierarchicalScope {
 		return (base == null ? new Hierarchy<K, V>() : function.apply(base)).branch(Helpers.map(supers, function));
 	}
 	
-	@SuppressWarnings("null")
 	public @NonNull Element clazzElement(Interpreter interpreter) {
 		if (elem == null) {
 			elem = new ClassElement(interpreter, this);

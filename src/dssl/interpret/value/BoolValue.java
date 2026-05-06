@@ -56,7 +56,6 @@ public class BoolValue extends PrimitiveValue<@NonNull Boolean> {
 		return false;
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull String toString() {
 		return raw.toString();

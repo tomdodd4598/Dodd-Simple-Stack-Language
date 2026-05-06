@@ -28,7 +28,6 @@ public class Helpers {
 		return getThrowing(() -> new String(Files.readAllBytes(Paths.get(fileName)), Charset.defaultCharset()));
 	}
 	
-	@SuppressWarnings("null")
 	public static List<@NonNull String> readLines(@NonNull String fileName) {
 		return getThrowing(() -> Files.readAllLines(Paths.get(fileName), Charset.defaultCharset()));
 	}
@@ -92,17 +91,14 @@ public class Helpers {
 		}
 	}
 	
-	@SuppressWarnings("null")
 	public static @NonNull String normalizedPathString(Path path) {
 		return path.normalize().toString().replace('\\', '/');
 	}
 	
-	@SuppressWarnings("null")
 	public static @NonNull String lowerCase(@NonNull String str) {
 		return str.toLowerCase(Locale.ROOT);
 	}
 	
-	@SuppressWarnings("null")
 	public static @NonNull String upperCase(@NonNull String str) {
 		return str.toUpperCase(Locale.ROOT);
 	}
@@ -207,7 +203,6 @@ public class Helpers {
 		return parseString(str, 1, 1);
 	}
 	
-	@SuppressWarnings("null")
 	public static @NonNull String parseBlockString(@NonNull String str) {
 		@NonNull String[] lines = parseString(str, 3, 3).split("\\R", -1);
 		boolean[] blanks = new boolean[lines.length];

@@ -26,7 +26,6 @@ public class BlockElement extends Element implements Invokable {
 		return executor(exec).iterate();
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull Element clone() {
 		List<@NonNull Token> tokensClone = new ArrayList<>(tokens.size());

@@ -113,7 +113,6 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 		return new CharElement(interpreter, value.raw.charAt(methodIndex(exec, elem, "get")));
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull Element slice(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
 		return new StringElement(interpreter, value.raw.substring(methodIndex(exec, elem0, "slice", 1), methodIndex(exec, elem1, "slice", 2)));
@@ -178,7 +177,6 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 		return new BoolElement(interpreter, value.raw.matches(stringElem.value.raw));
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull Element replace(TokenExecutor exec, @NonNull Element elem0, @NonNull Element elem1) {
 		if (!(elem0 instanceof StringElement stringElem0)) {
@@ -192,7 +190,6 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 		return new StringElement(interpreter, value.raw.replaceAll(stringElem0.value.raw, stringElem1.value.raw));
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull Element split(TokenExecutor exec, @NonNull Element elem) {
 		if (!(elem instanceof StringElement stringElem)) {
@@ -211,13 +208,11 @@ public class StringElement extends PrimitiveElement<@NonNull String, @NonNull St
 		return new StringElement(interpreter, Helpers.upperCase(value.raw));
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull Element trim(TokenExecutor exec) {
 		return new StringElement(interpreter, value.raw.trim());
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull Element format(TokenExecutor exec, @NonNull Element elem) {
 		@Nullable Stream<@NonNull Element> stream = elem.internalStream(exec);

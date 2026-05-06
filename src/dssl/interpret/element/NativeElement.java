@@ -40,7 +40,6 @@ public class NativeElement extends Element {
 		return false;
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull String toString(TokenExecutor exec) {
 		return String.valueOf(value);

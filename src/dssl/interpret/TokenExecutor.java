@@ -974,26 +974,23 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 		return TokenResult.PASS;
 	}
 	
-	@SuppressWarnings("null")
 	protected @NonNull TokenResult onCharValue(@NonNull Token token) {
 		push(new CharElement(interpreter, Helpers.parseChar(token.getText())));
 		return TokenResult.PASS;
 	}
 	
-	@SuppressWarnings("null")
 	protected @NonNull TokenResult onBlockStringValue(@NonNull Token token) {
 		push(new StringElement(interpreter, Helpers.parseBlockString(token.getText())));
 		return TokenResult.PASS;
 	}
 	
-	@SuppressWarnings("null")
 	protected @NonNull TokenResult onLineStringValue(@NonNull Token token) {
 		push(new StringElement(interpreter, Helpers.parseLineString(token.getText())));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onIdentifier(@NonNull Token token) {
-		@SuppressWarnings("null") @NonNull String identifier = token.getText();
+		@NonNull String identifier = token.getText();
 		checkKeyword(identifier, "an identifier");
 		
 		TokenResult result = scopeAction(this, identifier);
@@ -1004,14 +1001,14 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	protected @NonNull TokenResult onLabel(@NonNull Token token) {
-		@SuppressWarnings("null") @NonNull String identifier = token.getText().substring(1);
+		@NonNull String identifier = token.getText().substring(1);
 		checkKeyword(identifier, "a label identifier");
 		push(new LabelElement(interpreter, this, identifier));
 		return TokenResult.PASS;
 	}
 	
 	protected @NonNull TokenResult onMember(@NonNull Token token) {
-		@SuppressWarnings("null") @NonNull String member = token.getText().substring(1);
+		@NonNull String member = token.getText().substring(1);
 		// checkKeyword(member, "a member identifier");
 		
 		@NonNull Element elem = pop();
@@ -1028,7 +1025,7 @@ public class TokenExecutor extends TokenReader implements HierarchicalScope {
 	}
 	
 	protected @NonNull TokenResult onModule(@NonNull Token token) {
-		@SuppressWarnings("null") @NonNull String identifier = token.getText().substring(1);
+		@NonNull String identifier = token.getText().substring(1);
 		// checkKeyword(identifier, "a module identifier");
 		push(new ModuleElement(interpreter, identifier));
 		return TokenResult.PASS;

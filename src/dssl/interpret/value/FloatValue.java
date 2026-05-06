@@ -57,7 +57,6 @@ public class FloatValue extends PrimitiveValue<@NonNull Double> {
 		return false;
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull String toString() {
 		return raw.toString();

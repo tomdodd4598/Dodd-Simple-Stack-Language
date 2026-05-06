@@ -27,7 +27,6 @@ public class BlockToken extends Token {
 		}
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public Object clone() {
 		List<@NonNull Token> tokensClone = new ArrayList<>();

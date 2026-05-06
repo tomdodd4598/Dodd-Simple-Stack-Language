@@ -56,7 +56,6 @@ public class CharValue extends PrimitiveValue<@NonNull Character> {
 		return false;
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull String toString() {
 		return raw.toString();
